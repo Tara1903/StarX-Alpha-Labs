@@ -8,68 +8,228 @@ interface NeuralMeshProps {
   scrollProgress?: number;
 }
 
+// Pure deterministic pseudo-random generator
 function pseudoRandom(seed: number): number {
   const x = Math.sin(seed * 12.9898 + 78.233) * 43758.5453;
   return x - Math.floor(x);
 }
 
+// Vertex shader for hollow triangle particles
+const triangleVertexShader = `
+  uniform float uTime;
+  uniform vec3 uRayOrigin;
+  uniform vec3 uRayDir;
+  uniform float uMouseActive;
+  uniform float uRadius;
+
+  attribute vec3 aBaseColor;
+  attribute float aSize;
+  attribute float aAngle;
+
+  varying vec3 vColor;
+  varying float vProximity;
+  varying float vAngle;
+
+  void main() {
+    vAngle = aAngle;
+    vec4 worldPos = modelMatrix * vec4(position, 1.0);
+
+    // Compute distance from 3D camera ray to particle in world space
+    float proximity = 0.0;
+    if (uMouseActive > 0.5) {
+      vec3 toPoint = worldPos.xyz - uRayOrigin;
+      float proj = dot(toPoint, uRayDir);
+      if (proj > 0.0) {
+        vec3 closestOnRay = uRayOrigin + uRayDir * proj;
+        float distToRay = length(worldPos.xyz - closestOnRay);
+        proximity = clamp(1.0 - (distToRay / uRadius), 0.0, 1.0);
+      }
+    }
+    vProximity = proximity;
+
+    // Organic micro-breathing wave
+    float wave = sin(uTime * 1.8 + position.x * 2.8 + position.y * 2.8) * 0.035;
+    vec3 animatedPos = position + (normalize(position) * wave);
+
+    // Dynamic expansion under mouse pointer
+    animatedPos += normalize(position) * (proximity * 0.22);
+
+    vec4 mvPosition = modelViewMatrix * vec4(animatedPos, 1.0);
+    gl_Position = projectionMatrix * mvPosition;
+
+    // Triangles directly under cursor turn brilliant glowing white (#FFFFFF), matching the screenshot!
+    vec3 highlightWhite = vec3(1.0, 1.0, 1.0);
+    vColor = mix(aBaseColor, highlightWhite, pow(proximity, 1.15));
+
+    // Scale up excited triangles near mouse cursor
+    float dynamicSize = aSize * (1.0 + proximity * 0.85);
+    gl_PointSize = dynamicSize * (380.0 / -mvPosition.z);
+  }
+`;
+
+// Fragment shader: renders an equilateral hollow wireframe triangle with individual rotation
+const triangleFragmentShader = `
+  varying vec3 vColor;
+  varying float vProximity;
+  varying float vAngle;
+
+  void main() {
+    // Coordinate space [-1.0, 1.0]
+    vec2 p = gl_PointCoord * 2.0 - 1.0;
+    p.y = -p.y;
+
+    // Rotate triangle to match surface facets
+    float c = cos(vAngle);
+    float s = sin(vAngle);
+    vec2 rotP = vec2(c * p.x - s * p.y, s * p.x + c * p.y);
+
+    // Equilateral triangle signed distance field
+    const float k = 1.7320508; // sqrt(3)
+    float d = max(abs(rotP.x) * k + rotP.y, -rotP.y * 2.0) - 0.85;
+
+    // Hollow border profile (wireframe outline)
+    float thickness = 0.22 + vProximity * 0.08;
+    float border = abs(d + thickness * 0.5) - thickness * 0.5;
+
+    // Antialiased border edge
+    float alpha = 1.0 - smoothstep(-0.04, 0.04, border);
+    if (alpha < 0.04) discard;
+
+    // Extra radiant bloom for white mouse cluster
+    vec3 finalColor = vColor + vec3(vProximity * 0.35);
+    gl_FragColor = vec4(finalColor, alpha * (0.86 + vProximity * 0.14));
+  }
+`;
+
 export function NeuralMesh({ scrollProgress = 0 }: NeuralMeshProps) {
-  const { viewport } = useThree();
+  const { viewport, camera } = useThree();
   const isMobile = viewport.width < 5;
 
-  const nodeCount = isMobile ? 650 : 1400;
-  const maxDistance = isMobile ? 0.65 : 0.55;
+  const nodeCount = isMobile ? 1800 : 3800;
+  const maxLineDist = isMobile ? 0.36 : 0.3;
 
-  // 1. Generate organic dual-hemisphere neural node positions & colors
-  const { nodePositions, originalPositions, colors, connectionPositions, connectionColors } = React.useMemo(() => {
+  // Track global window mouse coordinates to ensure reactivity even with -z-10 / overlay content
+  const mouseRef = React.useRef({ x: 0, y: 0, active: false });
+
+  React.useEffect(() => {
+    const handleMove = (e: MouseEvent) => {
+      mouseRef.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseRef.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      mouseRef.current.active = true;
+    };
+    const handleLeave = () => {
+      mouseRef.current.active = false;
+    };
+
+    window.addEventListener("mousemove", handleMove, { passive: true });
+    window.addEventListener("mouseleave", handleLeave, { passive: true });
+
+    return () => {
+      window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("mouseleave", handleLeave);
+    };
+  }, []);
+
+  // 1. Generate anatomical human brain points, faceted rotations, and regional colors
+  const { positions, colors, sizes, angles, connectionPositions, connectionColors } = React.useMemo(() => {
     const pos = new Float32Array(nodeCount * 3);
-    const orig = new Float32Array(nodeCount * 3);
     const col = new Float32Array(nodeCount * 3);
+    const sz = new Float32Array(nodeCount);
+    const ang = new Float32Array(nodeCount);
 
-    const colorCyan = new THREE.Color("#73D8FF");
-    const colorElectric = new THREE.Color("#32A9E8");
-    const colorCorporate = new THREE.Color("#1769AA");
-    const colorWhite = new THREE.Color("#FFFFFF");
+    const amberGold = new THREE.Color("#F59E0B");
+    const goldenYellow = new THREE.Color("#FBBF24");
+    const warmOrange = new THREE.Color("#F97316");
+    const electricCyan = new THREE.Color("#73D8FF");
+    const skyBlue = new THREE.Color("#38BDF8");
+    const deepBlue = new THREE.Color("#1D4ED8");
+    const violetPurple = new THREE.Color("#8B5CF6");
+    const deepMagenta = new THREE.Color("#A855F7");
+    const emeraldAccent = new THREE.Color("#10B981");
 
     for (let i = 0; i < nodeCount; i++) {
-      // Create organic brain-like dual-hemisphere distribution with pure PRNG
-      const u = pseudoRandom(i * 3 + 1);
-      const v = pseudoRandom(i * 3 + 2);
+      const u = pseudoRandom(i * 6 + 1);
+      const v = pseudoRandom(i * 6 + 2);
       const theta = u * 2.0 * Math.PI;
       const phi = Math.acos(2.0 * v - 1.0);
-      const r = Math.cbrt(pseudoRandom(i * 3 + 3)) * 1.8 + 0.2;
 
-      // Distort sphere into elongated organic brain lobes
-      let x = r * Math.sin(phi) * Math.cos(theta) * 1.25;
-      let y = r * Math.sin(phi) * Math.sin(theta) * 0.95;
-      let z = r * Math.cos(phi) * 1.05;
+      // Anatomical cerebral proportions
+      const rx = 1.46;
+      const ry = 1.16;
+      const rz = 1.74;
+      const r = Math.cbrt(pseudoRandom(i * 6 + 3)) * 0.88 + 0.12;
 
-      // Hemisphere cleft (separation on X axis)
+      let x = rx * r * Math.sin(phi) * Math.cos(theta);
+      let y = ry * r * Math.sin(phi) * Math.sin(theta);
+      let z = rz * r * Math.cos(phi);
+
+      // Hemisphere division (longitudinal cerebral fissure)
       const hemisphere = x >= 0 ? 1 : -1;
-      x += hemisphere * 0.18;
+      x += hemisphere * 0.15;
 
-      // Organic fold ripples
-      const ripple = Math.sin(x * 3) * Math.cos(y * 3) * 0.15;
-      x += ripple;
-      y += ripple;
+      // Anatomical sulcal convolutions (gyri wrinkles)
+      const fold = Math.sin(x * 4.2) * Math.cos(y * 4.2) * Math.sin(z * 4.2) * 0.12;
+      x += fold;
+      y += fold;
+      z += fold;
+
+      // Cranial base flattening
+      if (y < -0.38) {
+        y *= 0.82;
+      }
+
+      // Posterior Cerebellum cluster (12% of nodes)
+      if (i > nodeCount * 0.88) {
+        const cu = pseudoRandom(i * 3 + 1);
+        const cv = pseudoRandom(i * 3 + 2);
+        const cTheta = cu * 2.0 * Math.PI;
+        const cPhi = Math.acos(2.0 * cv - 1.0);
+        x = 0.82 * Math.sin(cPhi) * Math.cos(cTheta) * 0.62;
+        y = -0.72 + 0.45 * Math.sin(cPhi) * Math.sin(cTheta) * 0.48;
+        z = -0.82 + 0.62 * Math.cos(cPhi) * 0.52;
+      }
+
+      // Central Brainstem pillar (4% of nodes)
+      if (i > nodeCount * 0.96) {
+        const su = pseudoRandom(i * 2 + 1) - 0.5;
+        const sv = pseudoRandom(i * 2 + 2);
+        x = su * 0.32;
+        y = -0.82 - sv * 0.52;
+        z = -0.12 + (pseudoRandom(i * 2 + 3) - 0.5) * 0.32;
+      }
 
       pos[i * 3] = x;
       pos[i * 3 + 1] = y;
       pos[i * 3 + 2] = z;
 
-      orig[i * 3] = x;
-      orig[i * 3 + 1] = y;
-      orig[i * 3 + 2] = z;
+      // Triangle particle size & facet angle
+      sz[i] = 0.052 + pseudoRandom(i * 7) * 0.038;
+      ang[i] = pseudoRandom(i * 13) * Math.PI * 2.0;
 
-      // Color gradient from core (white/cyan) to perimeter (electric/corporate)
-      const distFromCenter = Math.sqrt(x * x + y * y + z * z) / 2.2;
+      // Regional Coloring matching the reference screenshot:
+      // - Outer boundary / cortex perimeter: Radiant golden amber & yellow
+      // - Upper lobes (parietal / frontal): Electric cyan & sky blue
+      // - Core & deep temporal lobes: Violet & rich magenta with emerald accents
+      const distFromCenter = Math.sqrt(x * x + y * y + z * z);
+      const isPerimeter = distFromCenter > 1.22 || y > 0.78;
+      const isInnerCore = distFromCenter < 0.68;
+
       const chosenColor = new THREE.Color();
-      if (distFromCenter < 0.35) {
-        chosenColor.lerpColors(colorWhite, colorCyan, distFromCenter / 0.35);
-      } else if (distFromCenter < 0.7) {
-        chosenColor.lerpColors(colorCyan, colorElectric, (distFromCenter - 0.35) / 0.35);
+      if (isPerimeter) {
+        const t = Math.min(1, (distFromCenter - 1.22) / 0.5);
+        if (pseudoRandom(i * 17) > 0.5) {
+          chosenColor.lerpColors(goldenYellow, amberGold, t);
+        } else {
+          chosenColor.lerpColors(amberGold, warmOrange, t);
+        }
+      } else if (isInnerCore) {
+        chosenColor.lerpColors(violetPurple, deepMagenta, pseudoRandom(i * 11));
+      } else if (y > 0.12) {
+        chosenColor.lerpColors(skyBlue, electricCyan, pseudoRandom(i * 9));
+      } else if (x > 0.28 && y < 0) {
+        chosenColor.lerpColors(emeraldAccent, electricCyan, 0.45);
       } else {
-        chosenColor.lerpColors(colorElectric, colorCorporate, Math.min(1, (distFromCenter - 0.7) / 0.3));
+        chosenColor.lerpColors(violetPurple, deepBlue, 0.55);
       }
 
       col[i * 3] = chosenColor.r;
@@ -77,19 +237,19 @@ export function NeuralMesh({ scrollProgress = 0 }: NeuralMeshProps) {
       col[i * 3 + 2] = chosenColor.b;
     }
 
-    // 2. Pre-calculate synaptic connections (lines) between close nodes
-    const connPos: number[] = [];
-    const connCol: number[] = [];
-    const maxConnectionsPerNode = 4;
+    // 2. Synaptic connections between proximate nodes
+    const linesPos: number[] = [];
+    const linesCol: number[] = [];
+    const maxConn = 3;
 
-    for (let i = 0; i < nodeCount; i++) {
-      let connections = 0;
+    for (let i = 0; i < nodeCount; i += 2) {
+      let conn = 0;
       const x1 = pos[i * 3];
       const y1 = pos[i * 3 + 1];
       const z1 = pos[i * 3 + 2];
 
-      for (let j = i + 1; j < nodeCount; j++) {
-        if (connections >= maxConnectionsPerNode) break;
+      for (let j = i + 1; j < nodeCount; j += 3) {
+        if (conn >= maxConn) break;
 
         const x2 = pos[j * 3];
         const y2 = pos[j * 3 + 1];
@@ -98,181 +258,168 @@ export function NeuralMesh({ scrollProgress = 0 }: NeuralMeshProps) {
         const dx = x1 - x2;
         const dy = y1 - y2;
         const dz = z1 - z2;
-        const distSq = dx * dx + dy * dy + dz * dz;
+        const dSq = dx * dx + dy * dy + dz * dz;
 
-        if (distSq < maxDistance * maxDistance) {
-          connPos.push(x1, y1, z1, x2, y2, z2);
-
-          // Filament color
-          connCol.push(col[i * 3], col[i * 3 + 1], col[i * 3 + 2]);
-          connCol.push(col[j * 3], col[j * 3 + 1], col[j * 3 + 2]);
-
-          connections++;
+        if (dSq < maxLineDist * maxLineDist) {
+          linesPos.push(x1, y1, z1, x2, y2, z2);
+          linesCol.push(col[i * 3], col[i * 3 + 1], col[i * 3 + 2]);
+          linesCol.push(col[j * 3], col[j * 3 + 1], col[j * 3 + 2]);
+          conn++;
         }
       }
     }
 
     return {
-      nodePositions: pos,
-      originalPositions: orig,
+      positions: pos,
       colors: col,
-      connectionPositions: new Float32Array(connPos),
-      connectionColors: new Float32Array(connCol),
+      sizes: sz,
+      angles: ang,
+      connectionPositions: new Float32Array(linesPos),
+      connectionColors: new Float32Array(linesCol),
     };
-  }, [nodeCount, maxDistance]);
-
-  // Ambient floating background particles
-  const { ambientPositions } = React.useMemo(() => {
-    const count = 350;
-    const pos = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      pos[i * 3] = (pseudoRandom(i * 3 + 1000) - 0.5) * 18;
-      pos[i * 3 + 1] = (pseudoRandom(i * 3 + 2000) - 0.5) * 16;
-      pos[i * 3 + 2] = (pseudoRandom(i * 3 + 3000) - 0.5) * 14 - 2;
-    }
-    return { ambientPositions: pos };
-  }, []);
+  }, [nodeCount, maxLineDist]);
 
   const groupRef = React.useRef<THREE.Group>(null);
   const coreRef = React.useRef<THREE.Mesh>(null);
-  const outerRingsRef = React.useRef<THREE.Group>(null);
-  const pointsRef = React.useRef<THREE.Points>(null);
-  const linesRef = React.useRef<THREE.LineSegments>(null);
+  const shaderMatRef = React.useRef<THREE.ShaderMaterial>(null);
 
-  // Animated pulse and frame logic
+  // Shader uniforms
+  const uniforms = React.useMemo(() => {
+    return {
+      uTime: { value: 0 },
+      uRayOrigin: { value: new THREE.Vector3(0, 0, 5) },
+      uRayDir: { value: new THREE.Vector3(0, 0, -1) },
+      uMouseActive: { value: 0 },
+      uRadius: { value: 1.4 },
+    };
+  }, []);
+
+  // Frame animation loop
   useFrame((state, delta) => {
     const time = state.clock.getElapsedTime();
-    const pointer = state.pointer;
+    const isMouseActive = mouseRef.current.active;
+    const mx = mouseRef.current.x;
+    const my = mouseRef.current.y;
 
-    // 1. Smooth Mouse Parallax & Scene Target Interpolation
+    // 1. Update shader uniforms & 3D ray projection
+    if (shaderMatRef.current) {
+      shaderMatRef.current.uniforms.uTime.value = time;
+      shaderMatRef.current.uniforms.uMouseActive.value = isMouseActive ? 1.0 : 0.0;
+
+      if (isMouseActive) {
+        const mouseVec = new THREE.Vector3(mx, my, 0.5);
+        mouseVec.unproject(camera);
+        const rayDir = mouseVec.sub(camera.position).normalize();
+
+        shaderMatRef.current.uniforms.uRayOrigin.value.copy(camera.position);
+        shaderMatRef.current.uniforms.uRayDir.value.copy(rayDir);
+      }
+    }
+
+    // 2. Mouse Parallax and Continuous Rotation
     if (groupRef.current) {
-      // Continuous ambient rotation + mouse response
-      const targetRotY = time * 0.08 + pointer.x * 0.45;
-      const targetRotX = -pointer.y * 0.25;
+      const targetRotY = time * 0.085 + (isMouseActive ? mx * 0.38 : 0);
+      const targetRotX = isMouseActive ? -my * 0.24 : 0;
 
-      groupRef.current.rotation.y += (targetRotY - groupRef.current.rotation.y) * 0.04;
-      groupRef.current.rotation.x += (targetRotX - groupRef.current.rotation.x) * 0.04;
+      groupRef.current.rotation.y += (targetRotY - groupRef.current.rotation.y) * 0.055;
+      groupRef.current.rotation.x += (targetRotX - groupRef.current.rotation.x) * 0.055;
 
-      // 2. Scroll-driven camera & transform choreographies
-      // State transitions along scroll:
-      // 0.0 - 0.15: Hero (Centered, scale 1.0)
-      // 0.15 - 0.35: Technology Statement (Diving in, scale 1.3, camera penetrates)
-      // 0.35 - 0.60: Capabilities & Services (Shifts right, tilts, frames content)
-      // 0.60 - 0.85: Process & Work (Expands horizontally into waveforms)
-      // 0.85 - 1.0: Final CTA (Converges to intense radiant core)
-      let targetX = 0;
-      let targetY = 0;
-      let targetZ = 0;
-      let targetScale = 1;
+      // 3. Scroll-Driven Descent & Section Choreography
+      // The brain gracefully glides down through the sections as the user scrolls!
+      let targetX = isMobile ? 0 : 1.6;
+      let targetY = isMobile ? 0.6 : 0.1;
+      let targetZ = isMobile ? -0.5 : 0.1;
+      let targetScale = isMobile ? 0.72 : 1.15;
 
-      if (scrollProgress < 0.15) {
-        // Hero stage
-        targetX = 0;
-        targetY = 0;
-        targetZ = 0;
-        targetScale = isMobile ? 0.75 : 1.0;
+      if (scrollProgress < 0.18) {
+        // Hero Section: Upper right / 3/4 profile
+        targetX = isMobile ? 0 : 1.6;
+        targetY = isMobile ? 0.5 : 0.1;
+        targetZ = isMobile ? -0.5 : 0.1;
+        targetScale = isMobile ? 0.72 : 1.15;
       } else if (scrollProgress < 0.38) {
-        // Diving in for Technology statement
-        const t = (scrollProgress - 0.15) / 0.23;
-        targetX = THREE.MathUtils.lerp(0, -0.6, t);
-        targetY = THREE.MathUtils.lerp(0, 0.3, t);
-        targetZ = THREE.MathUtils.lerp(0, 1.2, t);
-        targetScale = THREE.MathUtils.lerp(1.0, 1.35, t);
-      } else if (scrollProgress < 0.65) {
-        // Shift right to frame capability cards
-        const t = (scrollProgress - 0.38) / 0.27;
-        targetX = THREE.MathUtils.lerp(-0.6, isMobile ? 0 : 1.7, t);
-        targetY = THREE.MathUtils.lerp(0.3, -0.2, t);
-        targetZ = THREE.MathUtils.lerp(1.2, -0.5, t);
-        targetScale = THREE.MathUtils.lerp(1.35, 1.1, t);
-      } else if (scrollProgress < 0.85) {
-        // Waveform alignment for services
-        const t = (scrollProgress - 0.65) / 0.2;
-        targetX = THREE.MathUtils.lerp(isMobile ? 0 : 1.7, 0, t);
-        targetY = THREE.MathUtils.lerp(-0.2, -0.5, t);
-        targetZ = THREE.MathUtils.lerp(-0.5, -1.2, t);
-        targetScale = THREE.MathUtils.lerp(1.1, 1.25, t);
+        // Technology Statement: Glides down and centers, expanding slightly
+        const t = (scrollProgress - 0.18) / 0.2;
+        targetX = THREE.MathUtils.lerp(isMobile ? 0 : 1.6, 0.0, t);
+        targetY = THREE.MathUtils.lerp(isMobile ? 0.5 : 0.1, -0.3, t);
+        targetZ = THREE.MathUtils.lerp(isMobile ? -0.5 : 0.1, 0.5, t);
+        targetScale = THREE.MathUtils.lerp(isMobile ? 0.72 : 1.15, isMobile ? 0.85 : 1.3, t);
+      } else if (scrollProgress < 0.62) {
+        // Operating Divisions: Glides down and frames division cards from the left
+        const t = (scrollProgress - 0.38) / 0.24;
+        targetX = THREE.MathUtils.lerp(0.0, isMobile ? 0 : -1.75, t);
+        targetY = THREE.MathUtils.lerp(-0.3, -0.25, t);
+        targetZ = THREE.MathUtils.lerp(0.5, -0.2, t);
+        targetScale = THREE.MathUtils.lerp(isMobile ? 0.85 : 1.3, isMobile ? 0.75 : 1.1, t);
+      } else if (scrollProgress < 0.82) {
+        // Services & Engineering: Glides down and translates across to the right
+        const t = (scrollProgress - 0.62) / 0.2;
+        targetX = THREE.MathUtils.lerp(isMobile ? 0 : -1.75, isMobile ? 0 : 1.7, t);
+        targetY = THREE.MathUtils.lerp(-0.25, -0.45, t);
+        targetZ = THREE.MathUtils.lerp(-0.2, 0.0, t);
+        targetScale = THREE.MathUtils.lerp(isMobile ? 0.75 : 1.1, isMobile ? 0.72 : 1.05, t);
       } else {
-        // Converging to Final CTA core
-        const t = (scrollProgress - 0.85) / 0.15;
-        targetX = 0;
-        targetY = THREE.MathUtils.lerp(-0.5, 0, t);
-        targetZ = THREE.MathUtils.lerp(-1.2, -0.2, t);
-        targetScale = THREE.MathUtils.lerp(1.25, 1.15, t);
+        // Final Engagement CTA: Glides to bottom center with high radiant glow
+        const t = (scrollProgress - 0.82) / 0.18;
+        targetX = THREE.MathUtils.lerp(isMobile ? 0 : 1.7, 0.0, t);
+        targetY = THREE.MathUtils.lerp(-0.45, -0.15, t);
+        targetZ = THREE.MathUtils.lerp(0.0, 0.35, t);
+        targetScale = THREE.MathUtils.lerp(isMobile ? 0.72 : 1.05, isMobile ? 0.82 : 1.2, t);
       }
 
-      groupRef.current.position.x += (targetX - groupRef.current.position.x) * 0.05;
-      groupRef.current.position.y += (targetY - groupRef.current.position.y) * 0.05;
-      groupRef.current.position.z += (targetZ - groupRef.current.position.z) * 0.05;
+      // Smooth physics damping (exponential lerp)
+      groupRef.current.position.x += (targetX - groupRef.current.position.x) * 0.055;
+      groupRef.current.position.y += (targetY - groupRef.current.position.y) * 0.055;
+      groupRef.current.position.z += (targetZ - groupRef.current.position.z) * 0.055;
       groupRef.current.scale.setScalar(
-        THREE.MathUtils.lerp(groupRef.current.scale.x, targetScale, 0.05)
+        THREE.MathUtils.lerp(groupRef.current.scale.x, targetScale, 0.055)
       );
     }
 
-    // 3. Central STARX geometric core counter-rotation
+    // 4. Subtle central STARX nucleus pulse
     if (coreRef.current) {
       coreRef.current.rotation.y -= delta * 0.45;
-      coreRef.current.rotation.x += delta * 0.2;
-      const pulse = 1 + Math.sin(time * 2.5) * 0.08;
+      coreRef.current.rotation.x += delta * 0.22;
+      const pulse = 1 + Math.sin(time * 2.2) * 0.06;
       coreRef.current.scale.set(pulse, pulse, pulse);
-    }
-
-    // 4. Outer gyroscopic rings
-    if (outerRingsRef.current) {
-      outerRingsRef.current.rotation.z += delta * 0.15;
-      outerRingsRef.current.rotation.x -= delta * 0.1;
-    }
-
-    // 5. Ambient organic undulating wave through particles
-    if (pointsRef.current && pointsRef.current.geometry.attributes.position) {
-      const positions = pointsRef.current.geometry.attributes.position.array as Float32Array;
-      for (let i = 0; i < nodeCount; i++) {
-        const ox = originalPositions[i * 3];
-        const oy = originalPositions[i * 3 + 1];
-        const oz = originalPositions[i * 3 + 2];
-
-        // Organic biological sine ripple
-        const wave = Math.sin(time * 1.5 + ox * 2 + oy * 2) * 0.04;
-        positions[i * 3] = ox * (1 + wave);
-        positions[i * 3 + 1] = oy * (1 + wave);
-        positions[i * 3 + 2] = oz * (1 + wave);
-      }
-      pointsRef.current.geometry.attributes.position.needsUpdate = true;
     }
   });
 
   return (
     <group ref={groupRef}>
-      {/* Dynamic Lighting Setup */}
-      <ambientLight intensity={0.65} />
-      <directionalLight position={[8, 12, 10]} intensity={1.8} color="#73D8FF" />
-      <directionalLight position={[-10, -5, -6]} intensity={1.2} color="#1769AA" />
-      <pointLight color="#73D8FF" intensity={3.5} distance={7} />
-
-      {/* 1. Synaptic Nodes (Points Cloud) */}
-      <points ref={pointsRef}>
+      {/* 1. Hollow Triangle Brain Point Cloud */}
+      <points>
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"
-            args={[nodePositions, 3]}
+            args={[positions, 3]}
           />
           <bufferAttribute
-            attach="attributes-color"
+            attach="attributes-aBaseColor"
             args={[colors, 3]}
           />
+          <bufferAttribute
+            attach="attributes-aSize"
+            args={[sizes, 1]}
+          />
+          <bufferAttribute
+            attach="attributes-aAngle"
+            args={[angles, 1]}
+          />
         </bufferGeometry>
-        <pointsMaterial
-          size={isMobile ? 0.038 : 0.045}
-          vertexColors
+        <shaderMaterial
+          ref={shaderMatRef}
+          vertexShader={triangleVertexShader}
+          fragmentShader={triangleFragmentShader}
+          uniforms={uniforms}
           transparent
-          opacity={0.88}
-          blending={THREE.AdditiveBlending}
           depthWrite={false}
+          blending={THREE.AdditiveBlending}
         />
       </points>
 
-      {/* 2. Synaptic Filaments (Line Segments) */}
-      <lineSegments ref={linesRef}>
+      {/* 2. Synaptic Connective Filaments */}
+      <lineSegments>
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"
@@ -286,63 +433,22 @@ export function NeuralMesh({ scrollProgress = 0 }: NeuralMeshProps) {
         <lineBasicMaterial
           vertexColors
           transparent
-          opacity={0.32}
+          opacity={0.22}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
         />
       </lineSegments>
 
-      {/* 3. Central STARX Crystalline Nexus Core */}
-      <group>
-        {/* Faceted Star Polyhedron */}
-        <mesh ref={coreRef}>
-          <octahedronGeometry args={[0.55, 0]} />
-          <meshStandardMaterial
-            color="#73D8FF"
-            emissive="#32A9E8"
-            emissiveIntensity={1.8}
-            roughness={0.15}
-            metalness={0.9}
-            wireframe={true}
-          />
-        </mesh>
-
-        {/* Inner Solid Luminous Core */}
-        <mesh scale={[0.35, 0.35, 0.35]}>
-          <icosahedronGeometry args={[1, 0]} />
-          <meshBasicMaterial color="#F8FAFC" />
-        </mesh>
-
-        {/* Fine Gyroscopic Orbital Rings */}
-        <group ref={outerRingsRef}>
-          <mesh rotation={[Math.PI / 4, 0, 0]}>
-            <torusGeometry args={[1.9, 0.008, 16, 90]} />
-            <meshBasicMaterial color="#32A9E8" transparent opacity={0.6} />
-          </mesh>
-          <mesh rotation={[-Math.PI / 3, Math.PI / 5, 0]}>
-            <torusGeometry args={[2.2, 0.006, 16, 90]} />
-            <meshBasicMaterial color="#73D8FF" transparent opacity={0.45} />
-          </mesh>
-        </group>
-      </group>
-
-      {/* 4. Ambient Volumetric Floating Bokeh Particles */}
-      <points>
-        <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            args={[ambientPositions, 3]}
-          />
-        </bufferGeometry>
-        <pointsMaterial
-          size={0.025}
-          color="#73D8FF"
+      {/* 3. Central STARX Crystalline Energy Nucleus */}
+      <mesh ref={coreRef}>
+        <octahedronGeometry args={[0.42, 0]} />
+        <meshBasicMaterial
+          color="#F59E0B"
+          wireframe
           transparent
-          opacity={0.4}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
+          opacity={0.65}
         />
-      </points>
+      </mesh>
     </group>
   );
 }
