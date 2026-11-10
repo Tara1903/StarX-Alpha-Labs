@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint src/",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "bootstrap-owner": "node scripts/bootstrap-owner.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
