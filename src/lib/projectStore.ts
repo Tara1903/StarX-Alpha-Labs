@@ -2,23 +2,33 @@
 
 export type ProjectStage =
   | "Requirement Gathering"
-  | "UI/UX Design"
-  | "Development"
-  | "Testing"
-  | "Client Review"
-  | "Deployment"
-  | "Handover"
-  | "Maintenance";
+  | "UI/UX Wireframing & Design"
+  | "Architecture & Database Setup"
+  | "Frontend / App UI Development"
+  | "Backend & Business Logic"
+  | "API & Third-Party Integration"
+  | "Quality Assurance & Testing"
+  | "Client Beta Review"
+  | "Security & Performance Audit"
+  | "Production Deployment"
+  | "Client Training & Knowledge Transfer"
+  | "Final Handover & IP Signoff"
+  | "Active SLA Maintenance & Support";
 
 export const PROJECT_STAGES: ProjectStage[] = [
   "Requirement Gathering",
-  "UI/UX Design",
-  "Development",
-  "Testing",
-  "Client Review",
-  "Deployment",
-  "Handover",
-  "Maintenance"
+  "UI/UX Wireframing & Design",
+  "Architecture & Database Setup",
+  "Frontend / App UI Development",
+  "Backend & Business Logic",
+  "API & Third-Party Integration",
+  "Quality Assurance & Testing",
+  "Client Beta Review",
+  "Security & Performance Audit",
+  "Production Deployment",
+  "Client Training & Knowledge Transfer",
+  "Final Handover & IP Signoff",
+  "Active SLA Maintenance & Support"
 ];
 
 export interface ProjectMilestone {
@@ -36,6 +46,8 @@ export interface ClientProject {
   clientBusiness: string;
   clientEmail: string;
   projectName: string;
+  division?: "website" | "app" | "combo";
+  packageCode?: string;
   currentStage: ProjectStage;
   progressPercent: number;
   startDate: string;
@@ -62,23 +74,21 @@ export function getClientProjects(): ClientProject[] {
           clientBusiness: "Spice Garden Chains",
           clientEmail: "rajesh@spicegarden.in",
           projectName: "Multi-Outlet Restaurant ERP & Ordering System",
-          currentStage: "Development",
-          progressPercent: 45,
+          division: "combo",
+          packageCode: "C2",
+          currentStage: "Frontend / App UI Development",
+          progressPercent: 38,
           startDate: "2026-11-01",
           targetHandoverDate: "2026-11-28",
-          milestones: [
-            { stage: "Requirement Gathering", completed: true, completionDate: "2026-11-03", notes: "Finalized 4-branch menu layout and thermal printer specs" },
-            { stage: "UI/UX Design", completed: true, completionDate: "2026-11-07", notes: "Approved Dark Navy / Electric Blue mobile and POS wireframes" },
-            { stage: "Development", completed: false, notes: "Supabase real-time KOT listener and Razorpay integration underway" },
-            { stage: "Testing", completed: false, notes: "Pending stress testing with 50 concurrent simulated KOT tickets" },
-            { stage: "Client Review", completed: false, notes: "Scheduled staging demonstration" },
-            { stage: "Deployment", completed: false, notes: "Production Edge Cloud rollout" },
-            { stage: "Handover", completed: false, notes: "Staff training and admin credential transfer" },
-            { stage: "Maintenance", completed: false, notes: "12-month SLA active upon launch" },
-          ],
+          milestones: PROJECT_STAGES.map((stage, idx) => ({
+            stage,
+            completed: idx < 3,
+            completionDate: idx < 3 ? "2026-11-05" : undefined,
+            notes: idx === 3 ? "Next.js web storefront & Flutter screens in active development" : idx < 3 ? "Completed & Approved" : "Pending"
+          })),
           recentUpdates: [
             { date: "2026-11-08", message: "Supabase real-time table listeners wired to kitchen display terminal.", author: "Lead Architect" },
-            { date: "2026-11-05", message: "Client signed off on high-fidelity POS wireframes.", author: "Product Manager" }
+            { date: "2026-11-05", message: "Client signed off on high-fidelity POS wireframes and color scheme.", author: "Product Manager" }
           ],
           status: "Active",
           totalBudget: 118000
@@ -104,8 +114,10 @@ export function createProjectFromQuotation(quotation: any): ClientProject {
     clientBusiness: quotation.clientBusiness,
     clientEmail: quotation.clientEmail,
     projectName: quotation.selectedSolution,
+    division: quotation.division || "combo",
+    packageCode: quotation.packageCode || "C2",
     currentStage: "Requirement Gathering",
-    progressPercent: 12,
+    progressPercent: 8,
     startDate: new Date().toISOString().split("T")[0],
     targetHandoverDate: new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
     milestones: PROJECT_STAGES.map((s, idx) => ({
