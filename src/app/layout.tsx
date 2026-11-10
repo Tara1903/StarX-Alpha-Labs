@@ -1,9 +1,23 @@
 import type { Metadata, Viewport } from "next";
+import { Inter, Noto_Sans_Devanagari } from "next/font/google";
 import "./globals.css";
 import { SITE_CONFIG } from "@/lib/constants";
 
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const notoDevanagari = Noto_Sans_Devanagari({
+  subsets: ["devanagari"],
+  variable: "--font-noto-devanagari",
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
 export const viewport: Viewport = {
-  themeColor: "#030712",
+  themeColor: "#102D50",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -36,8 +50,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className="min-h-screen bg-[#030712] text-slate-100 antialiased selection:bg-blue-600 selection:text-white">
+    <html lang="en" className={`${inter.variable} ${notoDevanagari.variable} dark`}>
+      <body className="min-h-screen bg-[#0A1424] text-slate-100 antialiased selection:bg-[#1769AA] selection:text-white">
         {children}
       </body>
     </html>
