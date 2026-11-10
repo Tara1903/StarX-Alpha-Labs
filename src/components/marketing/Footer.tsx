@@ -15,9 +15,9 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-[rgba(130,180,220,0.12)]">
           {/* Brand Info */}
           <div className="lg:col-span-2 space-y-4">
-            <Link href="/" className="flex items-center gap-2.5 group">
+            <Link href="/" className="flex items-center gap-2.5 group shrink-0 select-none">
               <BrandLogo size="sm" showGlow={false} />
-              <span className="font-extrabold text-xl tracking-tight text-white">
+              <span className="font-extrabold text-xl tracking-tight text-white whitespace-nowrap">
                 STARX <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#73D8FF] to-[#32A9E8]">ALPHA LABS</span>
               </span>
             </Link>

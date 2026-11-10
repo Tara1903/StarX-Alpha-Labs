@@ -54,15 +54,15 @@ export function Navbar() {
         )}
       >
         {/* Brand Logo with StarX Alpha Labs Mark */}
-        <Link href="/" className="flex items-center gap-3 group">
+        <Link href="/" className="flex items-center gap-3 group shrink-0 select-none">
           <BrandLogo size="md" priority />
-          <div className="flex flex-col">
-            <span className="font-extrabold text-base sm:text-lg tracking-tight text-white leading-none">
+          <div className="flex flex-col justify-center">
+            <div className="font-extrabold text-base sm:text-lg tracking-tight text-white leading-tight whitespace-nowrap">
               STARX <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#73D8FF] to-[#32A9E8]">ALPHA LABS</span>
-            </span>
-            <span className="text-[9px] uppercase font-mono tracking-widest text-slate-400 mt-1">
-              Technology & Software Engineering
-            </span>
+            </div>
+            <div className="text-[9px] uppercase font-mono tracking-widest text-slate-400 mt-0.5 whitespace-nowrap hidden sm:block">
+              Technology &amp; Software Engineering
+            </div>
           </div>
         </Link>
 
