@@ -14,13 +14,11 @@ function pseudoRandom(seed: number): number {
   return x - Math.floor(x);
 }
 
-// Device adaptive quality tier detection
 type QualityTier = "high" | "balanced" | "low";
 
 function getDeviceQualityTier(): QualityTier {
   if (typeof window === "undefined") return "balanced";
 
-  // Check reduced motion preference
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     return "low";
   }
@@ -106,7 +104,7 @@ const triangleVertexShader = `
     vec3 animatedPos = position + (normalize(position) * wave);
 
     // Dynamic expansion under mouse pointer
-    animatedPos += normalize(position) * (proximity * 0.22);
+    animatedPos += normalize(position) * (proximity * 0.25);
 
     vec4 mvPosition = modelViewMatrix * vec4(animatedPos, 1.0);
     gl_Position = projectionMatrix * mvPosition;
@@ -115,9 +113,9 @@ const triangleVertexShader = `
     vec3 highlightWhite = vec3(1.0, 1.0, 1.0);
     vColor = mix(aBaseColor, highlightWhite, pow(proximity, 1.15));
 
-    // Scale up excited triangles near mouse cursor
+    // Size increases under mouse cursor (scaled for clearly visible hollow triangles)
     float dynamicSize = aSize * (1.0 + proximity * 0.85);
-    gl_PointSize = dynamicSize * (380.0 / -mvPosition.z);
+    gl_PointSize = dynamicSize * (1250.0 / -mvPosition.z);
   }
 `;
 
@@ -128,6 +126,7 @@ const triangleFragmentShader = `
   varying float vAngle;
 
   void main() {
+    // Coordinate space [-1.0, 1.0]
     vec2 p = gl_PointCoord * 2.0 - 1.0;
     p.y = -p.y;
 
@@ -145,7 +144,7 @@ const triangleFragmentShader = `
     float border = abs(d + thickness * 0.5) - thickness * 0.5;
 
     // Antialiased border edge
-    float alpha = 1.0 - smoothstep(-0.04, 0.04, border);
+    float alpha = 1.0 - smoothstep(-0.05, 0.05, border);
     if (alpha < 0.04) discard;
 
     // Extra radiant bloom for white mouse cluster
@@ -162,11 +161,9 @@ export function NeuralMesh({ onReady }: NeuralMeshProps) {
   const { viewport, camera } = useThree();
   const isMobile = viewport.width < 5;
 
-  // Detect adaptive quality tier once on client
   const quality = React.useMemo(() => getDeviceQualityTier(), []);
   const config = TIER_CONFIG[quality];
 
-  // Track global window mouse coordinates to ensure reactivity across all layers
   const mouseRef = React.useRef({ x: 0, y: 0, active: false });
   const hasSignaledReady = React.useRef(false);
 
@@ -190,7 +187,7 @@ export function NeuralMesh({ onReady }: NeuralMeshProps) {
   }, []);
 
   // 1. Generate anatomical human brain points, faceted rotations, and regional colors
-  const { positions, colors, sizes, angles, connectionPositions, connectionColors } = React.useMemo(() => {
+  const { pointsGeometry, linesGeometry } = React.useMemo(() => {
     const nodeCount = config.nodeCount;
     const maxLineDist = config.maxLineDist;
     const maxLines = config.maxLines;
@@ -264,7 +261,8 @@ export function NeuralMesh({ onReady }: NeuralMeshProps) {
       pos[i * 3 + 1] = y;
       pos[i * 3 + 2] = z;
 
-      sz[i] = 0.052 + pseudoRandom(i * 7) * 0.038;
+      // Prominent triangle size & facet angle
+      sz[i] = 0.075 + pseudoRandom(i * 7) * 0.045;
       ang[i] = pseudoRandom(i * 13) * Math.PI * 2.0;
 
       // Regional Coloring matching the reference screenshot:
@@ -327,21 +325,26 @@ export function NeuralMesh({ onReady }: NeuralMeshProps) {
       }
     }
 
+    // Construct Three.js BufferGeometries directly for 100% attribute fidelity
+    const pGeo = new THREE.BufferGeometry();
+    pGeo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    pGeo.setAttribute("aBaseColor", new THREE.BufferAttribute(col, 3));
+    pGeo.setAttribute("aSize", new THREE.BufferAttribute(sz, 1));
+    pGeo.setAttribute("aAngle", new THREE.BufferAttribute(ang, 1));
+
+    const lGeo = new THREE.BufferGeometry();
+    lGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(linesPos), 3));
+    lGeo.setAttribute("color", new THREE.BufferAttribute(new Float32Array(linesCol), 3));
+
     return {
-      positions: pos,
-      colors: col,
-      sizes: sz,
-      angles: ang,
-      connectionPositions: new Float32Array(linesPos),
-      connectionColors: new Float32Array(linesCol),
+      pointsGeometry: pGeo,
+      linesGeometry: lGeo,
     };
   }, [config]);
 
   const groupRef = React.useRef<THREE.Group>(null);
   const coreRef = React.useRef<THREE.Mesh>(null);
   const shaderMatRef = React.useRef<THREE.ShaderMaterial>(null);
-  const pointsGeoRef = React.useRef<THREE.BufferGeometry>(null);
-  const linesGeoRef = React.useRef<THREE.BufferGeometry>(null);
   const linesMatRef = React.useRef<THREE.LineBasicMaterial>(null);
 
   // Shader uniforms
@@ -355,24 +358,21 @@ export function NeuralMesh({ onReady }: NeuralMeshProps) {
     };
   }, []);
 
-  // Proper Three.js resource disposal on unmount to prevent WebGL memory leaks
+  // Proper resource disposal
   React.useEffect(() => {
-    const pointsGeo = pointsGeoRef.current;
-    const linesGeo = linesGeoRef.current;
     const shaderMat = shaderMatRef.current;
     const linesMat = linesMatRef.current;
 
     return () => {
-      pointsGeo?.dispose();
-      linesGeo?.dispose();
+      pointsGeometry.dispose();
+      linesGeometry.dispose();
       shaderMat?.dispose();
       linesMat?.dispose();
     };
-  }, []);
+  }, [pointsGeometry, linesGeometry]);
 
   // Frame animation loop with zero runtime allocations
   useFrame((state, delta) => {
-    // Suspend work when tab is hidden or backgrounded
     if (typeof document !== "undefined" && document.hidden) return;
 
     if (!hasSignaledReady.current) {
@@ -407,7 +407,7 @@ export function NeuralMesh({ onReady }: NeuralMeshProps) {
       groupRef.current.rotation.y += (targetRotY - groupRef.current.rotation.y) * 0.055;
       groupRef.current.rotation.x += (targetRotX - groupRef.current.rotation.x) * 0.055;
 
-      // 3. Scroll-Driven Descent (read directly from compositor without triggering React renders)
+      // 3. Scroll-Driven Descent
       const scrollY = typeof window !== "undefined" ? window.scrollY : 0;
       const docHeight = typeof document !== "undefined" ? document.documentElement.scrollHeight - window.innerHeight : 1;
       const scrollProgress = docHeight > 0 ? Math.min(1, Math.max(0, scrollY / docHeight)) : 0;
@@ -472,27 +472,13 @@ export function NeuralMesh({ onReady }: NeuralMeshProps) {
   });
 
   return (
-    <group ref={groupRef}>
+    <group
+      ref={groupRef}
+      position={[isMobile ? 0 : 1.6, isMobile ? 0.5 : 0.1, isMobile ? -0.5 : 0.1]}
+      scale={isMobile ? 0.72 : 1.15}
+    >
       {/* 1. Hollow Triangle Brain Point Cloud */}
-      <points>
-        <bufferGeometry ref={pointsGeoRef}>
-          <bufferAttribute
-            attach="attributes-position"
-            args={[positions, 3]}
-          />
-          <bufferAttribute
-            attach="attributes-aBaseColor"
-            args={[colors, 3]}
-          />
-          <bufferAttribute
-            attach="attributes-aSize"
-            args={[sizes, 1]}
-          />
-          <bufferAttribute
-            attach="attributes-aAngle"
-            args={[angles, 1]}
-          />
-        </bufferGeometry>
+      <points geometry={pointsGeometry}>
         <shaderMaterial
           ref={shaderMatRef}
           vertexShader={triangleVertexShader}
@@ -505,17 +491,7 @@ export function NeuralMesh({ onReady }: NeuralMeshProps) {
       </points>
 
       {/* 2. Synaptic Connective Filaments */}
-      <lineSegments>
-        <bufferGeometry ref={linesGeoRef}>
-          <bufferAttribute
-            attach="attributes-position"
-            args={[connectionPositions, 3]}
-          />
-          <bufferAttribute
-            attach="attributes-color"
-            args={[connectionColors, 3]}
-          />
-        </bufferGeometry>
+      <lineSegments geometry={linesGeometry}>
         <lineBasicMaterial
           ref={linesMatRef}
           vertexColors
