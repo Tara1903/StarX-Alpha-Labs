@@ -39,11 +39,11 @@ export default async function BlogPostPage({ params }: Props) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A1424] text-slate-100">
+    <div className="min-h-screen flex flex-col bg-[#07111F] text-[#F8FAFC]">
       <Navbar />
 
-      <main className="grow">
-        <section className="py-20 md:py-24 relative overflow-hidden border-b border-[#19375E]">
+      <main className="grow pt-20 sm:pt-24">
+        <section className="py-20 md:py-24 relative overflow-hidden border-b border-[rgba(130,180,220,0.18)]">
           <Container className="max-w-4xl space-y-6">
             <div className="flex items-center gap-3">
               <Link href="/blog" className="text-xs text-slate-400 hover:text-white flex items-center gap-1">
@@ -57,7 +57,7 @@ export default async function BlogPostPage({ params }: Props) {
               {post.title}
             </h1>
 
-            <div className="flex flex-wrap items-center gap-6 text-xs text-slate-400 pt-2 border-t border-[#19375E]/80 font-mono">
+            <div className="flex flex-wrap items-center gap-6 text-xs text-slate-400 pt-2 border-t border-[rgba(130,180,220,0.18)]/80 font-mono">
               <span className="flex items-center gap-1.5 text-slate-300">
                 <User className="w-3.5 h-3.5 text-[#32A9E8]" /> {post.author} ({post.authorRole})
               </span>
@@ -72,9 +72,9 @@ export default async function BlogPostPage({ params }: Props) {
         </section>
 
         {/* Article Body */}
-        <section className="py-20 bg-[#0F2038]">
+        <section className="py-20 bg-[#0B192B]/80">
           <Container className="max-w-3xl space-y-8">
-            <div className="p-6 rounded-2xl bg-[#0A1424] border border-[#19375E] text-slate-300 text-sm leading-relaxed italic">
+            <div className="p-6 rounded-2xl bg-[#07111F] border border-[rgba(130,180,220,0.18)] text-slate-300 text-sm leading-relaxed italic">
               &ldquo;{post.summary}&rdquo;
             </div>
 
@@ -82,7 +82,7 @@ export default async function BlogPostPage({ params }: Props) {
               {post.content.split("\n\n").map((para, i) => {
                 if (para.startsWith("### ")) {
                   return (
-                    <h2 key={i} className="text-xl font-bold text-white pt-4 pb-1 border-b border-[#19375E]">
+                    <h2 key={i} className="text-xl font-bold text-white pt-4 pb-1 border-b border-[rgba(130,180,220,0.18)]">
                       {para.replace("### ", "")}
                     </h2>
                   );
@@ -91,7 +91,7 @@ export default async function BlogPostPage({ params }: Props) {
               })}
             </div>
 
-            <div className="pt-12 border-t border-[#19375E] flex items-center justify-between">
+            <div className="pt-12 border-t border-[rgba(130,180,220,0.18)] flex items-center justify-between">
               <LinkButton href="/blog" variant="outline" size="sm">
                 &larr; Read More Articles
               </LinkButton>

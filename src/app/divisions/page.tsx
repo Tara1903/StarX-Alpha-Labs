@@ -28,11 +28,11 @@ export default function DivisionsPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A1424] text-slate-100">
+    <div className="min-h-screen flex flex-col bg-[#07111F] text-[#F8FAFC]">
       <Navbar />
 
-      <main className="grow">
-        <section className="py-20 md:py-28 relative overflow-hidden border-b border-[#19375E]">
+      <main className="grow pt-20 sm:pt-24">
+        <section className="py-20 md:py-28 relative overflow-hidden border-b border-[rgba(130,180,220,0.18)]">
           <div className="absolute top-0 right-1/4 -z-10 h-96 w-96 rounded-full bg-[#1769AA]/15 blur-[120px]" />
           <Container>
             <div className="max-w-3xl space-y-4">
@@ -48,16 +48,16 @@ export default function DivisionsPage() {
           </Container>
         </section>
 
-        <section className="py-24 bg-[#0A1424]">
+        <section className="py-24 bg-[#07111F]">
           <Container className="space-y-16">
             {DIVISIONS_DATA.map((division, idx) => (
               <div
                 key={division.slug}
-                className="p-8 md:p-12 rounded-3xl bg-[#0F2038] border border-[#19375E] grid grid-cols-1 lg:grid-cols-12 gap-8 items-start shadow-xl"
+                className="p-8 md:p-12 rounded-3xl bg-[#0B192B]/80 border border-[rgba(130,180,220,0.18)] grid grid-cols-1 lg:grid-cols-12 gap-8 items-start shadow-xl"
               >
                 <div className="lg:col-span-5 space-y-6">
                   <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-xl bg-[#102D50] border border-[#19375E] flex items-center justify-center">
+                    <div className="h-12 w-12 rounded-xl bg-[#102D50] border border-[rgba(130,180,220,0.18)] flex items-center justify-center">
                       {getIcon(division.slug)}
                     </div>
                     <Badge variant="navy">{division.badge}</Badge>
@@ -82,7 +82,7 @@ export default function DivisionsPage() {
                   </div>
                 </div>
 
-                <div className="lg:col-span-7 bg-[#0A1424] p-6 rounded-2xl border border-[#19375E] space-y-6">
+                <div className="lg:col-span-7 bg-[#07111F] p-6 rounded-2xl border border-[rgba(130,180,220,0.18)] space-y-6">
                   <h3 className="text-xs font-mono uppercase tracking-wider text-slate-400">
                     Core Capabilities & Deliverables
                   </h3>
@@ -100,10 +100,10 @@ export default function DivisionsPage() {
                     ))}
                   </div>
 
-                  <div className="pt-4 border-t border-[#19375E]/80 flex flex-wrap items-center gap-2">
+                  <div className="pt-4 border-t border-[rgba(130,180,220,0.18)]/80 flex flex-wrap items-center gap-2">
                     <span className="text-[11px] font-mono text-slate-500 mr-2">Tech:</span>
                     {division.techStack.map((tech) => (
-                      <span key={tech} className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#102D50] border border-[#19375E] text-slate-300">
+                      <span key={tech} className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#102D50] border border-[rgba(130,180,220,0.18)] text-slate-300">
                         {tech}
                       </span>
                     ))}

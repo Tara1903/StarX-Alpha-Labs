@@ -12,11 +12,11 @@ export const metadata: Metadata = {
 
 export default function PortfolioPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A1424] text-slate-100">
+    <div className="min-h-screen flex flex-col bg-[#07111F] text-[#F8FAFC]">
       <Navbar />
 
-      <main className="grow">
-        <section className="py-20 md:py-28 relative overflow-hidden border-b border-[#19375E]">
+      <main className="grow pt-20 sm:pt-24">
+        <section className="py-20 md:py-28 relative overflow-hidden border-b border-[rgba(130,180,220,0.18)]">
           <div className="absolute top-0 right-1/4 -z-10 h-96 w-96 rounded-full bg-[#1769AA]/15 blur-[120px]" />
           <Container>
             <div className="max-w-3xl space-y-4">
@@ -32,7 +32,7 @@ export default function PortfolioPage() {
           </Container>
         </section>
 
-        <section className="py-20 bg-[#0A1424]">
+        <section className="py-20 bg-[#07111F]">
           <Container>
             <PortfolioClient />
           </Container>

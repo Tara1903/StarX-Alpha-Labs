@@ -33,12 +33,12 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A1424] text-slate-100">
+    <div className="min-h-screen flex flex-col bg-[#07111F] text-[#F8FAFC]">
       <Navbar />
 
-      <main className="grow">
+      <main className="grow pt-20 sm:pt-24">
         {/* Header Hero */}
-        <section className="py-20 md:py-28 relative overflow-hidden border-b border-[#19375E]">
+        <section className="py-20 md:py-28 relative overflow-hidden border-b border-[rgba(130,180,220,0.18)]">
           <div className="absolute top-0 right-1/4 -z-10 h-96 w-96 rounded-full bg-[#1769AA]/15 blur-[120px]" />
           <Container>
             <div className="max-w-3xl space-y-4">
@@ -56,10 +56,10 @@ export default function AboutPage() {
         </section>
 
         {/* Mission & Vision */}
-        <section className="py-20 bg-[#0F2038] border-b border-[#19375E]">
+        <section className="py-20 bg-[#0B192B]/80 border-b border-[rgba(130,180,220,0.18)]">
           <Container>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="p-8 rounded-2xl bg-[#0A1424] border border-[#19375E] space-y-4">
+              <div className="p-8 rounded-2xl bg-[#07111F] border border-[rgba(130,180,220,0.18)] space-y-4">
                 <Badge variant="corporate">Our Mission</Badge>
                 <h2 className="text-2xl font-bold text-white">Deliver Software That Empowers Scalable Growth</h2>
                 <p className="text-sm text-slate-300 leading-relaxed">
@@ -69,7 +69,7 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div className="p-8 rounded-2xl bg-[#0A1424] border border-[#19375E] space-y-4">
+              <div className="p-8 rounded-2xl bg-[#07111F] border border-[rgba(130,180,220,0.18)] space-y-4">
                 <Badge variant="electric">Our Vision</Badge>
                 <h2 className="text-2xl font-bold text-white">The Gold Standard of Digital Engineering</h2>
                 <p className="text-sm text-slate-300 leading-relaxed">
@@ -108,7 +108,7 @@ export default function AboutPage() {
         </section>
 
         {/* Call to Action */}
-        <section className="py-20 bg-[#0A1424] text-center">
+        <section className="py-20 bg-[#07111F] text-center">
           <Container className="max-w-3xl space-y-6">
             <h2 className="text-3xl font-bold text-white">Experience Architectural Excellence</h2>
             <p className="text-sm text-slate-300">

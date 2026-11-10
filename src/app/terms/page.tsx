@@ -13,15 +13,15 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A1424] text-slate-100">
+    <div className="min-h-screen flex flex-col bg-[#07111F] text-[#F8FAFC]">
       <Navbar />
 
       <main className="grow py-20">
         <Container className="max-w-4xl space-y-8">
-          <div className="space-y-4 border-b border-[#19375E] pb-6">
+          <div className="space-y-4 border-b border-[rgba(130,180,220,0.18)] pb-6">
             <Badge variant="navy">Legal Governance</Badge>
             <h1 className="text-display font-extrabold text-white">Terms of Service</h1>
-            <div className="p-3.5 rounded-lg bg-[#0F2038] border border-[#19375E] flex items-center gap-2 text-xs text-amber-400 font-mono">
+            <div className="p-3.5 rounded-lg bg-[#0B192B]/80 border border-[rgba(130,180,220,0.18)] flex items-center gap-2 text-xs text-amber-400 font-mono">
               <ShieldAlert className="w-4 h-4 shrink-0" />
               <span>DRAFT OPERATIONAL POLICY — SUBJECT TO FORMAL JURISDICTIONAL COUNSEL REVIEW</span>
             </div>

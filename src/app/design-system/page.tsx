@@ -45,9 +45,9 @@ export default function DesignSystemPreviewPage() {
   const [buttonLoading, setButtonLoading] = React.useState(false);
 
   return (
-    <div className="min-h-screen bg-[#0A1424] text-slate-100 pb-24">
+    <div className="min-h-screen bg-[#07111F] text-[#F8FAFC] pb-24">
       {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-40 border-b border-[#19375E] bg-[#0A1424]/90 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-[rgba(130,180,220,0.18)] bg-[#07111F]/90 backdrop-blur-md">
         <Container className="h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2 group">
@@ -100,7 +100,7 @@ export default function DesignSystemPreviewPage() {
       <Container className="space-y-20">
         {/* 1. Brand Color Tokens */}
         <section id="colors" className="space-y-6">
-          <div className="border-b border-[#19375E] pb-3">
+          <div className="border-b border-[rgba(130,180,220,0.18)] pb-3">
             <h2 className="text-h2 text-white">1. Brand Color Tokens</h2>
             <p className="text-caption text-slate-400">
               Deterministic hex tokens. No arbitrary gradients or unapproved color variations.
@@ -124,7 +124,7 @@ export default function DesignSystemPreviewPage() {
             ].map((color) => (
               <div
                 key={color.label}
-                className="p-4 rounded-xl border border-[#19375E] bg-[#0F2038] space-y-2"
+                className="p-4 rounded-xl border border-[rgba(130,180,220,0.18)] bg-[#0B192B]/80 space-y-2"
               >
                 <div
                   className="h-16 w-full rounded-lg shadow-inner border border-white/10 flex items-center justify-center font-mono text-xs font-bold"
@@ -146,7 +146,7 @@ export default function DesignSystemPreviewPage() {
 
         {/* 2. Typography Scale & Multilingual Support */}
         <section id="typography" className="space-y-6">
-          <div className="border-b border-[#19375E] pb-3">
+          <div className="border-b border-[rgba(130,180,220,0.18)] pb-3">
             <h2 className="text-h2 text-white">2. Typography Scale & Bilingual Foundation</h2>
             <p className="text-caption text-slate-400">
               Inter for International English & Noto Sans Devanagari for Hindi localization.
@@ -155,8 +155,8 @@ export default function DesignSystemPreviewPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* English Typography */}
-            <div className="p-6 rounded-xl border border-[#19375E] bg-[#0F2038] space-y-6">
-              <div className="flex items-center justify-between border-b border-[#19375E] pb-2">
+            <div className="p-6 rounded-xl border border-[rgba(130,180,220,0.18)] bg-[#0B192B]/80 space-y-6">
+              <div className="flex items-center justify-between border-b border-[rgba(130,180,220,0.18)] pb-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-[#32A9E8]">
                   English — Inter
                 </span>
@@ -190,8 +190,8 @@ export default function DesignSystemPreviewPage() {
             </div>
 
             {/* Hindi Typography */}
-            <div className="p-6 rounded-xl border border-[#19375E] bg-[#0F2038] space-y-6">
-              <div className="flex items-center justify-between border-b border-[#19375E] pb-2">
+            <div className="p-6 rounded-xl border border-[rgba(130,180,220,0.18)] bg-[#0B192B]/80 space-y-6">
+              <div className="flex items-center justify-between border-b border-[rgba(130,180,220,0.18)] pb-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-[#32A9E8]">
                   Hindi — Noto Sans Devanagari
                 </span>
@@ -228,7 +228,7 @@ export default function DesignSystemPreviewPage() {
 
         {/* 3. Reusable UI Components */}
         <section id="components" className="space-y-6">
-          <div className="border-b border-[#19375E] pb-3">
+          <div className="border-b border-[rgba(130,180,220,0.18)] pb-3">
             <h2 className="text-h2 text-white">3. Reusable UI Components</h2>
             <p className="text-caption text-slate-400">
               Buttons, Badges, Cards, and Form controls across variants and responsive states.
@@ -236,7 +236,7 @@ export default function DesignSystemPreviewPage() {
           </div>
 
           {/* Button Variants & Sizes */}
-          <div className="p-6 rounded-xl border border-[#19375E] bg-[#0F2038] space-y-6">
+          <div className="p-6 rounded-xl border border-[rgba(130,180,220,0.18)] bg-[#0B192B]/80 space-y-6">
             <h3 className="text-h3 text-white">Buttons & Links</h3>
 
             <div className="space-y-4">
@@ -272,7 +272,7 @@ export default function DesignSystemPreviewPage() {
           </div>
 
           {/* Badges */}
-          <div className="p-6 rounded-xl border border-[#19375E] bg-[#0F2038] space-y-4">
+          <div className="p-6 rounded-xl border border-[rgba(130,180,220,0.18)] bg-[#0B192B]/80 space-y-4">
             <h3 className="text-h3 text-white">Badges</h3>
             <div className="flex flex-wrap items-center gap-3">
               <Badge variant="electric" dot>Electric Indicator</Badge>
@@ -335,7 +335,7 @@ export default function DesignSystemPreviewPage() {
           </div>
 
           {/* Form Components */}
-          <div className="p-6 rounded-xl border border-[#19375E] bg-[#0F2038] space-y-6">
+          <div className="p-6 rounded-xl border border-[rgba(130,180,220,0.18)] bg-[#0B192B]/80 space-y-6">
             <div className="flex items-center justify-between">
               <h3 className="text-h3 text-white">Form Components & Validation States</h3>
               <Button
@@ -430,7 +430,7 @@ export default function DesignSystemPreviewPage() {
 
         {/* 4. Motion Primitives */}
         <section id="motion" className="space-y-6">
-          <div className="border-b border-[#19375E] pb-3">
+          <div className="border-b border-[rgba(130,180,220,0.18)] pb-3">
             <h2 className="text-h2 text-white">4. Motion Primitives</h2>
             <p className="text-caption text-slate-400">
               Hardware-accelerated Motion for React components with built-in prefers-reduced-motion safety.
@@ -439,7 +439,7 @@ export default function DesignSystemPreviewPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Reveal Animation Demo */}
-            <div className="p-6 rounded-xl border border-[#19375E] bg-[#0F2038] space-y-4">
+            <div className="p-6 rounded-xl border border-[rgba(130,180,220,0.18)] bg-[#0B192B]/80 space-y-4">
               <span className="text-xs font-mono text-slate-400 uppercase tracking-wider block">
                 Reveal Primitive (Directional & Bounded)
               </span>
@@ -465,14 +465,14 @@ export default function DesignSystemPreviewPage() {
             </div>
 
             {/* Stagger Container Demo */}
-            <div className="p-6 rounded-xl border border-[#19375E] bg-[#0F2038] space-y-4">
+            <div className="p-6 rounded-xl border border-[rgba(130,180,220,0.18)] bg-[#0B192B]/80 space-y-4">
               <span className="text-xs font-mono text-slate-400 uppercase tracking-wider block">
                 StaggerContainer & StaggerItem
               </span>
               <StaggerContainer staggerDelay={0.15} className="space-y-3">
                 {["Phase 1: Architecture Foundation", "Phase 2: Design System Execution", "Phase 3: Cinematic Homepage"].map((step, idx) => (
                   <StaggerItem key={step}>
-                    <div className="p-3 rounded-lg bg-[#0A1424] border border-[#19375E] flex items-center justify-between text-xs">
+                    <div className="p-3 rounded-lg bg-[#07111F] border border-[rgba(130,180,220,0.18)] flex items-center justify-between text-xs">
                       <span className="font-semibold text-slate-200">{step}</span>
                       <Badge variant={idx < 2 ? "success" : "electric"} size="sm">
                         {idx < 2 ? "Verified" : "Current"}
@@ -487,7 +487,7 @@ export default function DesignSystemPreviewPage() {
 
         {/* 5. Three.js Client Boundary Test */}
         <section id="threejs-boundary" className="space-y-6">
-          <div className="border-b border-[#19375E] pb-3">
+          <div className="border-b border-[rgba(130,180,220,0.18)] pb-3">
             <h2 className="text-h2 text-white">5. Three.js Client Boundary Test</h2>
             <p className="text-caption text-slate-400">
               Isolated R3F Canvas with WebGL detection, dynamic loading state, and static fallback.
@@ -495,8 +495,8 @@ export default function DesignSystemPreviewPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 rounded-2xl border border-[#19375E] bg-[#0A1424] overflow-hidden relative min-h-[380px] flex flex-col">
-              <div className="px-4 py-3 border-b border-[#19375E] bg-[#0F2038]/60 flex items-center justify-between">
+            <div className="lg:col-span-2 rounded-2xl border border-[rgba(130,180,220,0.18)] bg-[#07111F] overflow-hidden relative min-h-[380px] flex flex-col">
+              <div className="px-4 py-3 border-b border-[rgba(130,180,220,0.18)] bg-[#0B192B]/80/60 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
                   <span className="text-xs font-mono text-slate-300">R3F / Three.js Boundary Active</span>
@@ -512,7 +512,7 @@ export default function DesignSystemPreviewPage() {
               </div>
             </div>
 
-            <div className="p-6 rounded-2xl border border-[#19375E] bg-[#0F2038] flex flex-col justify-between space-y-6">
+            <div className="p-6 rounded-2xl border border-[rgba(130,180,220,0.18)] bg-[#0B192B]/80 flex flex-col justify-between space-y-6">
               <div className="space-y-4">
                 <Badge variant="corporate">Boundary Contract</Badge>
                 <h3 className="text-lg font-bold text-white">Server-Safe 3D Isolation</h3>
@@ -532,7 +532,7 @@ export default function DesignSystemPreviewPage() {
                 </ul>
               </div>
 
-              <div className="pt-4 border-t border-[#19375E]">
+              <div className="pt-4 border-t border-[rgba(130,180,220,0.18)]">
                 <div className="text-xs text-slate-400 font-mono">
                   Phase 3 Target: Interactive StarX 3D Emblem & Hero Scene
                 </div>

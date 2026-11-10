@@ -39,12 +39,12 @@ export default async function PortfolioDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A1424] text-slate-100">
+    <div className="min-h-screen flex flex-col bg-[#07111F] text-[#F8FAFC]">
       <Navbar />
 
-      <main className="grow">
+      <main className="grow pt-20 sm:pt-24">
         {/* Header */}
-        <section className="py-20 md:py-24 relative overflow-hidden border-b border-[#19375E]">
+        <section className="py-20 md:py-24 relative overflow-hidden border-b border-[rgba(130,180,220,0.18)]">
           <div className="absolute top-0 right-1/4 -z-10 h-96 w-96 rounded-full bg-[#32A9E8]/15 blur-[120px]" />
           <Container>
             <div className="max-w-4xl space-y-6">
@@ -72,7 +72,7 @@ export default async function PortfolioDetailPage({ params }: Props) {
         </section>
 
         {/* Technical Architecture Deep Dive */}
-        <section className="py-20 bg-[#0F2038] border-b border-[#19375E]">
+        <section className="py-20 bg-[#0B192B]/80 border-b border-[rgba(130,180,220,0.18)]">
           <Container>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
               <div className="space-y-6">
@@ -80,7 +80,7 @@ export default async function PortfolioDetailPage({ params }: Props) {
                 <h2 className="text-2xl font-bold text-white">System Architecture Highlights</h2>
                 <div className="space-y-3">
                   {project.architectureHighlights.map((highlight) => (
-                    <div key={highlight} className="p-4 rounded-xl bg-[#0A1424] border border-[#19375E] flex items-start gap-3">
+                    <div key={highlight} className="p-4 rounded-xl bg-[#07111F] border border-[rgba(130,180,220,0.18)] flex items-start gap-3">
                       <Terminal className="w-4 h-4 text-[#32A9E8] shrink-0 mt-0.5" />
                       <span className="text-xs text-slate-200 leading-relaxed">{highlight}</span>
                     </div>
@@ -93,7 +93,7 @@ export default async function PortfolioDetailPage({ params }: Props) {
                 <h2 className="text-2xl font-bold text-white">Functional Specifications</h2>
                 <div className="space-y-3">
                   {project.features.map((feat) => (
-                    <div key={feat} className="p-4 rounded-xl bg-[#0A1424] border border-[#19375E] flex items-start gap-3">
+                    <div key={feat} className="p-4 rounded-xl bg-[#07111F] border border-[rgba(130,180,220,0.18)] flex items-start gap-3">
                       <CheckCircle2 className="w-4 h-4 text-[#16866A] shrink-0 mt-0.5" />
                       <span className="text-xs text-slate-200 leading-relaxed">{feat}</span>
                     </div>
@@ -123,7 +123,7 @@ export default async function PortfolioDetailPage({ params }: Props) {
         </section>
 
         {/* Project Enquiry Banner */}
-        <section className="py-20 bg-[#0A1424] text-center">
+        <section className="py-20 bg-[#07111F] text-center">
           <Container className="max-w-2xl space-y-6">
             <h2 className="text-3xl font-bold text-white">Need Similar Architecture For Your Business?</h2>
             <p className="text-xs text-slate-300">

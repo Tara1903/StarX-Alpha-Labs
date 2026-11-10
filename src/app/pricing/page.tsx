@@ -65,11 +65,11 @@ export default function PricingPage() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A1424] text-slate-100">
+    <div className="min-h-screen flex flex-col bg-[#07111F] text-[#F8FAFC]">
       <Navbar />
 
-      <main className="grow">
-        <section className="py-20 md:py-28 relative overflow-hidden border-b border-[#19375E]">
+      <main className="grow pt-20 sm:pt-24">
+        <section className="py-20 md:py-28 relative overflow-hidden border-b border-[rgba(130,180,220,0.18)]">
           <div className="absolute top-0 right-1/4 -z-10 h-96 w-96 rounded-full bg-[#1769AA]/15 blur-[120px]" />
           <Container>
             <div className="max-w-3xl space-y-4">
@@ -86,14 +86,14 @@ export default function PricingPage() {
         </section>
 
         {/* Pricing Cards */}
-        <section className="py-24 bg-[#0A1424]">
+        <section className="py-24 bg-[#07111F]">
           <Container>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {models.map((model) => (
                 <div
                   key={model.name}
-                  className={`p-8 rounded-3xl bg-[#0F2038] border ${
-                    model.popular ? "border-[#32A9E8] shadow-cinematic-glow" : "border-[#19375E]"
+                  className={`p-8 rounded-3xl bg-[#0B192B]/80 border ${
+                    model.popular ? "border-[#32A9E8] shadow-cinematic-glow" : "border-[rgba(130,180,220,0.18)]"
                   } flex flex-col justify-between space-y-8 relative`}
                 >
                   {model.popular && (
@@ -115,7 +115,7 @@ export default function PricingPage() {
                       <p className="text-xs text-slate-300 leading-relaxed pt-1">{model.description}</p>
                     </div>
 
-                    <div className="space-y-3 pt-4 border-t border-[#19375E]">
+                    <div className="space-y-3 pt-4 border-t border-[rgba(130,180,220,0.18)]">
                       <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider block">
                         Included Terms
                       </span>
@@ -128,7 +128,7 @@ export default function PricingPage() {
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-[#19375E]">
+                  <div className="pt-4 border-t border-[rgba(130,180,220,0.18)]">
                     <LinkButton
                       href={model.ctaHref}
                       variant={model.popular ? "primary" : "outline"}
@@ -146,10 +146,10 @@ export default function PricingPage() {
         </section>
 
         {/* Guarantees & Code Ownership */}
-        <section className="py-20 bg-[#0F2038] border-y border-[#19375E]">
+        <section className="py-20 bg-[#0B192B]/80 border-y border-[rgba(130,180,220,0.18)]">
           <Container>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-6 rounded-2xl bg-[#0A1424] border border-[#19375E] space-y-2">
+              <div className="p-6 rounded-2xl bg-[#07111F] border border-[rgba(130,180,220,0.18)] space-y-2">
                 <Shield className="w-5 h-5 text-[#32A9E8]" />
                 <h3 className="text-sm font-bold text-white">Full Source Code Ownership</h3>
                 <p className="text-xs text-slate-300 leading-relaxed">
@@ -157,7 +157,7 @@ export default function PricingPage() {
                 </p>
               </div>
 
-              <div className="p-6 rounded-2xl bg-[#0A1424] border border-[#19375E] space-y-2">
+              <div className="p-6 rounded-2xl bg-[#07111F] border border-[rgba(130,180,220,0.18)] space-y-2">
                 <Zap className="w-5 h-5 text-[#32A9E8]" />
                 <h3 className="text-sm font-bold text-white">Milestone Payment Safety</h3>
                 <p className="text-xs text-slate-300 leading-relaxed">
@@ -165,7 +165,7 @@ export default function PricingPage() {
                 </p>
               </div>
 
-              <div className="p-6 rounded-2xl bg-[#0A1424] border border-[#19375E] space-y-2">
+              <div className="p-6 rounded-2xl bg-[#07111F] border border-[rgba(130,180,220,0.18)] space-y-2">
                 <Sparkles className="w-5 h-5 text-[#32A9E8]" />
                 <h3 className="text-sm font-bold text-white">30-Day Defect Warranty</h3>
                 <p className="text-xs text-slate-300 leading-relaxed">

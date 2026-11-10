@@ -46,11 +46,11 @@ export default function GetQuotePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A1424] text-slate-100">
+    <div className="min-h-screen flex flex-col bg-[#07111F] text-[#F8FAFC]">
       <Navbar />
 
-      <main className="grow">
-        <section className="py-20 md:py-24 relative overflow-hidden border-b border-[#19375E]">
+      <main className="grow pt-20 sm:pt-24">
+        <section className="py-20 md:py-24 relative overflow-hidden border-b border-[rgba(130,180,220,0.18)]">
           <div className="absolute top-0 right-1/4 -z-10 h-96 w-96 rounded-full bg-[#1769AA]/15 blur-[120px]" />
           <Container>
             <div className="max-w-3xl space-y-4">
@@ -66,9 +66,9 @@ export default function GetQuotePage() {
           </Container>
         </section>
 
-        <section className="py-20 bg-[#0A1424]">
+        <section className="py-20 bg-[#07111F]">
           <Container className="max-w-4xl">
-            <div className="p-8 sm:p-12 rounded-3xl bg-[#0F2038] border border-[#19375E] shadow-2xl space-y-8">
+            <div className="p-8 sm:p-12 rounded-3xl bg-[#0B192B]/80 border border-[rgba(130,180,220,0.18)] shadow-2xl space-y-8">
               {submissionStatus === "staged" ? (
                 <div className="p-8 rounded-2xl bg-[#102D50] border border-[#32A9E8]/40 space-y-4">
                   <div className="flex items-center gap-2.5 text-emerald-400 font-bold text-base">
@@ -79,7 +79,7 @@ export default function GetQuotePage() {
                     Thank you, <strong className="text-white">{fullName}</strong>. Your requested estimate for{" "}
                     <strong className="text-[#32A9E8]">{selectedService}</strong> ({budgetRange}) has been validated.
                   </p>
-                  <div className="p-4 rounded-xl bg-[#0A1424] border border-[#19375E] flex items-start gap-2.5 text-xs text-slate-400">
+                  <div className="p-4 rounded-xl bg-[#07111F] border border-[rgba(130,180,220,0.18)] flex items-start gap-2.5 text-xs text-slate-400">
                     <Info className="w-5 h-5 text-[#32A9E8] shrink-0 mt-0.5" />
                     <span>
                       Notice: Live database persistence and automated proposal generation will be connected in Phase 5
@@ -99,7 +99,7 @@ export default function GetQuotePage() {
                 <form onSubmit={handleSubmit} className="space-y-8">
                   {/* Scope Configuration */}
                   <div className="space-y-4">
-                    <h2 className="text-lg font-bold text-white border-b border-[#19375E] pb-2">
+                    <h2 className="text-lg font-bold text-white border-b border-[rgba(130,180,220,0.18)] pb-2">
                       1. Project Scope & Architecture
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -147,7 +147,7 @@ export default function GetQuotePage() {
 
                   {/* Contact Information */}
                   <div className="space-y-4">
-                    <h2 className="text-lg font-bold text-white border-b border-[#19375E] pb-2">
+                    <h2 className="text-lg font-bold text-white border-b border-[rgba(130,180,220,0.18)] pb-2">
                       2. Commercial Contact
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -185,7 +185,7 @@ export default function GetQuotePage() {
 
                   {/* Requirements Brief */}
                   <div className="space-y-4">
-                    <h2 className="text-lg font-bold text-white border-b border-[#19375E] pb-2">
+                    <h2 className="text-lg font-bold text-white border-b border-[rgba(130,180,220,0.18)] pb-2">
                       3. Requirements & Constraints
                     </h2>
                     <FormField

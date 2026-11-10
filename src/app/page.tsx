@@ -1,47 +1,59 @@
+import { Immersive3DEnvironment } from "@/components/3d/Immersive3DEnvironment";
 import { Navbar } from "@/components/marketing/Navbar";
 import { HeroSection } from "@/components/marketing/HeroSection";
 import { CompanyIntro } from "@/components/marketing/CompanyIntro";
 import { DivisionsSection } from "@/components/marketing/DivisionsSection";
 import { CapabilitiesSection } from "@/components/marketing/CapabilitiesSection";
+import { ServicesSection } from "@/components/marketing/ServicesSection";
 import { EngineeringSection } from "@/components/marketing/EngineeringSection";
-import { CredibilitySection } from "@/components/marketing/CredibilitySection";
+import { SelectedWorkSection } from "@/components/marketing/SelectedWorkSection";
+import { IndustriesSection } from "@/components/marketing/IndustriesSection";
 import { EcosystemSection } from "@/components/marketing/EcosystemSection";
 import { FinalCTA } from "@/components/marketing/FinalCTA";
 import { Footer } from "@/components/marketing/Footer";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A1424] text-slate-100 selection:bg-[#1769AA] selection:text-white">
-      {/* 1. Global Navigation */}
+    <div className="relative min-h-screen flex flex-col bg-[#07111F] text-[#F8FAFC] selection:bg-[#1769AA] selection:text-white">
+      {/* Full-Screen Transparent 3D Neural Environment */}
+      <Immersive3DEnvironment />
+
+      {/* Global Transparent Floating Header */}
       <Navbar />
 
-      <main className="grow">
-        {/* 2. Cinematic 3D Hero */}
+      <main className="grow relative z-10">
+        {/* Section 1: Immersive 3D Hero */}
         <HeroSection />
 
-        {/* 3. Company Introduction & Mission */}
+        {/* Section 2: Technology Statement */}
         <CompanyIntro />
 
-        {/* 4. Strategic Technology Divisions */}
+        {/* Section 3: Operating Divisions */}
         <DivisionsSection />
 
-        {/* 5. Full Capability Matrix */}
-        <CapabilitiesSection />
+        {/* Section 4: Comprehensive Services Catalog */}
+        <ServicesSection />
 
-        {/* 6. Engineering Methodology & SDLC */}
+        {/* Section 5: Engineering Process & Methodology */}
         <EngineeringSection />
 
-        {/* 7. Credibility & Engineering Standards */}
-        <CredibilitySection />
+        {/* Section 6: Full Capability Matrix */}
+        <CapabilitiesSection />
 
-        {/* 8. STARX FLOW Ecosystem Integration */}
+        {/* Section 7: Selected Work & Architecture Case Studies */}
+        <SelectedWorkSection />
+
+        {/* Section 8: Targeted Industry Solutions */}
+        <IndustriesSection />
+
+        {/* Section 9: STARX FLOW Ecosystem Bridge */}
         <EcosystemSection />
 
-        {/* 9. Final Project Consultation CTA */}
+        {/* Section 10: Final Engagement CTA */}
         <FinalCTA />
       </main>
 
-      {/* 10. Corporate Footer */}
+      {/* Corporate Minimal Footer */}
       <Footer />
     </div>
   );

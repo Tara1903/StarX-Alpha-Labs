@@ -2,88 +2,128 @@
 
 import * as React from "react";
 import { Container } from "@/components/ui/Container";
-import { Badge } from "@/components/ui/Badge";
 import { Reveal } from "@/components/motion/Reveal";
 import { StaggerContainer, StaggerItem } from "@/components/motion/StaggerContainer";
-import { Compass, GitMerge, ShieldCheck, Rocket } from "lucide-react";
+import { Search, Compass, Cpu, Rocket, Sparkles, CheckCircle2 } from "lucide-react";
 
 export function EngineeringSection() {
-  const steps = [
+  const stages = [
     {
       number: "01",
-      icon: <Compass className="w-5 h-5 text-[#32A9E8]" />,
-      title: "Discovery & System Architecture",
+      name: "Discover",
+      icon: <Search className="w-5 h-5 text-[#73D8FF]" />,
+      headline: "Requirements Analysis & Scope",
       description:
-        "We dissect business requirements, map data models, define API contracts, and establish technical specifications before writing code.",
+        "We dissect your business goals, user journeys, data requirements, and security constraints to formulate an unambiguous architectural specification.",
+      deliverables: ["Product Architecture Spec", "Data Entity Diagrams", "API Contract Blueprint"],
     },
     {
       number: "02",
-      icon: <GitMerge className="w-5 h-5 text-[#1769AA]" />,
-      title: "Iterative Sprint Development",
+      name: "Architect",
+      icon: <Compass className="w-5 h-5 text-[#32A9E8]" />,
+      headline: "System Design & Topologies",
       description:
-        "Work proceeds in focused, testable milestones. Continuous integration ensures code reviews, branch previews, and stakeholder validation.",
+        "We engineer the database schema, row-level access policies, edge routing, component design systems, and cloud infrastructure.",
+      deliverables: ["Supabase / PostgreSQL Schema", "Design System Tokens", "Security & RLS Policies"],
     },
     {
       number: "03",
-      icon: <ShieldCheck className="w-5 h-5 text-[#63B8F8]" />,
-      title: "Quality Assurance & Security Audits",
+      name: "Engineer",
+      icon: <Cpu className="w-5 h-5 text-[#73D8FF]" />,
+      headline: "Iterative Sprint Execution",
       description:
-        "Every build undergoes strict type verification, linting, end-to-end integration tests, and security audits for data isolation and access controls.",
+        "Full-stack development using Next.js 16, TypeScript, and React 19. Continuous validation ensures type safety, linting checks, and preview branches.",
+      deliverables: ["Production-Ready Source Code", "Automated Test Suites", "Interactive Preview Builds"],
     },
     {
       number: "04",
+      name: "Deliver",
       icon: <Rocket className="w-5 h-5 text-[#32A9E8]" />,
-      title: "Production Deployment & Lifecycle Support",
+      headline: "Production Launch & Support",
       description:
-        "Automated edge deployments, real-time error telemetry, performance monitoring, and guaranteed service-level agreements ensure operational uptime.",
+        "Zero-downtime deployment, global edge caching, error telemetry, uptime monitoring, and guaranteed service-level agreements.",
+      deliverables: ["Global Cloud Deployment", "Performance & SEO Audit", "Ongoing SLA Maintenance"],
     },
   ];
 
   return (
-    <section id="engineering" className="py-24 md:py-32 bg-[#F4F8FC] text-[#172B43] theme-corporate-light border-y border-[#DDE7F0]">
+    <section id="engineering" className="relative py-24 md:py-36 overflow-hidden">
       <Container>
-        <div className="max-w-3xl mb-16 space-y-4">
-          <Badge variant="corporate" dot>
-            Process & Delivery
-          </Badge>
+        {/* Header */}
+        <div className="max-w-4xl mx-auto text-center space-y-4 mb-16 md:mb-24">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[rgba(130,180,220,0.2)] bg-[#0B192B]/50 backdrop-blur-md">
+            <Sparkles className="w-3.5 h-3.5 text-[#73D8FF]" />
+            <span className="text-xs font-mono font-medium tracking-widest uppercase text-[#73D8FF]">
+              Disciplined SDLC
+            </span>
+          </div>
+
           <Reveal direction="up" distance={15}>
-            <h2 className="text-h2 font-bold text-[#102D50]">
-              The STARX Engineering Methodology.
+            <h2 className="text-display font-extrabold text-white tracking-tight">
+              The 4-Stage Engineering Process.
             </h2>
           </Reveal>
+
           <Reveal direction="up" distance={15} delay={0.1}>
-            <p className="text-body text-[#64748B]">
-              A disciplined software development lifecycle designed to eliminate technical debt,
-              guarantee predictability, and ensure enterprise software resilience.
+            <p className="text-base sm:text-lg text-[#A3B4C7] max-w-2xl mx-auto font-light">
+              Predictability by design. Our rigorous software engineering lifecycle eliminates
+              technical debt and ensures enterprise-grade resilience from day one.
             </p>
           </Reveal>
         </div>
 
-        <StaggerContainer staggerDelay={0.12} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {steps.map((step) => (
-            <StaggerItem key={step.number}>
-              <div className="p-6 rounded-xl bg-white border border-[#DDE7F0] shadow-corporate-card flex flex-col justify-between h-full space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-extrabold font-mono text-[#1769AA]/40">
-                      {step.number}
-                    </span>
-                    <div className="h-9 w-9 rounded-lg bg-[#F4F8FC] border border-[#DDE7F0] flex items-center justify-center">
-                      {step.icon}
+        {/* Constellation Process Steps */}
+        <div className="relative">
+          {/* Connecting line on desktop */}
+          <div className="hidden lg:block absolute top-1/2 left-8 right-8 h-0.5 bg-gradient-to-r from-[#1769AA]/40 via-[#32A9E8]/60 to-[#73D8FF]/40 -translate-y-12 pointer-events-none -z-10" />
+
+          <StaggerContainer staggerDelay={0.12} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+            {stages.map((stage) => (
+              <StaggerItem key={stage.number}>
+                <div className="glass-panel glass-panel-hover rounded-3xl p-7 flex flex-col justify-between h-full border-[rgba(130,180,220,0.18)] hover:border-[#73D8FF]/40">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#73D8FF] to-[#32A9E8]">
+                        {stage.number}
+                      </span>
+                      <div className="h-10 w-10 rounded-xl bg-[#102D50]/60 border border-[rgba(130,180,220,0.25)] flex items-center justify-center shadow-md">
+                        {stage.icon}
+                      </div>
                     </div>
+
+                    <div>
+                      <span className="text-[11px] font-mono uppercase tracking-widest text-[#73D8FF] font-semibold">
+                        Stage {stage.number}
+                      </span>
+                      <h3 className="text-xl font-bold text-white tracking-tight mt-1">
+                        {stage.name}
+                      </h3>
+                      <p className="text-xs font-semibold text-slate-300 mt-0.5">
+                        {stage.headline}
+                      </p>
+                    </div>
+
+                    <p className="text-xs text-[#A3B4C7] leading-relaxed">
+                      {stage.description}
+                    </p>
                   </div>
 
-                  <h3 className="text-base font-bold text-[#102D50] leading-snug">{step.title}</h3>
-                  <p className="text-xs text-[#64748B] leading-relaxed">{step.description}</p>
+                  <div className="pt-5 mt-5 border-t border-[rgba(130,180,220,0.12)] space-y-2">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block font-semibold">
+                      Key Deliverables
+                    </span>
+                    {stage.deliverables.map((del) => (
+                      <div key={del} className="flex items-center gap-2 text-[11px] text-slate-300">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#73D8FF] shrink-0" />
+                        <span>{del}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-
-                <div className="pt-2 border-t border-[#DDE7F0]/80 text-[11px] font-mono text-[#1769AA]">
-                  Stage {step.number} Verified
-                </div>
-              </div>
-            </StaggerItem>
-          ))}
-        </StaggerContainer>
+              </StaggerItem>
+            ))}
+          </StaggerContainer>
+        </div>
       </Container>
     </section>
   );

@@ -25,7 +25,7 @@ export function PortfolioClient() {
   return (
     <div className="space-y-12">
       {/* Disclaimer Alert: 100% Honest Positioning */}
-      <div className="p-4 rounded-xl bg-[#0F2038] border border-[#19375E] flex items-start gap-3">
+      <div className="p-4 rounded-xl bg-[#0B192B]/80 border border-[rgba(130,180,220,0.18)] flex items-start gap-3">
         <ShieldAlert className="w-5 h-5 text-[#32A9E8] shrink-0 mt-0.5" />
         <div className="space-y-1 text-xs">
           <span className="font-bold text-white block">Factual Architectural Showcases</span>
@@ -37,7 +37,7 @@ export function PortfolioClient() {
       </div>
 
       {/* Category Tabs */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-[#19375E] pb-4">
+      <div className="flex flex-wrap items-center gap-2 border-b border-[rgba(130,180,220,0.18)] pb-4">
         {categories.map((cat) => (
           <button
             key={cat.key}
@@ -45,7 +45,7 @@ export function PortfolioClient() {
             className={`px-4 py-2 rounded-lg text-xs font-semibold tracking-wider transition-all cursor-pointer ${
               activeCategory === cat.key
                 ? "bg-[#32A9E8] text-white shadow-md shadow-[#32A9E8]/20"
-                : "bg-[#0F2038] text-slate-400 hover:text-white border border-[#19375E]"
+                : "bg-[#0B192B]/80 text-slate-400 hover:text-white border border-[rgba(130,180,220,0.18)]"
             }`}
           >
             {cat.label}
@@ -58,7 +58,7 @@ export function PortfolioClient() {
         {filteredProjects.map((project) => (
           <div
             key={project.slug}
-            className="p-8 rounded-3xl bg-[#0F2038] border border-[#19375E] hover:border-[#32A9E8] transition-all duration-300 flex flex-col justify-between space-y-6 shadow-xl"
+            className="p-8 rounded-3xl bg-[#0B192B]/80 border border-[rgba(130,180,220,0.18)] hover:border-[#32A9E8] transition-all duration-300 flex flex-col justify-between space-y-6 shadow-xl"
           >
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -79,7 +79,7 @@ export function PortfolioClient() {
                 {project.description}
               </p>
 
-              <div className="space-y-2 pt-2 border-t border-[#19375E]/70">
+              <div className="space-y-2 pt-2 border-t border-[rgba(130,180,220,0.18)]/70">
                 <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block">
                   Key Capabilities
                 </span>
@@ -92,10 +92,10 @@ export function PortfolioClient() {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-[#19375E] flex items-center justify-between">
+            <div className="pt-4 border-t border-[rgba(130,180,220,0.18)] flex items-center justify-between">
               <div className="flex flex-wrap gap-1.5">
                 {project.techStack.slice(0, 3).map((tech) => (
-                  <span key={tech} className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0A1424] text-slate-400 border border-[#19375E]">
+                  <span key={tech} className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#07111F] text-slate-400 border border-[rgba(130,180,220,0.18)]">
                     {tech}
                   </span>
                 ))}

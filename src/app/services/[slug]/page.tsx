@@ -39,12 +39,12 @@ export default async function ServiceDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A1424] text-slate-100">
+    <div className="min-h-screen flex flex-col bg-[#07111F] text-[#F8FAFC]">
       <Navbar />
 
-      <main className="grow">
+      <main className="grow pt-20 sm:pt-24">
         {/* Service Header */}
-        <section className="py-20 md:py-24 relative overflow-hidden border-b border-[#19375E]">
+        <section className="py-20 md:py-24 relative overflow-hidden border-b border-[rgba(130,180,220,0.18)]">
           <div className="absolute top-0 right-1/4 -z-10 h-96 w-96 rounded-full bg-[#1769AA]/15 blur-[120px]" />
           <Container>
             <div className="max-w-4xl space-y-6">
@@ -65,7 +65,7 @@ export default async function ServiceDetailPage({ params }: Props) {
               </p>
 
               {/* Quick Spec Metrics Bar */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-[#0F2038] border border-[#19375E] text-left">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-[#0B192B]/80 border border-[rgba(130,180,220,0.18)] text-left">
                 <div className="space-y-1">
                   <span className="text-[10px] uppercase font-mono text-slate-400 block">Division</span>
                   <Link href={`/divisions/${service.divisionSlug}`} className="text-xs font-bold text-[#32A9E8] hover:underline">
@@ -96,7 +96,7 @@ export default async function ServiceDetailPage({ params }: Props) {
         </section>
 
         {/* Benefits & Features Grid */}
-        <section className="py-20 bg-[#0F2038] border-b border-[#19375E]">
+        <section className="py-20 bg-[#0B192B]/80 border-b border-[rgba(130,180,220,0.18)]">
           <Container>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
               {/* Strategic Benefits */}
@@ -105,7 +105,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                 <h2 className="text-2xl font-bold text-white">Strategic Benefits</h2>
                 <div className="space-y-3">
                   {service.benefits.map((benefit) => (
-                    <div key={benefit} className="p-4 rounded-xl bg-[#0A1424] border border-[#19375E] flex items-start gap-3">
+                    <div key={benefit} className="p-4 rounded-xl bg-[#07111F] border border-[rgba(130,180,220,0.18)] flex items-start gap-3">
                       <CheckCircle2 className="w-4 h-4 text-[#16866A] shrink-0 mt-0.5" />
                       <span className="text-xs text-slate-200 leading-relaxed">{benefit}</span>
                     </div>
@@ -119,7 +119,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                 <h2 className="text-2xl font-bold text-white">Engineering Features</h2>
                 <div className="space-y-3">
                   {service.features.map((feature) => (
-                    <div key={feature} className="p-4 rounded-xl bg-[#0A1424] border border-[#19375E] flex items-start gap-3">
+                    <div key={feature} className="p-4 rounded-xl bg-[#07111F] border border-[rgba(130,180,220,0.18)] flex items-start gap-3">
                       <Layers className="w-4 h-4 text-[#32A9E8] shrink-0 mt-0.5" />
                       <span className="text-xs text-slate-200 leading-relaxed">{feature}</span>
                     </div>
@@ -171,7 +171,7 @@ export default async function ServiceDetailPage({ params }: Props) {
 
         {/* FAQs */}
         {service.faqs.length > 0 && (
-          <section className="py-20 bg-[#0A1424] border-b border-[#19375E]">
+          <section className="py-20 bg-[#07111F] border-b border-[rgba(130,180,220,0.18)]">
             <Container className="max-w-4xl space-y-8">
               <div className="space-y-2 text-center">
                 <Badge variant="navy">Inquiries</Badge>
@@ -180,7 +180,7 @@ export default async function ServiceDetailPage({ params }: Props) {
 
               <div className="space-y-4">
                 {service.faqs.map((faq) => (
-                  <div key={faq.question} className="p-6 rounded-xl bg-[#0F2038] border border-[#19375E] space-y-2">
+                  <div key={faq.question} className="p-6 rounded-xl bg-[#0B192B]/80 border border-[rgba(130,180,220,0.18)] space-y-2">
                     <h3 className="text-sm font-bold text-white flex items-center gap-2">
                       <HelpCircle className="w-4 h-4 text-[#32A9E8] shrink-0" /> {faq.question}
                     </h3>

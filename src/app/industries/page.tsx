@@ -15,11 +15,11 @@ export const metadata: Metadata = {
 
 export default function IndustriesPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A1424] text-slate-100">
+    <div className="min-h-screen flex flex-col bg-[#07111F] text-[#F8FAFC]">
       <Navbar />
 
-      <main className="grow">
-        <section className="py-20 md:py-28 relative overflow-hidden border-b border-[#19375E]">
+      <main className="grow pt-20 sm:pt-24">
+        <section className="py-20 md:py-28 relative overflow-hidden border-b border-[rgba(130,180,220,0.18)]">
           <div className="absolute top-0 right-1/4 -z-10 h-96 w-96 rounded-full bg-[#1769AA]/15 blur-[120px]" />
           <Container>
             <div className="max-w-3xl space-y-4">
@@ -35,13 +35,13 @@ export default function IndustriesPage() {
           </Container>
         </section>
 
-        <section className="py-20 bg-[#0A1424]">
+        <section className="py-20 bg-[#07111F]">
           <Container>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {INDUSTRIES_DATA.map((ind) => (
                 <div
                   key={ind.slug}
-                  className="p-8 rounded-3xl bg-[#0F2038] border border-[#19375E] hover:border-[#32A9E8] transition-all duration-300 flex flex-col justify-between space-y-6 shadow-xl"
+                  className="p-8 rounded-3xl bg-[#0B192B]/80 border border-[rgba(130,180,220,0.18)] hover:border-[#32A9E8] transition-all duration-300 flex flex-col justify-between space-y-6 shadow-xl"
                 >
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
@@ -57,7 +57,7 @@ export default function IndustriesPage() {
                       {ind.overview}
                     </p>
 
-                    <div className="space-y-1.5 pt-2 border-t border-[#19375E]/70">
+                    <div className="space-y-1.5 pt-2 border-t border-[rgba(130,180,220,0.18)]/70">
                       <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block mb-1">
                         Tailored Solutions
                       </span>
@@ -70,7 +70,7 @@ export default function IndustriesPage() {
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-[#19375E]">
+                  <div className="pt-4 border-t border-[rgba(130,180,220,0.18)]">
                     <LinkButton
                       href={`/industries/${ind.slug}`}
                       variant="outline"

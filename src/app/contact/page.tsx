@@ -46,11 +46,11 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A1424] text-slate-100">
+    <div className="min-h-screen flex flex-col bg-[#07111F] text-[#F8FAFC]">
       <Navbar />
 
-      <main className="grow">
-        <section className="py-20 md:py-24 relative overflow-hidden border-b border-[#19375E]">
+      <main className="grow pt-20 sm:pt-24">
+        <section className="py-20 md:py-24 relative overflow-hidden border-b border-[rgba(130,180,220,0.18)]">
           <div className="absolute top-0 right-1/4 -z-10 h-96 w-96 rounded-full bg-[#1769AA]/15 blur-[120px]" />
           <Container>
             <div className="max-w-3xl space-y-4">
@@ -66,11 +66,11 @@ export default function ContactPage() {
           </Container>
         </section>
 
-        <section className="py-20 bg-[#0A1424]">
+        <section className="py-20 bg-[#07111F]">
           <Container>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
               {/* Left Column: Form */}
-              <div className="lg:col-span-7 p-8 md:p-10 rounded-3xl bg-[#0F2038] border border-[#19375E] shadow-2xl space-y-6">
+              <div className="lg:col-span-7 p-8 md:p-10 rounded-3xl bg-[#0B192B]/80 border border-[rgba(130,180,220,0.18)] shadow-2xl space-y-6">
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-1">Project Enquiry Form</h2>
                   <p className="text-xs text-slate-400">All submissions are handled with strict technical confidentiality.</p>
@@ -86,7 +86,7 @@ export default function ContactPage() {
                       Thank you, <strong className="text-white">{fullName}</strong>. Your enquiry details for{" "}
                       <strong className="text-[#32A9E8]">{email}</strong> have passed client-side schema validation.
                     </p>
-                    <div className="p-3 rounded-lg bg-[#0A1424] border border-[#19375E] flex items-start gap-2 text-[11px] text-slate-400">
+                    <div className="p-3 rounded-lg bg-[#07111F] border border-[rgba(130,180,220,0.18)] flex items-start gap-2 text-[11px] text-slate-400">
                       <Info className="w-4 h-4 text-[#32A9E8] shrink-0 mt-0.5" />
                       <span>
                         Notice: Live production database persistence and automated email dispatch will activate upon completion of
@@ -196,7 +196,7 @@ export default function ContactPage() {
 
               {/* Right Column: Corporate Contacts */}
               <div className="lg:col-span-5 space-y-8">
-                <div className="p-8 rounded-3xl bg-[#0F2038] border border-[#19375E] space-y-6">
+                <div className="p-8 rounded-3xl bg-[#0B192B]/80 border border-[rgba(130,180,220,0.18)] space-y-6">
                   <h3 className="text-lg font-bold text-white">Direct Enterprise Contacts</h3>
 
                   <div className="space-y-4 text-xs">
@@ -230,7 +230,7 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                <div className="p-6 rounded-2xl bg-[#102D50] border border-[#19375E] space-y-3">
+                <div className="p-6 rounded-2xl bg-[#102D50] border border-[rgba(130,180,220,0.18)] space-y-3">
                   <div className="flex items-center gap-2 text-xs font-bold text-white">
                     <ShieldAlert className="w-4 h-4 text-[#32A9E8]" />
                     <span>Non-Disclosure Agreements</span>

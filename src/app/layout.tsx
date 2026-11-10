@@ -17,7 +17,7 @@ const notoDevanagari = Noto_Sans_Devanagari({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#102D50",
+  themeColor: "#07111F",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -51,7 +51,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${notoDevanagari.variable} dark`}>
-      <body className="min-h-screen bg-[#0A1424] text-slate-100 antialiased selection:bg-[#1769AA] selection:text-white">
+      <body className="min-h-screen bg-[#07111F] text-[#F8FAFC] antialiased selection:bg-[#1769AA] selection:text-white">
         {children}
       </body>
     </html>

@@ -2,41 +2,34 @@
 
 @layer base {
   :root {
-    /* Brand Design Tokens */
-    --brand-navy: #102D50;
+    /* STARX LABS — Immersive Brand Design Tokens */
+    --brand-midnight: #07111F;
+    --brand-navy-secondary: #0B192B;
     --brand-corporate: #1769AA;
     --brand-electric: #32A9E8;
+    --brand-cyan: #73D8FF;
+    --brand-text-main: #F8FAFC;
+    --brand-text-muted: #A3B4C7;
+    --brand-subtle-border: rgba(130, 180, 220, 0.18);
+    --brand-subtle-border-hover: rgba(115, 216, 255, 0.45);
+
+    /* Legacy compatibility tokens */
+    --brand-navy: #102D50;
     --brand-white: #FFFFFF;
     --brand-light-bg: #F4F8FC;
     --brand-dark-text: #172B43;
-    --brand-muted: #64748B;
     --brand-success: #16866A;
     --brand-warning: #D69B35;
     --brand-danger: #DC5454;
     --brand-border: #DDE7F0;
 
-    /* Cinematic Dark Tokens */
-    --brand-dark-bg: #0A1424;
-    --brand-dark-surface: #0F2038;
-    --brand-dark-border: #19375E;
-
-    /* Default Theme Variables (Cinematic Hybrid default) */
-    --background: var(--brand-dark-bg);
+    /* Theme Variables */
+    --background: #07111F;
     --foreground: #F8FAFC;
-    --surface: var(--brand-dark-surface);
-    --surface-border: var(--brand-dark-border);
+    --surface: #0B192B;
+    --surface-border: rgba(130, 180, 220, 0.18);
     --text-primary: #F8FAFC;
-    --text-secondary: #94A3B8;
-  }
-
-  /* Light Corporate Theme Variant */
-  .theme-corporate-light {
-    --background: var(--brand-light-bg);
-    --foreground: var(--brand-dark-text);
-    --surface: #FFFFFF;
-    --surface-border: var(--brand-border);
-    --text-primary: var(--brand-dark-text);
-    --text-secondary: var(--brand-muted);
+    --text-secondary: #A3B4C7;
   }
 
   * {
@@ -54,20 +47,16 @@
 }
 
 @theme {
-  --color-brand-navy: #102D50;
+  --color-brand-midnight: #07111F;
+  --color-brand-navy-secondary: #0B192B;
   --color-brand-corporate: #1769AA;
   --color-brand-electric: #32A9E8;
+  --color-brand-cyan: #73D8FF;
+  --color-brand-navy: #102D50;
   --color-brand-white: #FFFFFF;
-  --color-brand-light-bg: #F4F8FC;
-  --color-brand-dark-text: #172B43;
-  --color-brand-muted: #64748B;
-  --color-brand-success: #16866A;
-  --color-brand-warning: #D69B35;
-  --color-brand-danger: #DC5454;
-  --color-brand-border: #DDE7F0;
-  --color-brand-dark-bg: #0A1424;
-  --color-brand-dark-surface: #0F2038;
-  --color-brand-dark-border: #19375E;
+  --color-brand-text-main: #F8FAFC;
+  --color-brand-text-muted: #A3B4C7;
+  --color-brand-subtle-border: rgba(130, 180, 220, 0.18);
 }
 
 /* Typography Utilities */
@@ -76,28 +65,28 @@
 }
 
 .text-display {
-  font-size: clamp(2.5rem, 5vw + 1rem, 4.5rem);
+  font-size: clamp(2.5rem, 6vw + 1rem, 5.5rem);
   font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
 }
 
 .text-h1 {
-  font-size: clamp(2rem, 3.5vw + 0.5rem, 3.25rem);
+  font-size: clamp(2rem, 4vw + 0.5rem, 3.75rem);
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.15;
   letter-spacing: -0.025em;
 }
 
 .text-h2 {
-  font-size: clamp(1.5rem, 2.5vw + 0.5rem, 2.25rem);
+  font-size: clamp(1.5rem, 3vw + 0.5rem, 2.5rem);
   font-weight: 700;
   line-height: 1.25;
   letter-spacing: -0.02em;
 }
 
 .text-h3 {
-  font-size: clamp(1.25rem, 1.5vw + 0.5rem, 1.625rem);
+  font-size: clamp(1.25rem, 1.8vw + 0.5rem, 1.75rem);
   font-weight: 600;
   line-height: 1.35;
   letter-spacing: -0.015em;
@@ -105,7 +94,7 @@
 
 .text-body {
   font-size: 1rem;
-  line-height: 1.65;
+  line-height: 1.7;
   letter-spacing: -0.005em;
 }
 
@@ -115,11 +104,36 @@
   letter-spacing: 0.01em;
 }
 
-/* Shadow Tokens */
-.shadow-cinematic-glow {
-  box-shadow: 0 0 35px -5px rgba(50, 169, 232, 0.25), 0 0 15px -3px rgba(23, 105, 170, 0.3);
+/* Glassmorphism & Glow Tokens */
+.glass-panel {
+  background: rgba(11, 25, 43, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(130, 180, 220, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
-.shadow-corporate-card {
-  box-shadow: 0 4px 20px -2px rgba(16, 45, 80, 0.08), 0 2px 6px -1px rgba(16, 45, 80, 0.04);
+.glass-panel-hover {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-panel-hover:hover {
+  background: rgba(11, 25, 43, 0.85);
+  border-color: rgba(115, 216, 255, 0.45);
+  box-shadow: 0 12px 40px -8px rgba(50, 169, 232, 0.25);
+  transform: translateY(-2px);
+}
+
+.shadow-cinematic-glow {
+  box-shadow: 0 0 45px -5px rgba(50, 169, 232, 0.3), 0 0 20px -3px rgba(115, 216, 255, 0.25);
+}
+
+.shadow-cyan-glow {
+  box-shadow: 0 0 35px -5px rgba(115, 216, 255, 0.35);
+}
+
+.gradient-text-electric {
+  background: linear-gradient(135deg, #F8FAFC 0%, #73D8FF 50%, #32A9E8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }

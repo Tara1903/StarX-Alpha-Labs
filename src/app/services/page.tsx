@@ -22,11 +22,11 @@ export default function ServicesPage() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0A1424] text-slate-100">
+    <div className="min-h-screen flex flex-col bg-[#07111F] text-[#F8FAFC]">
       <Navbar />
 
-      <main className="grow">
-        <section className="py-20 md:py-28 relative overflow-hidden border-b border-[#19375E]">
+      <main className="grow pt-20 sm:pt-24">
+        <section className="py-20 md:py-28 relative overflow-hidden border-b border-[rgba(130,180,220,0.18)]">
           <div className="absolute top-0 right-1/4 -z-10 h-96 w-96 rounded-full bg-[#1769AA]/15 blur-[120px]" />
           <Container>
             <div className="max-w-3xl space-y-4">
@@ -42,7 +42,7 @@ export default function ServicesPage() {
           </Container>
         </section>
 
-        <section className="py-20 bg-[#0A1424]">
+        <section className="py-20 bg-[#07111F]">
           <Container className="space-y-16">
             {categories.map((cat) => {
               const services = SERVICES_DATA.filter((s) => s.category === cat.key);
@@ -50,7 +50,7 @@ export default function ServicesPage() {
 
               return (
                 <div key={cat.key} className="space-y-8">
-                  <div className="border-b border-[#19375E] pb-3 flex items-center justify-between">
+                  <div className="border-b border-[rgba(130,180,220,0.18)] pb-3 flex items-center justify-between">
                     <h2 className="text-xl font-bold text-white">{cat.label}</h2>
                     <span className="text-xs font-mono text-[#32A9E8]">{services.length} Capabilities</span>
                   </div>
@@ -59,7 +59,7 @@ export default function ServicesPage() {
                     {services.map((service) => (
                       <div
                         key={service.slug}
-                        className="p-6 rounded-2xl bg-[#0F2038] border border-[#19375E] hover:border-[#32A9E8] transition-all duration-300 hover:-translate-y-1 shadow-lg flex flex-col justify-between space-y-6"
+                        className="p-6 rounded-2xl bg-[#0B192B]/80 border border-[rgba(130,180,220,0.18)] hover:border-[#32A9E8] transition-all duration-300 hover:-translate-y-1 shadow-lg flex flex-col justify-between space-y-6"
                       >
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
@@ -70,7 +70,7 @@ export default function ServicesPage() {
                           <p className="text-xs text-slate-300 leading-relaxed line-clamp-3">
                             {service.shortDescription}
                           </p>
-                          <div className="space-y-1.5 pt-2 border-t border-[#19375E]/60">
+                          <div className="space-y-1.5 pt-2 border-t border-[rgba(130,180,220,0.18)]/60">
                             {service.features.slice(0, 3).map((feat) => (
                               <div key={feat} className="flex items-center gap-1.5 text-[11px] text-slate-300">
                                 <CheckCircle2 className="w-3.5 h-3.5 text-[#32A9E8] shrink-0" />
@@ -80,7 +80,7 @@ export default function ServicesPage() {
                           </div>
                         </div>
 
-                        <div className="pt-3 border-t border-[#19375E] flex items-center justify-between">
+                        <div className="pt-3 border-t border-[rgba(130,180,220,0.18)] flex items-center justify-between">
                           <div className="flex flex-col">
                             <span className="text-[10px] uppercase font-mono text-slate-500">Starting at</span>
                             <span className="text-sm font-bold text-white">{service.startingPrice}</span>
@@ -104,7 +104,7 @@ export default function ServicesPage() {
         </section>
 
         {/* Custom Scoping Banner */}
-        <section className="py-16 bg-[#102D50] border-t border-[#19375E] text-center">
+        <section className="py-16 bg-[#102D50] border-t border-[rgba(130,180,220,0.18)] text-center">
           <Container className="max-w-2xl space-y-4">
             <h2 className="text-2xl font-bold text-white">Need a Multi-Service Enterprise Architecture?</h2>
             <p className="text-xs text-slate-300">
