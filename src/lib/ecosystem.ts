@@ -2,7 +2,7 @@
  * STARX ECOSYSTEM CONTEXTUAL NAVIGATION HELPER
  *
  * STRICT INDEPENDENCE POLICY ENFORCEMENT:
- * - STARX LABS and STARX FLOW are 100% independent platforms.
+ * - StarX Alpha Labs and STARX FLOW are 100% independent platforms.
  * - Zero shared databases, zero shared auth sessions, zero shared tokens or credentials.
  * - Only non-sensitive referral/campaign query parameters are permitted.
  */
@@ -25,7 +25,7 @@ export function getStarxFlowDestinationUrl(params: ReferralParams = {}): string 
   const url = new URL(baseUrl);
 
   // Set non-sensitive attribution parameters
-  url.searchParams.set("utm_source", params.source || "starxlabs");
+  url.searchParams.set("utm_source", params.source || "starx_alpha_labs");
   url.searchParams.set("utm_medium", params.medium || "ecosystem_referral");
   if (params.campaign) {
     url.searchParams.set("utm_campaign", params.campaign);

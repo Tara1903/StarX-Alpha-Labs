@@ -1,4 +1,4 @@
-# STARX LABS — ENVIRONMENT SETUP GUIDE
+# STARX ALPHA LABS — ENVIRONMENT SETUP GUIDE
 
 ## 1. Prerequisites
 - **Node.js**: v20.x or higher (Tested on Node.js v26.4.0)
@@ -35,7 +35,7 @@ npm run start
 
 | Variable | Description | Exposure | Default / Example |
 |---|---|---|---|
-| `NEXT_PUBLIC_SITE_URL` | Canonical public URL of STARX LABS | Client & Server | `http://localhost:3000` |
+| `NEXT_PUBLIC_SITE_URL` | Canonical public URL of StarX Alpha Labs | Client & Server | `http://localhost:3000` |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project API gateway | Client & Server | `https://your-project.supabase.co` |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public anonymous access key | Client & Server | `eyJhb...` |
 | `SUPABASE_SERVICE_ROLE_KEY` | Elevated server-only admin key | **Server Only** | `secret_...` |

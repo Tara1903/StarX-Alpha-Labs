@@ -58,6 +58,8 @@ function DefaultStaticFallback({ className }: { className?: string }) {
   );
 }
 
+const noopSubscribe = () => () => {};
+
 export const SceneBoundary: React.FC<SceneBoundaryProps> = ({
   children,
   className,
@@ -65,15 +67,19 @@ export const SceneBoundary: React.FC<SceneBoundaryProps> = ({
   cameraPosition = [0, 0, 5],
   fov = 45,
 }) => {
-  const [mounted, setMounted] = React.useState(false);
-  const [hasWebGL, setHasWebGL] = React.useState(false);
+  const isMounted = React.useSyncExternalStore(
+    noopSubscribe,
+    () => true,
+    () => false
+  );
 
-  React.useEffect(() => {
-    setMounted(true);
-    setHasWebGL(isWebGLAvailable());
-  }, []);
+  const hasWebGL = React.useSyncExternalStore(
+    noopSubscribe,
+    () => isWebGLAvailable(),
+    () => false
+  );
 
-  if (!mounted) {
+  if (!isMounted) {
     return (
       <div className={cn("relative w-full h-full min-h-[300px]", className)}>
         <SceneLoadingState />

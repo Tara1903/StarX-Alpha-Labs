@@ -7,7 +7,7 @@ import { SITE_CONFIG } from "@/lib/constants";
 import { ShieldAlert } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Refund Policy (Draft) — STARX LABS",
+  title: "Refund Policy (Draft) — StarX Alpha Labs",
   description: "Draft operational refund policy governing custom engineering deliverables, milestone billing, and deposit terms.",
 };
 
@@ -32,7 +32,7 @@ export default function RefundPage() {
             <section className="space-y-2">
               <h2 className="text-lg font-bold text-white">1. Milestone-Based Commercial Nature</h2>
               <p>
-                STARX LABS provides custom professional software engineering, architecture, and technology consulting services.
+                StarX Alpha Labs provides custom professional software engineering, architecture, and technology consulting services.
                 Because custom software development involves dedicated engineering team time and resource allocation, project
                 retainers and approved milestone disbursements are generally non-refundable once work on the corresponding milestone has commenced.
               </p>

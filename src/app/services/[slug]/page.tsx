@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!service) return { title: "Service Not Found" };
 
   return {
-    title: `${service.title} — STARX LABS`,
+    title: `${service.title} — StarX Alpha Labs`,
     description: service.shortDescription,
   };
 }

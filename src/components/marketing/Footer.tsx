@@ -20,7 +20,7 @@ export function Footer() {
                 <span className="text-white text-xs">X</span>
               </div>
               <span className="font-extrabold text-xl tracking-tight text-white">
-                STARX <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#73D8FF] to-[#32A9E8]">LABS</span>
+                STARX <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#73D8FF] to-[#32A9E8]">ALPHA LABS</span>
               </span>
             </Link>
             <p className="text-xs leading-relaxed max-w-sm text-[#A3B4C7]">
@@ -162,7 +162,7 @@ export function Footer() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#73D8FF] opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-[#32A9E8]"></span>
             </span>
-            <span>STARX Neural Architecture: Fully Operational</span>
+            <span>StarX Alpha Architecture: Fully Operational</span>
           </div>
 
           <div className="text-center sm:text-right font-mono text-[11px]">

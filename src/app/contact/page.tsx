@@ -59,7 +59,7 @@ export default function ContactPage() {
                 Contact Our Architects.
               </h1>
               <p className="text-body text-slate-300">
-                Connect directly with the engineering team at STARX LABS. We review requirements, conduct
+                Connect directly with the engineering team at StarX Alpha Labs. We review requirements, conduct
                 architectural assessments, and schedule technical consultations within 24 business hours.
               </p>
             </div>
@@ -236,7 +236,7 @@ export default function ContactPage() {
                     <span>Non-Disclosure Agreements</span>
                   </div>
                   <p className="text-xs text-slate-300 leading-relaxed">
-                    Prior to receiving sensitive operational documentation or proprietary codebase access, STARX LABS will execute standard mutual Non-Disclosure Agreements upon request.
+                    Prior to receiving sensitive operational documentation or proprietary codebase access, StarX Alpha Labs will execute standard mutual Non-Disclosure Agreements upon request.
                   </p>
                 </div>
               </div>

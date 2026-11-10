@@ -9,7 +9,7 @@ import { INDUSTRIES_DATA } from "@/data/industries";
 import { ArrowRight, CheckCircle2, Building2 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Industries Served — STARX LABS",
+  title: "Industries Served — StarX Alpha Labs",
   description: "Specialized digital engineering and custom software architectures tailored for restaurants, retail, healthcare, education, e-commerce, and professional services.",
 };
 

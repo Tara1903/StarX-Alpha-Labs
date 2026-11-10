@@ -7,8 +7,8 @@ import { SITE_CONFIG } from "@/lib/constants";
 import { ShieldAlert } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy (Draft) — STARX LABS",
-  description: "Draft operational privacy policy for STARX LABS services, data handling practices, and information protection standards.",
+  title: "Privacy Policy (Draft) — StarX Alpha Labs",
+  description: "Draft operational privacy policy for StarX Alpha Labs services, data handling practices, and information protection standards.",
 };
 
 export default function PrivacyPage() {
@@ -32,7 +32,7 @@ export default function PrivacyPage() {
             <section className="space-y-2">
               <h2 className="text-lg font-bold text-white">1. Information We Collect</h2>
               <p>
-                STARX LABS collects technical and business contact information submitted voluntarily through our
+                StarX Alpha Labs collects technical and business contact information submitted voluntarily through our
                 quote requests, consultation forms, and direct email communications. This includes full names, corporate
                 emails, phone numbers, company names, and technical project briefs.
               </p>
@@ -57,7 +57,7 @@ export default function PrivacyPage() {
             <section className="space-y-2">
               <h2 className="text-lg font-bold text-white">3. Client Intellectual Property & Code Confidentiality</h2>
               <p>
-                All proprietary codebases, database credentials, API secrets, and architectural diagrams shared with STARX LABS
+                All proprietary codebases, database credentials, API secrets, and architectural diagrams shared with StarX Alpha Labs
                 during engagements are treated as strictly confidential under binding non-disclosure agreements. Client data is never
                 used to train public artificial intelligence models.
               </p>

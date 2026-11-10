@@ -7,7 +7,7 @@ import { SITE_CONFIG } from "@/lib/constants";
 import { ShieldAlert } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Cancellation Policy (Draft) — STARX LABS",
+  title: "Cancellation Policy (Draft) — StarX Alpha Labs",
   description: "Draft operational cancellation policy for custom software contracts, sprints, and ongoing technical maintenance retainers.",
 };
 

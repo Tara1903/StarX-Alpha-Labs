@@ -9,8 +9,8 @@ import { DIVISIONS_DATA } from "@/data/divisions";
 import { ArrowRight, CheckCircle2, Globe, Server, Cpu } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Engineering Divisions — STARX LABS",
-  description: "Explore the specialized technical divisions of STARX LABS: STARX DIGITAL, STARX SYSTEMS, and STARX AI SOLUTIONS.",
+  title: "Engineering Divisions — StarX Alpha Labs",
+  description: "Explore the specialized technical divisions of StarX Alpha Labs: STARX DIGITAL, STARX SYSTEMS, and STARX AI SOLUTIONS.",
 };
 
 export default function DivisionsPage() {
@@ -41,7 +41,7 @@ export default function DivisionsPage() {
                 Specialized Engineering Units.
               </h1>
               <p className="text-body text-slate-300">
-                To provide both depth of specialization and end-to-end cohesion, STARX LABS operates across
+                To provide both depth of specialization and end-to-end cohesion, StarX Alpha Labs operates across
                 three specialized engineering divisions.
               </p>
             </div>

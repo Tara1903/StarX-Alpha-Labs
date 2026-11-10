@@ -7,7 +7,7 @@ import { SITE_CONFIG } from "@/lib/constants";
 import { ShieldAlert } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Terms of Service (Draft) — STARX LABS",
+  title: "Terms of Service (Draft) — StarX Alpha Labs",
   description: "Draft operational terms of service governing software development agreements, milestone sign-offs, and intellectual property transfer.",
 };
 
@@ -33,7 +33,7 @@ export default function TermsPage() {
               <h2 className="text-lg font-bold text-white">1. Scope of Engagement</h2>
               <p>
                 These Terms of Service govern professional software development, consulting, web architecture, and maintenance
-                services provided by STARX LABS to client organizations. Individual projects are formalized under written Statements
+                services provided by StarX Alpha Labs to client organizations. Individual projects are formalized under written Statements
                 of Work (SOW) detailing milestones, deliverables, and acceptance criteria.
               </p>
             </section>
@@ -43,14 +43,14 @@ export default function TermsPage() {
               <p>
                 Upon receipt of full payment for completed project milestones, all right, title, and interest in custom application code,
                 database schemas, graphics, and documentation created specifically for the Client shall transfer entirely to the Client.
-                STARX LABS retains ownership of pre-existing proprietary developer tooling, libraries, and boilerplates incorporated into deliverables under non-exclusive licenses.
+                StarX Alpha Labs retains ownership of pre-existing proprietary developer tooling, libraries, and boilerplates incorporated into deliverables under non-exclusive licenses.
               </p>
             </section>
 
             <section className="space-y-2">
               <h2 className="text-lg font-bold text-white">3. Milestone Acceptance & Defect Warranty</h2>
               <p>
-                Each project milestone includes a 14-day client review period. STARX LABS provides a standard 30-day warranty following final
+                Each project milestone includes a 14-day client review period. StarX Alpha Labs provides a standard 30-day warranty following final
                 production deployment to resolve any reproducible functional defects that deviate from approved written specifications.
               </p>
             </section>
@@ -58,7 +58,7 @@ export default function TermsPage() {
             <section className="space-y-2">
               <h2 className="text-lg font-bold text-white">4. Independent Platform Operation</h2>
               <p>
-                STARX LABS operates independently from STARX FLOW. Contracting for services with STARX LABS does not create any license,
+                StarX Alpha Labs operates independently from STARX FLOW. Contracting for services with StarX Alpha Labs does not create any license,
                 obligation, or liability regarding STARX FLOW software, and vice versa.
               </p>
             </section>

@@ -4,8 +4,8 @@ export async function GET() {
   const uptime = process.uptime();
   return NextResponse.json({
     status: "ok",
-    product: "STARX LABS",
-    phase: "Phase 1 - Project Foundation",
+    product: "StarX Alpha Labs",
+    brand: "StarX Alpha",
     version: "0.1.0",
     timestamp: new Date().toISOString(),
     uptime: `${Math.floor(uptime)}s`,

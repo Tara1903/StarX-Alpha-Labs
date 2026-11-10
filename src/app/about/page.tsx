@@ -9,7 +9,7 @@ import { ArrowRight, CheckCircle2, Shield, Cpu, Code2, Globe } from "lucide-reac
 
 export const metadata: Metadata = {
   title: "About Us — Engineering Philosophy & Mission",
-  description: "Learn about STARX LABS: our engineering thesis, architectural principles, and commitment to building premier digital solutions for enterprise leaders.",
+  description: "Learn about StarX Alpha Labs: our engineering thesis, architectural principles, and commitment to building premier digital solutions for enterprise leaders.",
 };
 
 export default function AboutPage() {
@@ -42,12 +42,12 @@ export default function AboutPage() {
           <div className="absolute top-0 right-1/4 -z-10 h-96 w-96 rounded-full bg-[#1769AA]/15 blur-[120px]" />
           <Container>
             <div className="max-w-3xl space-y-4">
-              <Badge variant="electric" dot>About STARX LABS</Badge>
+              <Badge variant="electric" dot>About StarX Alpha Labs</Badge>
               <h1 className="text-display font-extrabold text-white">
                 Engineered for High-Stakes Digital Demands.
               </h1>
               <p className="text-body text-slate-300">
-                STARX LABS was founded on a simple realization: modern businesses are weary of slow, bloated
+                StarX Alpha Labs was founded on a simple realization: modern businesses are weary of slow, bloated
                 templates and brittle off-the-shelf software. We build bespoke digital software that operates with
                 architectural precision.
               </p>

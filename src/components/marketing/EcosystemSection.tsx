@@ -53,8 +53,8 @@ export function EcosystemSection() {
 
             <Reveal direction="up" distance={15} delay={0.1}>
               <p className="text-base sm:text-lg text-[#A3B4C7] font-light leading-relaxed">
-                While <strong className="text-white font-semibold">STARX LABS</strong> engineers bespoke software, custom platforms, and
-                proprietary AI integrations, our sister product <strong className="text-white font-semibold">STARX FLOW</strong> provides an
+                While <strong className="text-white font-semibold">StarX Alpha Labs</strong> engineers bespoke software, custom platforms, and
+                proprietary AI integrations, the independently operated product <strong className="text-white font-semibold">STARX FLOW</strong> provides an
                 all-in-one commercial automation platform with AI receptionists, CRM, and omnichannel messaging.
               </p>
             </Reveal>

@@ -52,7 +52,7 @@ export default function DesignSystemPreviewPage() {
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2 group">
               <span className="font-extrabold text-xl tracking-tight text-white">
-                STARX <span className="text-[#32A9E8]">LABS</span>
+                STARX <span className="text-[#32A9E8]">ALPHA LABS</span>
               </span>
             </Link>
             <span className="text-xs text-slate-500 font-mono">/</span>
@@ -183,7 +183,7 @@ export default function DesignSystemPreviewPage() {
                 <div>
                   <span className="text-[11px] font-mono text-slate-400 block mb-1">Body (1rem / 16px)</span>
                   <p className="text-body text-slate-300">
-                    STARX LABS architects mission-critical digital infrastructure for forward-looking enterprises globally.
+                    StarX Alpha Labs architects mission-critical digital infrastructure for forward-looking enterprises globally.
                   </p>
                 </div>
               </div>
@@ -393,7 +393,7 @@ export default function DesignSystemPreviewPage() {
                   options={[
                     { label: "StarX Engineering (Custom Software)", value: "engineering" },
                     { label: "StarX Cloud (Cloud & Security Architecture)", value: "cloud" },
-                    { label: "StarX Labs AI (Autonomous AI Solutions)", value: "ai" },
+                    { label: "StarX Alpha AI (Autonomous AI Solutions)", value: "ai" },
                     { label: "StarX Experience (Cinematic Web Apps)", value: "experience" },
                   ]}
                 />

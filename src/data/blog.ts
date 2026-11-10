@@ -15,7 +15,7 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: "nextjs-16-turbopack-enterprise-architecture",
     title: "Next.js 16 and Turbopack: Engineering Scalable Enterprise Web Platforms",
     publishDate: "November 2026",
-    author: "STARX Engineering Team",
+    author: "StarX Alpha Engineering Team",
     authorRole: "Platform Architecture",
     readTime: "6 min read",
     category: "Engineering",
@@ -35,14 +35,14 @@ With Next.js 16 and Turbopack, the default architectural assumption has flipped:
 
 ### Conclusion
 
-At STARX LABS, we treat web performance as a core feature rather than an afterthought. Architectural discipline in the early phases yields resilient, low-maintenance software for years to come.
+At StarX Alpha Labs, we treat web performance as a core feature rather than an afterthought. Architectural discipline in the early phases yields resilient, low-maintenance software for years to come.
     `,
   },
   {
     slug: "practical-enterprise-rag-without-hallucinations",
     title: "Practical Enterprise RAG: Grounding AI Workflows in Proprietary Data",
     publishDate: "October 2026",
-    author: "STARX AI Division",
+    author: "StarX Alpha AI Division",
     authorRole: "AI Solutions Lead",
     readTime: "8 min read",
     category: "AI & Systems",
@@ -83,8 +83,8 @@ Conversely, attempting to force unique operational workflows into rigid generic 
 
 ### The Decoupled Ecosystem Model
 
-This is why the STARX ecosystem enforces a strict separation:
-- **STARX LABS** builds custom proprietary platforms, bespoke customer dashboards, and high-concurrency digital commerce engines.
+This is why the StarX ecosystem enforces a strict separation:
+- **StarX Alpha Labs** builds custom proprietary platforms, bespoke customer dashboards, and high-concurrency digital commerce engines.
 - **STARX FLOW** handles off-the-shelf operational automation: AI receptionists, customer messaging, and automated CRM follow-ups.
 
 By keeping both platforms completely independent, organizations preserve technical agility while eliminating architectural bloat.

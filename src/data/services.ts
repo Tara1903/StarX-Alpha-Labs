@@ -356,7 +356,7 @@ export const SERVICES_DATA: ServiceItem[] = [
     title: "Technical Maintenance & SLA Support",
     shortDescription: "Proactive security patching, continuous performance monitoring, zero-downtime updates, and dedicated engineering support.",
     category: "maintenance",
-    categoryLabel: "STARX LABS",
+    categoryLabel: "StarX Alpha Labs",
     divisionSlug: "starx-systems",
     overview: "Protect your digital investment. Our engineering team provides continuous monitoring, automated backups, regular dependency updates, and guaranteed response times.",
     benefits: [

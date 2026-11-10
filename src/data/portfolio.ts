@@ -35,7 +35,7 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
       "Cryptographically verified document token downloads",
       "Optimized KaTeX rendering for financial formulas",
     ],
-    verificationBadge: "STARX Reference Demo",
+    verificationBadge: "StarX Alpha Reference Demo",
   },
   {
     slug: "omni-warehouse-kds",
@@ -57,7 +57,7 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
       "Optimistic UI updates for high-speed barcode scanning",
       "Automated dead-letter queue for failed webhook integrations",
     ],
-    verificationBadge: "STARX Architecture Prototype",
+    verificationBadge: "StarX Alpha Architecture Prototype",
   },
   {
     slug: "cerebro-doc-rag",
@@ -79,7 +79,7 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
       "Context window optimization reducing token expenditure by 42%",
       "Structured output validation with strict Zod schemas",
     ],
-    verificationBadge: "STARX AI Reference System",
+    verificationBadge: "StarX Alpha AI Reference System",
   },
   {
     slug: "lux-storefront-headless",
@@ -101,6 +101,6 @@ export const PORTFOLIO_DATA: PortfolioItem[] = [
       "Edge-cached product catalog with revalidation tags",
       "Idempotent Stripe webhook payment processing",
     ],
-    verificationBadge: "STARX Commerce Demo",
+    verificationBadge: "StarX Alpha Commerce Demo",
   },
 ];

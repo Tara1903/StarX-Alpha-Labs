@@ -1,6 +1,7 @@
 {
-  "name": "starx-labs",
+  "name": "starx-alpha-labs",
   "version": "0.1.0",
+  "description": "StarX Alpha Labs — Technology and Software Engineering Company",
   "private": true,
   "scripts": {
     "dev": "next dev",

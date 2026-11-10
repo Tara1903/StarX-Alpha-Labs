@@ -85,7 +85,7 @@ export function HeroSection() {
                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
                 <div className="h-3.5 w-px bg-slate-700/60 mx-1.5" />
                 <span className="text-[11px] font-mono text-slate-400 flex items-center gap-1.5">
-                  <Terminal className="w-3 h-3 text-[#73D8FF]" /> starx-labs://production-telemetry
+                  <Terminal className="w-3 h-3 text-[#73D8FF]" /> starx-alpha-labs://production-telemetry
                 </span>
               </div>
               <div className="flex items-center gap-3">

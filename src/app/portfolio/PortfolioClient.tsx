@@ -30,7 +30,7 @@ export function PortfolioClient() {
         <div className="space-y-1 text-xs">
           <span className="font-bold text-white block">Factual Architectural Showcases</span>
           <p className="text-slate-300 leading-relaxed">
-            STARX LABS strictly refuses to fabricate client relationships, fake testimonials, or fictional revenue claims.
+            StarX Alpha Labs strictly refuses to fabricate client relationships, fake testimonials, or fictional revenue claims.
             The projects featured below represent live architectural reference designs, proprietary prototypes, and benchmark systems engineered by our team.
           </p>
         </div>

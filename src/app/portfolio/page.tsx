@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/Badge";
 import { PortfolioClient } from "./PortfolioClient";
 
 export const metadata: Metadata = {
-  title: "Engineering Portfolio & Showcases — STARX LABS",
-  description: "Explore architectural reference systems, custom software prototypes, and high-performance web showcases built by STARX LABS.",
+  title: "Engineering Portfolio & Showcases — StarX Alpha Labs",
+  description: "Explore architectural reference systems, custom software prototypes, and high-performance web showcases built by StarX Alpha Labs.",
 };
 
 export default function PortfolioPage() {

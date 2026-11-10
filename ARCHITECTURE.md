@@ -1,7 +1,7 @@
-# STARX LABS — SYSTEM ARCHITECTURE SPECIFICATION
+# STARX ALPHA LABS — SYSTEM ARCHITECTURE SPECIFICATION
 
 ## 1. System Overview
-STARX LABS is built as a premier, high-performance web platform combining cinematic visual computing with scalable enterprise software architecture.
+StarX Alpha Labs is built as a premier, high-performance web platform combining modern visual computing with scalable enterprise software architecture.
 
 ---
 
@@ -70,32 +70,32 @@ src/
 
 ---
 
-## 5. STRICT PLATFORM INDEPENDENCE POLICY: STARX LABS & STARX FLOW
+## 5. STRICT PLATFORM INDEPENDENCE POLICY: STARX ALPHA LABS & STARX FLOW
 
-STARX LABS and STARX FLOW are **completely independent software platforms**. They must never be developed as a unified application or share authentication or persistence infrastructure.
+StarX Alpha Labs and STARX FLOW are **completely independent software platforms**. They must never be developed as a unified application or share authentication or persistence infrastructure.
 
 ### 5.1 Independent Platform Assets
-| Architectural Domain | STARX LABS (This Project) | STARX FLOW (Sister Product) |
+| Architectural Domain | StarX Alpha Labs (This Project) | STARX FLOW (Independent Product) |
 |---|---|---|
 | **Primary Domain** | Bespoke software engineering, platforms, custom AI | Business automation, CRM, AI receptionist, omnichannel messaging |
-| **Supabase Project** | Dedicated STARX LABS Supabase instance | Independent Flow database |
+| **Supabase Project** | Dedicated StarX Alpha Labs Supabase instance | Independent Flow database |
 | **Authentication** | Independent customer & admin auth | Independent Flow user accounts |
-| **Customer Portal** | Dedicated STARX LABS portal | Dedicated Flow web app |
-| **Admin Portal** | Independent STARX LABS admin console | Independent Flow admin dashboard |
-| **Storage Buckets** | Dedicated LABS assets & proposal storage | Independent Flow storage |
+| **Customer Portal** | Dedicated StarX Alpha Labs portal | Dedicated Flow web app |
+| **Admin Portal** | Independent StarX Alpha Labs admin console | Independent Flow admin dashboard |
+| **Storage Buckets** | Dedicated Alpha Labs assets & proposal storage | Independent Flow storage |
 | **Environment Variables** | Fully isolated `.env` configuration | Separate hosting & environment config |
-| **Deployment Pipeline** | Independent Vercel/cloud infrastructure | Isolated Flow infrastructure |
-| **Operational Impact** | Outages in Flow **never** affect Labs | Outages in Labs **never** affect Flow |
+| **Deployment Pipeline** | Independent cloud infrastructure | Isolated Flow infrastructure |
+| **Operational Impact** | Outages in Flow **never** affect Alpha Labs | Outages in Alpha Labs **never** affect Flow |
 
 ### 5.2 Cross-Platform Navigation & Referral Rule
 1. **Discovery & Routing Only**: The only relationship between the platforms is product discovery and external contextual hyperlinks.
 2. **Contextual Navigation**:
-   - STARX LABS links customers to STARX FLOW when they require Flow-owned capabilities (CRM, AI receptionist, business automation).
+   - StarX Alpha Labs links customers to STARX FLOW when they require Flow-owned capabilities (CRM, AI receptionist, business automation).
    - Links open externally via `target="_blank" rel="noopener noreferrer"`.
 3. **No Credential or Data Sharing**:
    - Never synchronize customer records, credentials, passwords, session cookies, JWT tokens, or internal database records between platforms.
 4. **Attribution Parameters**:
-   - Referral tracking is strictly limited to non-sensitive campaign parameters (e.g. `utm_source=starxlabs&utm_medium=ecosystem_referral`) managed via `src/lib/ecosystem.ts`.
+   - Referral tracking is strictly limited to non-sensitive campaign parameters (e.g. `utm_source=starx_alpha_labs&utm_medium=ecosystem_referral`) managed via `src/lib/ecosystem.ts`.
 
 > [!IMPORTANT]
 > **Two platforms. Two authentication systems. Two databases. Two admin applications. Two independent products.**

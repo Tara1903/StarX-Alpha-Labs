@@ -8,7 +8,7 @@ import { BLOG_POSTS } from "@/data/blog";
 import { ArrowRight, BookOpen, Calendar, Clock } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Engineering Blog & Architectural Insights — STARX LABS",
+  title: "Engineering Blog & Architectural Insights — StarX Alpha Labs",
   description: "Deep technical articles on Next.js, React Server Components, WebGL, custom AI integration, and enterprise software architecture.",
 };
 

@@ -7,8 +7,8 @@ import { SITE_CONFIG } from "@/lib/constants";
 import { ShieldAlert } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Cookie Policy (Draft) — STARX LABS",
-  description: "Draft operational cookie policy describing essential session cookies, local storage tokens, and telemetry on the STARX LABS website.",
+  title: "Cookie Policy (Draft) — StarX Alpha Labs",
+  description: "Draft operational cookie policy describing essential session cookies, local storage tokens, and telemetry on the StarX Alpha Labs website.",
 };
 
 export default function CookiesPage() {
@@ -58,7 +58,7 @@ export default function CookiesPage() {
             <section className="space-y-2">
               <h2 className="text-lg font-bold text-white">3. Third-Party Tracking & Advertising</h2>
               <p>
-                STARX LABS does not deploy intrusive third-party cross-site advertising trackers or sell browsing data to data brokers.
+                StarX Alpha Labs does not deploy intrusive third-party cross-site advertising trackers or sell browsing data to data brokers.
               </p>
             </section>
 

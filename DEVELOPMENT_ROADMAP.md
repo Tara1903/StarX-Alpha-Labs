@@ -1,7 +1,7 @@
-# STARX LABS — DEVELOPMENT ROADMAP
+# STARX ALPHA LABS — DEVELOPMENT ROADMAP
 
 ## Overview
-STARX LABS is an elite digital engineering and solutions platform delivering bespoke enterprise software and immersive digital experiences. The platform leverages a **Hybrid Cinematic Corporate** visual identity that fuses Three.js / React Three Fiber / Motion physics with high-reliability corporate interfaces.
+StarX Alpha Labs is an elite digital engineering and solutions platform delivering bespoke enterprise software and modern digital experiences. The platform leverages a **Hybrid Cinematic Corporate** visual identity that fuses Three.js / React Three Fiber / Motion physics with high-reliability corporate interfaces.
 
 ---
 
@@ -14,7 +14,7 @@ STARX LABS is an elite digital engineering and solutions platform delivering bes
 | **Phase 3** | **Cinematic Homepage** | WebGL canvas with interactive Three.js hero scene, performance fallbacks, reduced-motion compliance, mobile optimization, and corporate narrative sections. | **PENDING** |
 | **Phase 4** | **Public Website** | Full corporate routes: About, Divisions, Services, Service Detail pages, Pricing, Portfolio, Case Studies, Industries, Blog, Contact, Quote Requests, Consultation Booking, Legal. | **PENDING** |
 | **Phase 5** | **Backend & Supabase** | Database migrations, Row Level Security (RLS) policies, contact/enquiry intake, consultation booking workflow, server-side validation (Zod + React Hook Form), file upload handling. | **PENDING** |
-| **Phase 6** | **STARX Ecosystem** | Strict boundary enforcement between STARX LABS and STARX FLOW. Contextual ecosystem navigation, configurable destination URLs, referral attribution tracking. | **PENDING** |
+| **Phase 6** | **STARX Ecosystem** | Strict boundary enforcement between StarX Alpha Labs and STARX FLOW. Contextual ecosystem navigation, configurable destination URLs, referral attribution tracking. | **PENDING** |
 | **Phase 7** | **Quality & Launch** | Full route audit, WebGL fallbacks, mobile audit, lighthouse/Core Web Vitals tuning, SEO schema markup, accessibility testing, production verification. | **PENDING** |
 
 ---

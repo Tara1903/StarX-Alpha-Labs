@@ -49,7 +49,7 @@ export function Navbar() {
             : "bg-[#07111F]/40 backdrop-blur-md border-[rgba(130,180,220,0.12)] shadow-none"
         )}
       >
-        {/* Brand Logo with STARX Star Mark */}
+        {/* Brand Logo with StarX Alpha Labs Mark */}
         <Link href="/" className="flex items-center gap-3 group">
           <div className="relative h-9 w-9 rounded-xl bg-gradient-to-br from-[#102D50] to-[#1769AA] border border-[#32A9E8]/50 flex items-center justify-center font-bold text-white shadow-lg shadow-[#1769AA]/30 group-hover:border-[#73D8FF] group-hover:shadow-[#32A9E8]/40 transition-all">
             <span className="text-[#73D8FF] font-extrabold text-sm">S</span>
@@ -57,11 +57,11 @@ export function Navbar() {
             <div className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#73D8FF] animate-pulse" />
           </div>
           <div className="flex flex-col">
-            <span className="font-extrabold text-lg sm:text-xl tracking-tight text-white leading-none">
-              STARX <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#73D8FF] to-[#32A9E8]">LABS</span>
+            <span className="font-extrabold text-base sm:text-lg tracking-tight text-white leading-none">
+              STARX <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#73D8FF] to-[#32A9E8]">ALPHA LABS</span>
             </span>
             <span className="text-[9px] uppercase font-mono tracking-widest text-slate-400 mt-1">
-              Neural Engineering
+              Technology & Software Engineering
             </span>
           </div>
         </Link>

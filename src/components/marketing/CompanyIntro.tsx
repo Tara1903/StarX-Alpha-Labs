@@ -59,9 +59,9 @@ export function CompanyIntro() {
 
           <Reveal direction="up" distance={15} delay={0.35}>
             <p className="max-w-3xl mx-auto text-base sm:text-lg md:text-xl text-[#A3B4C7] font-light leading-relaxed">
-              STARX LABS is a specialized digital engineering and applied AI consultancy.
-              We partner with industry leaders to transform complex challenges into high-performance,
-              resilient software solutions that shape market standards.
+              StarX Alpha Labs is a technology and software engineering company building modern digital products,
+              intelligent applications and custom technology solutions for businesses. We partner with industry
+              leaders to transform complex operational challenges into high-performance, resilient software architectures.
             </p>
           </Reveal>
         </div>

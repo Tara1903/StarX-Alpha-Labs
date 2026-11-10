@@ -1,17 +1,18 @@
 export const SITE_CONFIG = {
-  name: "STARX LABS",
-  legalName: "STARX LABS Ltd.",
-  tagline: "High-Performance Digital Engineering & Cinematic Intelligence",
+  name: "StarX Alpha Labs",
+  shortName: "StarX Alpha",
+  legalName: "StarX Alpha Labs",
+  tagline: "Technology & Software Engineering Company",
   description:
-    "STARX LABS engineers premier custom software, enterprise platforms, and bespoke digital experiences for market leaders worldwide.",
+    "StarX Alpha Labs is a technology and software engineering company building modern digital products, intelligent applications and custom technology solutions for businesses.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://starxlabs.io",
   ecosystem: {
     starxFlowUrl: process.env.NEXT_PUBLIC_STARX_FLOW_URL || "https://flow.starx.io",
     starxFlowLabel: "STARX FLOW — Business Automation & AI",
   },
   contact: {
-    email: "contact@starxlabs.io",
-    sales: "solutions@starxlabs.io",
+    email: "contact@starxalphalabs.io",
+    sales: "solutions@starxalphalabs.io",
     phone: "+1 (800) 555-STARX",
     address: "One World Trade Center, Floor 72, New York, NY 10007",
   },

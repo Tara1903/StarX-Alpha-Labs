@@ -8,7 +8,7 @@ import { LinkButton } from "@/components/ui/LinkButton";
 import { CheckCircle2, ArrowRight, HelpCircle, Shield, Zap, Sparkles } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Pricing & Engagement Models — STARX LABS",
+  title: "Pricing & Engagement Models — StarX Alpha Labs",
   description: "Transparent engineering pricing models: Fixed-Scope Projects, Dedicated Monthly Sprints, and Enterprise Maintenance SLAs.",
 };
 

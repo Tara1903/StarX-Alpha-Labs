@@ -9,7 +9,7 @@ import { SERVICES_DATA } from "@/data/services";
 import { ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Engineering Services Catalog — STARX LABS",
+  title: "Engineering Services Catalog — StarX Alpha Labs",
   description: "Explore our full catalog of custom software, enterprise web development, e-commerce, API integration, and bespoke AI development services.",
 };
 
