@@ -25,12 +25,12 @@ export function FinalCTA() {
   };
 
   return (
-    <section id="contact" className="relative py-28 md:py-40 overflow-hidden">
+    <section id="contact" className="relative py-12 sm:py-14 md:py-16 overflow-hidden">
       {/* Background ambient radial glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-[#1769AA]/20 via-[#32A9E8]/20 to-[#73D8FF]/15 blur-[160px] pointer-events-none -z-10" />
 
       <Container className="max-w-5xl">
-        <div className="p-8 sm:p-14 md:p-20 rounded-3xl glass-panel relative overflow-hidden border-[rgba(130,180,220,0.22)] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)]">
+        <div className="p-8 sm:p-12 md:p-16 rounded-3xl glass-panel relative overflow-hidden border-[rgba(130,180,220,0.22)] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)]">
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[rgba(130,180,220,0.2)] bg-[#102D50]/60 backdrop-blur-md">
               <Sparkles className="w-3.5 h-3.5 text-[#73D8FF]" />

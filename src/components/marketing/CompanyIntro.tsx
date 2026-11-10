@@ -34,10 +34,10 @@ export function CompanyIntro() {
   ];
 
   return (
-    <section className="relative py-24 md:py-36 overflow-hidden">
+    <section className="relative pt-6 pb-12 sm:pt-8 sm:pb-16 overflow-hidden">
       <Container>
         {/* Editorial Technology Statement */}
-        <div className="max-w-5xl mx-auto text-center space-y-6 mb-20 md:mb-24">
+        <div className="max-w-5xl mx-auto text-center space-y-4 mb-8 md:mb-12">
           <FadeIn delay={0.1}>
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[rgba(130,180,220,0.2)] bg-[#0B192B]/50 backdrop-blur-md">
               <Sparkles className="w-3.5 h-3.5 text-[#73D8FF]" />

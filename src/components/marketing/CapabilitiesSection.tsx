@@ -60,9 +60,9 @@ export function CapabilitiesSection() {
   ];
 
   return (
-    <section id="capabilities" className="relative py-24 md:py-36 overflow-hidden">
+    <section id="capabilities" className="relative py-10 sm:py-12 md:py-16 overflow-hidden">
       <Container>
-        <div className="max-w-4xl mx-auto text-center space-y-4 mb-16 md:mb-20">
+        <div className="max-w-4xl mx-auto text-center space-y-4 mb-8 md:mb-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[rgba(130,180,220,0.2)] bg-[#0B192B]/50 backdrop-blur-md">
             <Sparkles className="w-3.5 h-3.5 text-[#73D8FF]" />
             <span className="text-xs font-mono font-medium tracking-widest uppercase text-[#73D8FF]">
