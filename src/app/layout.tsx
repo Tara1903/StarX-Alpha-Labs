@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Noto_Sans_Devanagari } from "next/font/google";
 import "./globals.css";
 import { SITE_CONFIG } from "@/lib/constants";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -93,7 +94,9 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-[#07111F] text-[#F8FAFC] antialiased selection:bg-[#1769AA] selection:text-white">
-        {children}
+        <LanguageProvider>
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   );

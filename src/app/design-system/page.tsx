@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { BrandLogo } from "@/components/ui/BrandLogo";
 import { LinkButton } from "@/components/ui/LinkButton";
 import { Container } from "@/components/ui/Container";
 import { Section } from "@/components/ui/Section";
@@ -51,6 +52,7 @@ export default function DesignSystemPreviewPage() {
         <Container className="h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2 group">
+              <BrandLogo size="xs" />
               <span className="font-extrabold text-xl tracking-tight text-white">
                 STARX <span className="text-[#32A9E8]">ALPHA LABS</span>
               </span>

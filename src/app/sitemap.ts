@@ -5,12 +5,16 @@ import { DIVISIONS_DATA } from "@/data/divisions";
 import { INDUSTRIES_DATA } from "@/data/industries";
 import { PORTFOLIO_DATA } from "@/data/portfolio";
 import { BLOG_POSTS } from "@/data/blog";
+import { DEMO_CATEGORIES } from "@/data/categories";
+import { ALL_DEMOS } from "@/data/demos";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = SITE_CONFIG.url.replace(/\/$/, "");
 
   const staticRoutes = [
     "",
+    "/demos",
+    "/customer",
     "/about",
     "/divisions",
     "/services",
@@ -31,7 +35,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
     changeFrequency: "weekly" as const,
-    priority: route === "" ? 1.0 : route.startsWith("/services") || route.startsWith("/divisions") ? 0.8 : 0.6,
+    priority: route === "" || route === "/demos" ? 1.0 : route.startsWith("/services") || route.startsWith("/divisions") ? 0.8 : 0.6,
+  }));
+
+  const demoCategoryRoutes = DEMO_CATEGORIES.map((cat) => ({
+    url: `${baseUrl}/demos/${cat.slug}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.9,
+  }));
+
+  const demoModelRoutes = ALL_DEMOS.map((d) => ({
+    url: `${baseUrl}/demos/${d.categorySlug}/${d.slug}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.8,
   }));
 
   const divisionRoutes = DIVISIONS_DATA.map((d) => ({
@@ -71,6 +89,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     ...staticRoutes,
+    ...demoCategoryRoutes,
+    ...demoModelRoutes,
     ...divisionRoutes,
     ...serviceRoutes,
     ...industryRoutes,

@@ -2,6 +2,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { SITE_CONFIG } from "@/lib/constants";
+import { BrandLogo } from "@/components/ui/BrandLogo";
 import { getStarxFlowDestinationUrl } from "@/lib/ecosystem";
 import { ArrowUpRight, Sparkles } from "lucide-react";
 
@@ -15,10 +16,7 @@ export function Footer() {
           {/* Brand Info */}
           <div className="lg:col-span-2 space-y-4">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-[#102D50] to-[#1769AA] border border-[#73D8FF]/40 flex items-center justify-center font-bold text-white shadow-md shadow-[#1769AA]/30">
-                <span className="text-[#73D8FF] text-xs">S</span>
-                <span className="text-white text-xs">X</span>
-              </div>
+              <BrandLogo size="sm" showGlow={false} />
               <span className="font-extrabold text-xl tracking-tight text-white">
                 STARX <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#73D8FF] to-[#32A9E8]">ALPHA LABS</span>
               </span>

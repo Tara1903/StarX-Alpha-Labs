@@ -4,13 +4,16 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LinkButton } from "@/components/ui/LinkButton";
-import { Menu, X, ArrowUpRight, Sparkles } from "lucide-react";
+import { BrandLogo } from "@/components/ui/BrandLogo";
+import { Menu, X, ArrowUpRight, Sparkles, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/context/LanguageContext";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
   const pathname = usePathname();
+  const { language, setLanguage, t } = useLanguage();
 
   React.useEffect(() => {
     let ticking = false;
@@ -30,13 +33,14 @@ export function Navbar() {
   }, []);
 
   const navLinks = [
+    { label: "160 Demos", href: "/demos", highlight: true },
     { label: "Services", href: "/services" },
     { label: "Divisions", href: "/divisions" },
     { label: "Portfolio", href: "/portfolio" },
     { label: "Industries", href: "/industries" },
     { label: "Pricing", href: "/pricing" },
     { label: "About", href: "/about" },
-    { label: "Blog", href: "/blog" },
+    { label: "Customer Portal", href: "/customer" },
   ];
 
   return (
@@ -51,11 +55,7 @@ export function Navbar() {
       >
         {/* Brand Logo with StarX Alpha Labs Mark */}
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="relative h-9 w-9 rounded-xl bg-gradient-to-br from-[#102D50] to-[#1769AA] border border-[#32A9E8]/50 flex items-center justify-center font-bold text-white shadow-lg shadow-[#1769AA]/30 group-hover:border-[#73D8FF] group-hover:shadow-[#32A9E8]/40 transition-all">
-            <span className="text-[#73D8FF] font-extrabold text-sm">S</span>
-            <span className="text-white font-extrabold text-sm">X</span>
-            <div className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#73D8FF] animate-pulse" />
-          </div>
+          <BrandLogo size="md" priority />
           <div className="flex flex-col">
             <span className="font-extrabold text-base sm:text-lg tracking-tight text-white leading-none">
               STARX <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#73D8FF] to-[#32A9E8]">ALPHA LABS</span>
@@ -88,7 +88,36 @@ export function Navbar() {
         </nav>
 
         {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-2.5">
+          {/* Language Toggle */}
+          <div className="flex items-center bg-[#0B192B]/80 border border-[#173863] rounded-full p-0.5 text-[11px]">
+            <button
+              type="button"
+              onClick={() => setLanguage("en")}
+              className={`px-2 py-0.5 rounded-full font-semibold transition-all ${
+                language === "en" ? "bg-[#1769AA] text-white" : "text-slate-400 hover:text-white"
+              }`}
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              onClick={() => setLanguage("hi")}
+              className={`px-2 py-0.5 rounded-full font-semibold transition-all ${
+                language === "hi" ? "bg-[#1769AA] text-white" : "text-slate-400 hover:text-white"
+              }`}
+            >
+              HI
+            </button>
+          </div>
+
+          <Link
+            href="/admin"
+            className="text-[11px] font-mono text-slate-400 hover:text-[#73D8FF] px-2 py-1 rounded-lg hover:bg-white/5 transition-colors"
+          >
+            Admin
+          </Link>
+
           <LinkButton
             href="/get-quote"
             variant="ghost"

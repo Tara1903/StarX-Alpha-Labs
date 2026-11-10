@@ -1,3 +1,4 @@
+import { Immersive3DEnvironment } from "@/components/3d/Immersive3DEnvironment";
 import { Navbar } from "@/components/marketing/Navbar";
 import { HeroSection } from "@/components/marketing/HeroSection";
 import { CompanyIntro } from "@/components/marketing/CompanyIntro";
@@ -14,7 +15,10 @@ import { Footer } from "@/components/marketing/Footer";
 export default function HomePage() {
   return (
     <div className="relative min-h-screen flex flex-col bg-[#07111F] text-[#F8FAFC] selection:bg-[#1769AA] selection:text-white overflow-x-hidden">
-      {/* Lightweight Digital Engineering Atmosphere (Zero 3D/JS overhead) */}
+      {/* Full-Screen Transparent 3D Neural Environment (Client isolated with progressive ambient fallback) */}
+      <Immersive3DEnvironment />
+
+      {/* Lightweight Digital Engineering Atmosphere Overlay */}
       <div
         aria-hidden="true"
         className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
