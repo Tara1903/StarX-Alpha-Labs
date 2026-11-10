@@ -11,11 +11,13 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   const navLinks = [
-    { label: "Divisions", href: "#divisions" },
-    { label: "Capabilities", href: "#capabilities" },
-    { label: "Engineering", href: "#engineering" },
-    { label: "Ecosystem", href: "#ecosystem" },
-    { label: "Design System", href: "/design-system" },
+    { label: "Services", href: "/services" },
+    { label: "Divisions", href: "/divisions" },
+    { label: "Portfolio", href: "/portfolio" },
+    { label: "Industries", href: "/industries" },
+    { label: "Pricing", href: "/pricing" },
+    { label: "About", href: "/about" },
+    { label: "Blog", href: "/blog" },
   ];
 
   return (
@@ -37,7 +39,7 @@ export function Navbar() {
         </Link>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
           {navLinks.map((link) => (
             <Link
               key={link.label}
@@ -50,12 +52,12 @@ export function Navbar() {
         </nav>
 
         {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-4">
-          <Badge variant="navy" size="sm" dot>
-            Enterprise Grade
-          </Badge>
-          <LinkButton href="#contact" variant="primary" size="sm" rightIcon={<ArrowUpRight className="w-3.5 h-3.5" />}>
-            Start a Project
+        <div className="hidden md:flex items-center gap-3">
+          <LinkButton href="/get-quote" variant="outline" size="sm">
+            Get Quote
+          </LinkButton>
+          <LinkButton href="/contact" variant="primary" size="sm" rightIcon={<ArrowUpRight className="w-3.5 h-3.5" />}>
+            Start Project
           </LinkButton>
         </div>
 
@@ -64,7 +66,7 @@ export function Navbar() {
           type="button"
           aria-label="Toggle navigation menu"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 rounded-lg border border-[#19375E] bg-[#0F2038] text-slate-300 hover:text-white"
+          className="lg:hidden p-2 rounded-lg border border-[#19375E] bg-[#0F2038] text-slate-300 hover:text-white"
         >
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
@@ -72,7 +74,7 @@ export function Navbar() {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-[#19375E] bg-[#0A1424] px-4 py-6 space-y-4">
+        <div className="lg:hidden border-b border-[#19375E] bg-[#0A1424] px-4 py-6 space-y-4">
           <nav className="flex flex-col space-y-3">
             {navLinks.map((link) => (
               <Link
@@ -85,9 +87,18 @@ export function Navbar() {
               </Link>
             ))}
           </nav>
-          <div className="pt-2">
+          <div className="pt-2 flex flex-col gap-2">
             <LinkButton
-              href="#contact"
+              href="/get-quote"
+              variant="outline"
+              size="md"
+              className="w-full justify-center"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Request a Quote
+            </LinkButton>
+            <LinkButton
+              href="/contact"
               variant="primary"
               size="md"
               className="w-full justify-center"

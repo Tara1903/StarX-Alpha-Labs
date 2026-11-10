@@ -2,6 +2,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { SITE_CONFIG } from "@/lib/constants";
+import { getStarxFlowDestinationUrl } from "@/lib/ecosystem";
 import { ArrowUpRight } from "lucide-react";
 
 export function Footer() {
@@ -28,6 +29,21 @@ export function Footer() {
             <div className="text-xs text-slate-500 font-mono">
               {SITE_CONFIG.contact.address}
             </div>
+            <div className="pt-2 flex items-center gap-3">
+              <Link
+                href="/get-quote"
+                className="text-xs text-[#32A9E8] hover:underline font-semibold"
+              >
+                Request Quote &rarr;
+              </Link>
+              <span className="text-slate-600">&bull;</span>
+              <Link
+                href="/book-consultation"
+                className="text-xs text-[#32A9E8] hover:underline font-semibold"
+              >
+                Book Consultation &rarr;
+              </Link>
+            </div>
           </div>
 
           {/* Divisions */}
@@ -35,36 +51,83 @@ export function Footer() {
             <h4 className="text-xs font-bold uppercase tracking-wider text-white">Divisions</h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link href="#divisions" className="hover:text-[#32A9E8] transition-colors">
+                <Link href="/divisions/starx-digital" className="hover:text-[#32A9E8] transition-colors">
                   STARX DIGITAL
                 </Link>
               </li>
               <li>
-                <Link href="#divisions" className="hover:text-[#32A9E8] transition-colors">
+                <Link href="/divisions/starx-systems" className="hover:text-[#32A9E8] transition-colors">
                   STARX SYSTEMS
                 </Link>
               </li>
               <li>
-                <Link href="#divisions" className="hover:text-[#32A9E8] transition-colors">
+                <Link href="/divisions/starx-ai-solutions" className="hover:text-[#32A9E8] transition-colors">
                   STARX AI SOLUTIONS
+                </Link>
+              </li>
+              <li>
+                <Link href="/divisions" className="hover:text-slate-200 text-slate-500 transition-colors">
+                  All Divisions Overview
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Ecosystem & Architecture */}
+          {/* Company & Solutions */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-white">Navigation</h4>
+            <ul className="space-y-2 text-xs">
+              <li>
+                <Link href="/services" className="hover:text-[#32A9E8] transition-colors">
+                  Services Catalog
+                </Link>
+              </li>
+              <li>
+                <Link href="/pricing" className="hover:text-[#32A9E8] transition-colors">
+                  Pricing & Models
+                </Link>
+              </li>
+              <li>
+                <Link href="/portfolio" className="hover:text-[#32A9E8] transition-colors">
+                  Portfolio & Showcases
+                </Link>
+              </li>
+              <li>
+                <Link href="/industries" className="hover:text-[#32A9E8] transition-colors">
+                  Industries Served
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className="hover:text-[#32A9E8] transition-colors">
+                  About STARX LABS
+                </Link>
+              </li>
+              <li>
+                <Link href="/blog" className="hover:text-[#32A9E8] transition-colors">
+                  Engineering Blog
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Ecosystem & Legal */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-white">Ecosystem</h4>
             <ul className="space-y-2 text-xs">
               <li>
                 <a
-                  href={SITE_CONFIG.ecosystem.starxFlowUrl}
+                  href={getStarxFlowDestinationUrl({ campaign: "footer_link" })}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-[#32A9E8] inline-flex items-center gap-1 transition-colors"
+                  className="hover:text-[#32A9E8] inline-flex items-center gap-1 transition-colors text-slate-300 font-medium"
                 >
-                  STARX FLOW <ArrowUpRight className="w-3 h-3" />
+                  STARX FLOW (Automation) <ArrowUpRight className="w-3 h-3" />
                 </a>
+              </li>
+              <li>
+                <Link href="/contact" className="hover:text-[#32A9E8] transition-colors">
+                  Contact Architects
+                </Link>
               </li>
               <li>
                 <Link href="/design-system" className="hover:text-[#32A9E8] transition-colors">
@@ -72,46 +135,34 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/api/health" className="hover:text-[#32A9E8] transition-colors">
-                  System Health API
+                <Link href="/api/health" className="hover:text-[#32A9E8] transition-colors font-mono">
+                  System Status
                 </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Governance & Contact */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-white">Contact</h4>
-            <ul className="space-y-2 text-xs">
-              <li>
-                <a href={`mailto:${SITE_CONFIG.contact.sales}`} className="hover:text-[#32A9E8] transition-colors">
-                  {SITE_CONFIG.contact.sales}
-                </a>
-              </li>
-              <li>
-                <span className="text-slate-500">{SITE_CONFIG.contact.phone}</span>
-              </li>
-              <li className="pt-2 text-[11px] text-slate-500">
-                Authorized Enterprise Inquiries Only
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Bottom Credits & Legal */}
+        {/* Bottom Credits & Legal Links */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div>
             &copy; {currentYear} {SITE_CONFIG.legalName} All rights reserved.
           </div>
-          <div className="flex items-center gap-6">
-            <Link href="#contact" className="hover:text-slate-300 transition-colors">
-              Terms of Engagement
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+            <Link href="/terms" className="hover:text-slate-300 transition-colors">
+              Terms of Service
             </Link>
-            <Link href="#contact" className="hover:text-slate-300 transition-colors">
+            <Link href="/privacy" className="hover:text-slate-300 transition-colors">
               Privacy Policy
             </Link>
-            <Link href="#contact" className="hover:text-slate-300 transition-colors">
-              Security Governance
+            <Link href="/refund" className="hover:text-slate-300 transition-colors">
+              Refund Policy
+            </Link>
+            <Link href="/cancellation" className="hover:text-slate-300 transition-colors">
+              Cancellation Policy
+            </Link>
+            <Link href="/cookies" className="hover:text-slate-300 transition-colors">
+              Cookie Policy
             </Link>
           </div>
         </div>
