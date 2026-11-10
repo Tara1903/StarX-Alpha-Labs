@@ -13,15 +13,42 @@ export function FinalCTA() {
   const [loading, setLoading] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const [division, setDivision] = React.useState("systems");
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email || !email.includes("@")) {
+      setErrorMessage("Please enter a valid corporate email.");
+      return;
+    }
     setLoading(true);
-    setTimeout(() => {
+    setErrorMessage(null);
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: "Direct Lead",
+          email,
+          division,
+          message: `Inquiry submitted via Homepage Quick CTA for division: ${division}`,
+          sourcePage: "/",
+        }),
+      });
+
+      const data = await res.json();
       setLoading(false);
-      setSubmitted(true);
-    }, 800);
+
+      if (res.ok && data.success) {
+        setSubmitted(true);
+      } else {
+        setErrorMessage(data.message || "Failed to submit. Please try again.");
+      }
+    } catch {
+      setLoading(false);
+      setErrorMessage("Network error. Please try again.");
+    }
   };
 
   return (
@@ -63,13 +90,18 @@ export function FinalCTA() {
                 <p className="text-xs text-[#A3B4C7]">
                   An architectural director will review your inquiry and follow up at <strong className="text-white">{email}</strong> within 24 hours.
                 </p>
-                <div className="pt-3 border-t border-[rgba(130,180,220,0.14)] text-[11px] font-mono text-amber-300/90 flex items-center justify-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-                  Local Staging Active — Form recorded ahead of Phase 5 Supabase lead persistence.
+                <div className="pt-3 border-t border-[rgba(130,180,220,0.14)] text-[11px] font-mono text-emerald-400 flex items-center justify-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                  Database Persisted — Securely registered in StarX Alpha Labs pipeline.
                 </div>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="pt-4 max-w-xl mx-auto space-y-4">
+                {errorMessage && (
+                  <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300">
+                    {errorMessage}
+                  </div>
+                )}
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Input
                     type="email"

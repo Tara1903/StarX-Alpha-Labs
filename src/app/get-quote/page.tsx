@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Select } from "@/components/ui/Select";
 import { FormField } from "@/components/ui/FormField";
 import { SERVICES_DATA } from "@/data/services";
-import { ArrowRight, CheckCircle2, DollarSign, Info, ShieldCheck } from "lucide-react";
+import { ArrowRight, CheckCircle2, DollarSign, Info, ShieldCheck, AlertCircle } from "lucide-react";
 
 export default function GetQuotePage() {
   const [selectedService, setSelectedService] = React.useState("custom-software");
@@ -23,7 +23,9 @@ export default function GetQuotePage() {
   const [notes, setNotes] = React.useState("");
   const [errors, setErrors] = React.useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = React.useState(false);
-  const [submissionStatus, setSubmissionStatus] = React.useState<"idle" | "staged">("idle");
+  const [submissionStatus, setSubmissionStatus] = React.useState<"idle" | "success" | "error">("idle");
+  const [submissionMessage, setSubmissionMessage] = React.useState("");
+  const [quoteId, setQuoteId] = React.useState("");
 
   const validate = () => {
     const errs: Record<string, string> = {};
@@ -34,15 +36,45 @@ export default function GetQuotePage() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
     setIsLoading(true);
-    setTimeout(() => {
+    setSubmissionStatus("idle");
+    setSubmissionMessage("");
+
+    try {
+      const res = await fetch("/api/quote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName,
+          email,
+          company,
+          serviceSlug: selectedService,
+          budgetRange,
+          timeline,
+          projectDetails: notes,
+        }),
+      });
+
+      const data = await res.json();
       setIsLoading(false);
-      setSubmissionStatus("staged");
-    }, 1200);
+
+      if (res.ok && data.success) {
+        setSubmissionStatus("success");
+        setSubmissionMessage(data.message || "Your project quotation request has been recorded.");
+        if (data.quoteId) setQuoteId(data.quoteId);
+      } else {
+        setSubmissionStatus("error");
+        setSubmissionMessage(data.message || "Unable to submit quote request. Please try again.");
+      }
+    } catch {
+      setIsLoading(false);
+      setSubmissionStatus("error");
+      setSubmissionMessage("Network error communicating with the backend. Please check your connectivity.");
+    }
   };
 
   return (
@@ -69,27 +101,31 @@ export default function GetQuotePage() {
         <section className="py-20 bg-[#07111F]">
           <Container className="max-w-4xl">
             <div className="p-8 sm:p-12 rounded-3xl bg-[#0B192B]/80 border border-[rgba(130,180,220,0.18)] shadow-2xl space-y-8">
-              {submissionStatus === "staged" ? (
-                <div className="p-8 rounded-2xl bg-[#102D50] border border-[#32A9E8]/40 space-y-4">
+              {submissionStatus === "success" ? (
+                <div className="p-8 rounded-2xl bg-[#102D50] border border-emerald-500/40 space-y-4">
                   <div className="flex items-center gap-2.5 text-emerald-400 font-bold text-base">
                     <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0" />
-                    <span>Quote Configuration Validated & Staged</span>
+                    <span>Quote Request Persisted to Database</span>
                   </div>
                   <p className="text-sm text-slate-300 leading-relaxed">
                     Thank you, <strong className="text-white">{fullName}</strong>. Your requested estimate for{" "}
-                    <strong className="text-[#32A9E8]">{selectedService}</strong> ({budgetRange}) has been validated.
+                    <strong className="text-[#32A9E8]">{selectedService}</strong> ({budgetRange}) has been saved with Reference ID:{" "}
+                    <code className="text-[#73D8FF] font-mono text-xs bg-[#07111F] px-2 py-0.5 rounded">{quoteId || "LOGGED"}</code>
                   </p>
                   <div className="p-4 rounded-xl bg-[#07111F] border border-[rgba(130,180,220,0.18)] flex items-start gap-2.5 text-xs text-slate-400">
                     <Info className="w-5 h-5 text-[#32A9E8] shrink-0 mt-0.5" />
-                    <span>
-                      Notice: Live database persistence and automated proposal generation will be connected in Phase 5
-                      (Supabase Backend). Our architects review staged configurations regularly during active sprints.
-                    </span>
+                    <span>{submissionMessage}</span>
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setSubmissionStatus("idle")}
+                    onClick={() => {
+                      setSubmissionStatus("idle");
+                      setFullName("");
+                      setEmail("");
+                      setCompany("");
+                      setNotes("");
+                    }}
                     className="mt-2"
                   >
                     Configure Another Scope
@@ -97,6 +133,12 @@ export default function GetQuotePage() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-8">
+                  {submissionStatus === "error" && (
+                    <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-2.5 text-xs text-rose-300">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+                      <span>{submissionMessage}</span>
+                    </div>
+                  )}
                   {/* Scope Configuration */}
                   <div className="space-y-4">
                     <h2 className="text-lg font-bold text-white border-b border-[rgba(130,180,220,0.18)] pb-2">

@@ -21,7 +21,9 @@ export default function ContactPage() {
   const [message, setMessage] = React.useState("");
   const [errors, setErrors] = React.useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = React.useState(false);
-  const [submissionStatus, setSubmissionStatus] = React.useState<"idle" | "staged">("idle");
+  const [submissionStatus, setSubmissionStatus] = React.useState<"idle" | "success" | "error">("idle");
+  const [submissionMessage, setSubmissionMessage] = React.useState("");
+  const [enquiryId, setEnquiryId] = React.useState("");
 
   const validate = () => {
     const errs: Record<string, string> = {};
@@ -32,17 +34,44 @@ export default function ContactPage() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
     setIsLoading(true);
-    // Simulate real network validation and local staging
-    setTimeout(() => {
+    setSubmissionStatus("idle");
+    setSubmissionMessage("");
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName,
+          email,
+          company,
+          division,
+          message,
+          sourcePage: "/contact",
+        }),
+      });
+
+      const data = await res.json();
       setIsLoading(false);
-      // Strictly honest staging notification — never fake a production database commit before Phase 5
-      setSubmissionStatus("staged");
-    }, 1200);
+
+      if (res.ok && data.success) {
+        setSubmissionStatus("success");
+        setSubmissionMessage(data.message || "Your enquiry has been securely logged.");
+        if (data.enquiryId) setEnquiryId(data.enquiryId);
+      } else {
+        setSubmissionStatus("error");
+        setSubmissionMessage(data.message || "Unable to submit enquiry. Please try again.");
+      }
+    } catch {
+      setIsLoading(false);
+      setSubmissionStatus("error");
+      setSubmissionMessage("Network error communicating with the backend. Please check your connectivity.");
+    }
   };
 
   return (
@@ -76,28 +105,30 @@ export default function ContactPage() {
                   <p className="text-xs text-slate-400">All submissions are handled with strict technical confidentiality.</p>
                 </div>
 
-                {submissionStatus === "staged" ? (
-                  <div className="p-6 rounded-2xl bg-[#102D50] border border-[#32A9E8]/40 space-y-3">
+                {submissionStatus === "success" ? (
+                  <div className="p-6 rounded-2xl bg-[#102D50] border border-emerald-500/40 space-y-3">
                     <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
                       <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-                      <span>Enquiry Validated & Staged Locally</span>
+                      <span>Enquiry Securely Persisted</span>
                     </div>
                     <p className="text-xs text-slate-300 leading-relaxed">
-                      Thank you, <strong className="text-white">{fullName}</strong>. Your enquiry details for{" "}
-                      <strong className="text-[#32A9E8]">{email}</strong> have passed client-side schema validation.
+                      Thank you, <strong className="text-white">{fullName}</strong>. Your enquiry details have been committed to the
+                      StarX Alpha Labs database. Reference ID: <code className="text-[#73D8FF] font-mono text-[11px] bg-[#07111F] px-1.5 py-0.5 rounded">{enquiryId || "LOGGED"}</code>
                     </p>
                     <div className="p-3 rounded-lg bg-[#07111F] border border-[rgba(130,180,220,0.18)] flex items-start gap-2 text-[11px] text-slate-400">
                       <Info className="w-4 h-4 text-[#32A9E8] shrink-0 mt-0.5" />
-                      <span>
-                        Notice: Live production database persistence and automated email dispatch will activate upon completion of
-                        Phase 5 (Supabase Backend Integration). In the interim, you can also reach us directly at{" "}
-                        <strong className="text-white">{SITE_CONFIG.contact.sales}</strong>.
-                      </span>
+                      <span>{submissionMessage}</span>
                     </div>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setSubmissionStatus("idle")}
+                      onClick={() => {
+                        setSubmissionStatus("idle");
+                        setFullName("");
+                        setEmail("");
+                        setCompany("");
+                        setMessage("");
+                      }}
                       className="mt-2"
                     >
                       Submit Another Query
@@ -105,6 +136,12 @@ export default function ContactPage() {
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-4">
+                    {submissionStatus === "error" && (
+                      <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-2.5 text-xs text-rose-300">
+                        <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+                        <span>{submissionMessage}</span>
+                      </div>
+                    )}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <FormField
                         label="Full Name"
