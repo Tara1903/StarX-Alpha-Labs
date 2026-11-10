@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import dynamic from "next/dynamic";
-import { isWebGLAvailable } from "./WebGLDetector";
 import { AmbientFallback } from "./AmbientFallback";
 
 // Dynamically import NeuralScene (which wraps Canvas and NeuralMesh)
@@ -14,20 +13,21 @@ const DynamicNeuralScene = dynamic(
   }
 );
 
-const noopSubscribe = () => () => {};
-
 export function Immersive3DEnvironment() {
-  const isMounted = React.useSyncExternalStore(
-    noopSubscribe,
-    () => true,
-    () => false
-  );
+  const [canRender, setCanRender] = React.useState(false);
 
-  const hasWebGL = React.useSyncExternalStore(
-    noopSubscribe,
-    () => isWebGLAvailable(),
-    () => false
-  );
+  React.useEffect(() => {
+    try {
+      const canvas = document.createElement("canvas");
+      const gl =
+        canvas.getContext("webgl2") ||
+        canvas.getContext("webgl") ||
+        canvas.getContext("experimental-webgl");
+      setCanRender(Boolean(window.WebGLRenderingContext && gl));
+    } catch {
+      setCanRender(false);
+    }
+  }, []);
 
   return (
     <div
@@ -38,7 +38,7 @@ export function Immersive3DEnvironment() {
       <AmbientFallback />
 
       {/* Interactive 3D Hollow Wireframe Brain */}
-      {isMounted && hasWebGL && (
+      {canRender && (
         <DynamicNeuralScene className="w-full h-full relative z-10" />
       )}
     </div>

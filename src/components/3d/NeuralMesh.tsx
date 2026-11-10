@@ -4,10 +4,6 @@ import * as React from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
-interface NeuralMeshProps {
-  onReady?: () => void;
-}
-
 // Pure deterministic pseudo-random generator
 function pseudoRandom(seed: number): number {
   const x = Math.sin(seed * 12.9898 + 78.233) * 43758.5453;
@@ -44,23 +40,23 @@ const TIER_CONFIG: Record<QualityTier, {
   lineOpacity: number;
 }> = {
   high: {
-    nodeCount: 2600,
-    maxLineDist: 0.32,
-    maxLines: 1000,
-    rotationSpeed: 0.085,
+    nodeCount: 3200,
+    maxLineDist: 0.28,
+    maxLines: 900,
+    rotationSpeed: 0.08,
     lineOpacity: 0.22,
   },
   balanced: {
-    nodeCount: 1600,
-    maxLineDist: 0.28,
+    nodeCount: 2200,
+    maxLineDist: 0.26,
     maxLines: 600,
-    rotationSpeed: 0.075,
+    rotationSpeed: 0.07,
     lineOpacity: 0.18,
   },
   low: {
-    nodeCount: 900,
-    maxLineDist: 0.24,
-    maxLines: 250,
+    nodeCount: 1200,
+    maxLineDist: 0.22,
+    maxLines: 300,
     rotationSpeed: 0.05,
     lineOpacity: 0.14,
   },
@@ -114,8 +110,8 @@ const triangleVertexShader = `
     vColor = mix(aBaseColor, highlightWhite, pow(proximity, 1.15));
 
     // Size increases under mouse cursor (scaled for clearly visible hollow triangles)
-    float dynamicSize = aSize * (1.0 + proximity * 0.85);
-    gl_PointSize = dynamicSize * (1250.0 / -mvPosition.z);
+    float dynamicSize = aSize * (1.0 + proximity * 1.25);
+    gl_PointSize = dynamicSize * (680.0 / -mvPosition.z);
   }
 `;
 
@@ -140,16 +136,16 @@ const triangleFragmentShader = `
     float d = max(abs(rotP.x) * k + rotP.y, -rotP.y * 2.0) - 0.85;
 
     // Hollow border profile (wireframe outline)
-    float thickness = 0.22 + vProximity * 0.08;
+    float thickness = 0.28 + vProximity * 0.12;
     float border = abs(d + thickness * 0.5) - thickness * 0.5;
 
     // Antialiased border edge
-    float alpha = 1.0 - smoothstep(-0.05, 0.05, border);
-    if (alpha < 0.04) discard;
+    float alpha = 1.0 - smoothstep(-0.06, 0.06, border);
+    if (alpha < 0.03) discard;
 
     // Extra radiant bloom for white mouse cluster
-    vec3 finalColor = vColor + vec3(vProximity * 0.35);
-    gl_FragColor = vec4(finalColor, alpha * (0.86 + vProximity * 0.14));
+    vec3 finalColor = vColor + vec3(vProximity * 0.45);
+    gl_FragColor = vec4(finalColor, alpha * (0.92 + vProximity * 0.08));
   }
 `;
 
@@ -157,7 +153,7 @@ const triangleFragmentShader = `
 const tempMouseVec = new THREE.Vector3();
 const tempRayDir = new THREE.Vector3();
 
-export function NeuralMesh({ onReady }: NeuralMeshProps) {
+export function NeuralMesh() {
   const { viewport, camera } = useThree();
   const isMobile = viewport.width < 5;
 
@@ -165,7 +161,6 @@ export function NeuralMesh({ onReady }: NeuralMeshProps) {
   const config = TIER_CONFIG[quality];
 
   const mouseRef = React.useRef({ x: 0, y: 0, active: false });
-  const hasSignaledReady = React.useRef(false);
 
   React.useEffect(() => {
     const handleMove = (e: MouseEvent) => {
@@ -187,7 +182,7 @@ export function NeuralMesh({ onReady }: NeuralMeshProps) {
   }, []);
 
   // 1. Generate anatomical human brain points, faceted rotations, and regional colors
-  const { pointsGeometry, linesGeometry } = React.useMemo(() => {
+  const { positions, colors, sizes, angles, connectionPositions, connectionColors } = React.useMemo(() => {
     const nodeCount = config.nodeCount;
     const maxLineDist = config.maxLineDist;
     const maxLines = config.maxLines;
@@ -216,7 +211,11 @@ export function NeuralMesh({ onReady }: NeuralMeshProps) {
       const rx = 1.46;
       const ry = 1.16;
       const rz = 1.74;
-      const r = Math.cbrt(pseudoRandom(i * 6 + 3)) * 0.88 + 0.12;
+      // 75% on outer cortex shell to give crisp anatomical silhouette
+      const isShell = pseudoRandom(i * 5 + 4) > 0.25;
+      const r = isShell
+        ? 0.78 + pseudoRandom(i * 6 + 3) * 0.22
+        : Math.cbrt(pseudoRandom(i * 6 + 3)) * 0.78;
 
       let x = rx * r * Math.sin(phi) * Math.cos(theta);
       let y = ry * r * Math.sin(phi) * Math.sin(theta);
@@ -261,8 +260,8 @@ export function NeuralMesh({ onReady }: NeuralMeshProps) {
       pos[i * 3 + 1] = y;
       pos[i * 3 + 2] = z;
 
-      // Prominent triangle size & facet angle
-      sz[i] = 0.075 + pseudoRandom(i * 7) * 0.045;
+      // Triangle size & facet angle (calibrated for crisp, visible wireframe outlines)
+      sz[i] = 0.095 + pseudoRandom(i * 7) * 0.055;
       ang[i] = pseudoRandom(i * 13) * Math.PI * 2.0;
 
       // Regional Coloring matching the reference screenshot:
@@ -325,27 +324,19 @@ export function NeuralMesh({ onReady }: NeuralMeshProps) {
       }
     }
 
-    // Construct Three.js BufferGeometries directly for 100% attribute fidelity
-    const pGeo = new THREE.BufferGeometry();
-    pGeo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-    pGeo.setAttribute("aBaseColor", new THREE.BufferAttribute(col, 3));
-    pGeo.setAttribute("aSize", new THREE.BufferAttribute(sz, 1));
-    pGeo.setAttribute("aAngle", new THREE.BufferAttribute(ang, 1));
-
-    const lGeo = new THREE.BufferGeometry();
-    lGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(linesPos), 3));
-    lGeo.setAttribute("color", new THREE.BufferAttribute(new Float32Array(linesCol), 3));
-
     return {
-      pointsGeometry: pGeo,
-      linesGeometry: lGeo,
+      positions: pos,
+      colors: col,
+      sizes: sz,
+      angles: ang,
+      connectionPositions: new Float32Array(linesPos),
+      connectionColors: new Float32Array(linesCol),
     };
   }, [config]);
 
   const groupRef = React.useRef<THREE.Group>(null);
   const coreRef = React.useRef<THREE.Mesh>(null);
   const shaderMatRef = React.useRef<THREE.ShaderMaterial>(null);
-  const linesMatRef = React.useRef<THREE.LineBasicMaterial>(null);
 
   // Shader uniforms
   const uniforms = React.useMemo(() => {
@@ -354,31 +345,30 @@ export function NeuralMesh({ onReady }: NeuralMeshProps) {
       uRayOrigin: { value: new THREE.Vector3(0, 0, 5) },
       uRayDir: { value: new THREE.Vector3(0, 0, -1) },
       uMouseActive: { value: 0 },
-      uRadius: { value: 1.4 },
+      uRadius: { value: 1.55 },
     };
   }, []);
 
-  // Proper resource disposal
-  React.useEffect(() => {
-    const shaderMat = shaderMatRef.current;
-    const linesMat = linesMatRef.current;
+  // Dedicated BufferGeometries instantiated via useMemo with explicit typed attributes
+  const pointsGeometry = React.useMemo(() => {
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute("aBaseColor", new THREE.BufferAttribute(colors, 3));
+    geo.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
+    geo.setAttribute("aAngle", new THREE.BufferAttribute(angles, 1));
+    return geo;
+  }, [positions, colors, sizes, angles]);
 
-    return () => {
-      pointsGeometry.dispose();
-      linesGeometry.dispose();
-      shaderMat?.dispose();
-      linesMat?.dispose();
-    };
-  }, [pointsGeometry, linesGeometry]);
+  const linesGeometry = React.useMemo(() => {
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(connectionPositions, 3));
+    geo.setAttribute("color", new THREE.BufferAttribute(connectionColors, 3));
+    return geo;
+  }, [connectionPositions, connectionColors]);
 
   // Frame animation loop with zero runtime allocations
   useFrame((state, delta) => {
     if (typeof document !== "undefined" && document.hidden) return;
-
-    if (!hasSignaledReady.current) {
-      hasSignaledReady.current = true;
-      onReady?.();
-    }
 
     const time = state.clock.getElapsedTime();
     const isMouseActive = mouseRef.current.active;
@@ -412,24 +402,24 @@ export function NeuralMesh({ onReady }: NeuralMeshProps) {
       const docHeight = typeof document !== "undefined" ? document.documentElement.scrollHeight - window.innerHeight : 1;
       const scrollProgress = docHeight > 0 ? Math.min(1, Math.max(0, scrollY / docHeight)) : 0;
 
-      let targetX = isMobile ? 0 : 1.6;
-      let targetY = isMobile ? 0.6 : 0.1;
-      let targetZ = isMobile ? -0.5 : 0.1;
-      let targetScale = isMobile ? 0.72 : 1.15;
+      let targetX = isMobile ? 0 : 1.35;
+      let targetY = isMobile ? 0.45 : 0.08;
+      let targetZ = isMobile ? -0.5 : 0.15;
+      let targetScale = isMobile ? 0.78 : 1.25;
 
       if (scrollProgress < 0.18) {
-        // Hero Section: Upper right / 3/4 profile
-        targetX = isMobile ? 0 : 1.6;
-        targetY = isMobile ? 0.5 : 0.1;
-        targetZ = isMobile ? -0.5 : 0.1;
-        targetScale = isMobile ? 0.72 : 1.15;
+        // Hero Section: Upper right / 3/4 profile behind headline
+        targetX = isMobile ? 0 : 1.35;
+        targetY = isMobile ? 0.45 : 0.08;
+        targetZ = isMobile ? -0.5 : 0.15;
+        targetScale = isMobile ? 0.78 : 1.25;
       } else if (scrollProgress < 0.38) {
         // Technology Statement: Glides down and centers, expanding slightly
         const t = (scrollProgress - 0.18) / 0.2;
-        targetX = THREE.MathUtils.lerp(isMobile ? 0 : 1.6, 0.0, t);
-        targetY = THREE.MathUtils.lerp(isMobile ? 0.5 : 0.1, -0.3, t);
-        targetZ = THREE.MathUtils.lerp(isMobile ? -0.5 : 0.1, 0.5, t);
-        targetScale = THREE.MathUtils.lerp(isMobile ? 0.72 : 1.15, isMobile ? 0.85 : 1.3, t);
+        targetX = THREE.MathUtils.lerp(isMobile ? 0 : 1.35, 0.0, t);
+        targetY = THREE.MathUtils.lerp(isMobile ? 0.45 : 0.08, -0.3, t);
+        targetZ = THREE.MathUtils.lerp(isMobile ? -0.5 : 0.15, 0.5, t);
+        targetScale = THREE.MathUtils.lerp(isMobile ? 0.78 : 1.25, isMobile ? 0.85 : 1.3, t);
       } else if (scrollProgress < 0.62) {
         // Operating Divisions: Glides down and frames division cards from the left
         const t = (scrollProgress - 0.38) / 0.24;
@@ -474,8 +464,8 @@ export function NeuralMesh({ onReady }: NeuralMeshProps) {
   return (
     <group
       ref={groupRef}
-      position={[isMobile ? 0 : 1.6, isMobile ? 0.5 : 0.1, isMobile ? -0.5 : 0.1]}
-      scale={isMobile ? 0.72 : 1.15}
+      position={[isMobile ? 0 : 1.35, isMobile ? 0.45 : 0.08, isMobile ? -0.5 : 0.15]}
+      scale={isMobile ? 0.78 : 1.25}
     >
       {/* 1. Hollow Triangle Brain Point Cloud */}
       <points geometry={pointsGeometry}>
@@ -493,7 +483,6 @@ export function NeuralMesh({ onReady }: NeuralMeshProps) {
       {/* 2. Synaptic Connective Filaments */}
       <lineSegments geometry={linesGeometry}>
         <lineBasicMaterial
-          ref={linesMatRef}
           vertexColors
           transparent
           opacity={config.lineOpacity}
