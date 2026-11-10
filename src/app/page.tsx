@@ -15,14 +15,14 @@ import { Footer } from "@/components/marketing/Footer";
 export default function HomePage() {
   return (
     <div className="relative min-h-screen flex flex-col bg-[#07111F] text-[#F8FAFC] selection:bg-[#1769AA] selection:text-white">
-      {/* Full-Screen Transparent 3D Neural Environment */}
+      {/* Full-Screen Transparent 3D Neural Environment (Client isolated with progressive ambient fallback) */}
       <Immersive3DEnvironment />
 
       {/* Global Transparent Floating Header */}
       <Navbar />
 
       <main className="grow relative z-10">
-        {/* Section 1: Immersive 3D Hero */}
+        {/* Section 1: Immersive 3D Hero (Instant Server-Rendered LCP) */}
         <HeroSection />
 
         {/* Section 2: Technology Statement */}

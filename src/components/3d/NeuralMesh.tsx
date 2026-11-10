@@ -5,7 +5,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
 interface NeuralMeshProps {
-  scrollProgress?: number;
+  onReady?: () => void;
 }
 
 // Pure deterministic pseudo-random generator
@@ -13,6 +13,60 @@ function pseudoRandom(seed: number): number {
   const x = Math.sin(seed * 12.9898 + 78.233) * 43758.5453;
   return x - Math.floor(x);
 }
+
+// Device adaptive quality tier detection
+type QualityTier = "high" | "balanced" | "low";
+
+function getDeviceQualityTier(): QualityTier {
+  if (typeof window === "undefined") return "balanced";
+
+  // Check reduced motion preference
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    return "low";
+  }
+
+  const isSmallScreen = window.innerWidth < 768;
+  const cores = navigator.hardwareConcurrency || 4;
+  const memory = (navigator as { deviceMemory?: number }).deviceMemory || 8;
+
+  if (isSmallScreen || cores <= 4 || memory < 4) {
+    return "low";
+  }
+  if (cores <= 6 || memory <= 4 || window.innerWidth < 1280) {
+    return "balanced";
+  }
+  return "high";
+}
+
+const TIER_CONFIG: Record<QualityTier, {
+  nodeCount: number;
+  maxLineDist: number;
+  maxLines: number;
+  rotationSpeed: number;
+  lineOpacity: number;
+}> = {
+  high: {
+    nodeCount: 2600,
+    maxLineDist: 0.32,
+    maxLines: 1000,
+    rotationSpeed: 0.085,
+    lineOpacity: 0.22,
+  },
+  balanced: {
+    nodeCount: 1600,
+    maxLineDist: 0.28,
+    maxLines: 600,
+    rotationSpeed: 0.075,
+    lineOpacity: 0.18,
+  },
+  low: {
+    nodeCount: 900,
+    maxLineDist: 0.24,
+    maxLines: 250,
+    rotationSpeed: 0.05,
+    lineOpacity: 0.14,
+  },
+};
 
 // Vertex shader for hollow triangle particles
 const triangleVertexShader = `
@@ -57,7 +111,7 @@ const triangleVertexShader = `
     vec4 mvPosition = modelViewMatrix * vec4(animatedPos, 1.0);
     gl_Position = projectionMatrix * mvPosition;
 
-    // Triangles directly under cursor turn brilliant glowing white (#FFFFFF), matching the screenshot!
+    // Triangles directly under cursor turn brilliant glowing white (#FFFFFF), matching the reference
     vec3 highlightWhite = vec3(1.0, 1.0, 1.0);
     vColor = mix(aBaseColor, highlightWhite, pow(proximity, 1.15));
 
@@ -74,7 +128,6 @@ const triangleFragmentShader = `
   varying float vAngle;
 
   void main() {
-    // Coordinate space [-1.0, 1.0]
     vec2 p = gl_PointCoord * 2.0 - 1.0;
     p.y = -p.y;
 
@@ -84,7 +137,7 @@ const triangleFragmentShader = `
     vec2 rotP = vec2(c * p.x - s * p.y, s * p.x + c * p.y);
 
     // Equilateral triangle signed distance field
-    const float k = 1.7320508; // sqrt(3)
+    const float k = 1.7320508;
     float d = max(abs(rotP.x) * k + rotP.y, -rotP.y * 2.0) - 0.85;
 
     // Hollow border profile (wireframe outline)
@@ -101,15 +154,21 @@ const triangleFragmentShader = `
   }
 `;
 
-export function NeuralMesh({ scrollProgress = 0 }: NeuralMeshProps) {
+// Module-level pre-allocated vectors to prevent per-frame garbage collection
+const tempMouseVec = new THREE.Vector3();
+const tempRayDir = new THREE.Vector3();
+
+export function NeuralMesh({ onReady }: NeuralMeshProps) {
   const { viewport, camera } = useThree();
   const isMobile = viewport.width < 5;
 
-  const nodeCount = isMobile ? 1800 : 3800;
-  const maxLineDist = isMobile ? 0.36 : 0.3;
+  // Detect adaptive quality tier once on client
+  const quality = React.useMemo(() => getDeviceQualityTier(), []);
+  const config = TIER_CONFIG[quality];
 
-  // Track global window mouse coordinates to ensure reactivity even with -z-10 / overlay content
+  // Track global window mouse coordinates to ensure reactivity across all layers
   const mouseRef = React.useRef({ x: 0, y: 0, active: false });
+  const hasSignaledReady = React.useRef(false);
 
   React.useEffect(() => {
     const handleMove = (e: MouseEvent) => {
@@ -132,6 +191,10 @@ export function NeuralMesh({ scrollProgress = 0 }: NeuralMeshProps) {
 
   // 1. Generate anatomical human brain points, faceted rotations, and regional colors
   const { positions, colors, sizes, angles, connectionPositions, connectionColors } = React.useMemo(() => {
+    const nodeCount = config.nodeCount;
+    const maxLineDist = config.maxLineDist;
+    const maxLines = config.maxLines;
+
     const pos = new Float32Array(nodeCount * 3);
     const col = new Float32Array(nodeCount * 3);
     const sz = new Float32Array(nodeCount);
@@ -153,7 +216,6 @@ export function NeuralMesh({ scrollProgress = 0 }: NeuralMeshProps) {
       const theta = u * 2.0 * Math.PI;
       const phi = Math.acos(2.0 * v - 1.0);
 
-      // Anatomical cerebral proportions
       const rx = 1.46;
       const ry = 1.16;
       const rz = 1.74;
@@ -163,11 +225,11 @@ export function NeuralMesh({ scrollProgress = 0 }: NeuralMeshProps) {
       let y = ry * r * Math.sin(phi) * Math.sin(theta);
       let z = rz * r * Math.cos(phi);
 
-      // Hemisphere division (longitudinal cerebral fissure)
+      // Longitudinal cerebral fissure
       const hemisphere = x >= 0 ? 1 : -1;
       x += hemisphere * 0.15;
 
-      // Anatomical sulcal convolutions (gyri wrinkles)
+      // Sulcal convolutions (gyri folds)
       const fold = Math.sin(x * 4.2) * Math.cos(y * 4.2) * Math.sin(z * 4.2) * 0.12;
       x += fold;
       y += fold;
@@ -178,7 +240,7 @@ export function NeuralMesh({ scrollProgress = 0 }: NeuralMeshProps) {
         y *= 0.82;
       }
 
-      // Posterior Cerebellum cluster (12% of nodes)
+      // Cerebellum (12% of nodes)
       if (i > nodeCount * 0.88) {
         const cu = pseudoRandom(i * 3 + 1);
         const cv = pseudoRandom(i * 3 + 2);
@@ -189,7 +251,7 @@ export function NeuralMesh({ scrollProgress = 0 }: NeuralMeshProps) {
         z = -0.82 + 0.62 * Math.cos(cPhi) * 0.52;
       }
 
-      // Central Brainstem pillar (4% of nodes)
+      // Brainstem (4% of nodes)
       if (i > nodeCount * 0.96) {
         const su = pseudoRandom(i * 2 + 1) - 0.5;
         const sv = pseudoRandom(i * 2 + 2);
@@ -202,14 +264,10 @@ export function NeuralMesh({ scrollProgress = 0 }: NeuralMeshProps) {
       pos[i * 3 + 1] = y;
       pos[i * 3 + 2] = z;
 
-      // Triangle particle size & facet angle
       sz[i] = 0.052 + pseudoRandom(i * 7) * 0.038;
       ang[i] = pseudoRandom(i * 13) * Math.PI * 2.0;
 
       // Regional Coloring matching the reference screenshot:
-      // - Outer boundary / cortex perimeter: Radiant golden amber & yellow
-      // - Upper lobes (parietal / frontal): Electric cyan & sky blue
-      // - Core & deep temporal lobes: Violet & rich magenta with emerald accents
       const distFromCenter = Math.sqrt(x * x + y * y + z * z);
       const isPerimeter = distFromCenter > 1.22 || y > 0.78;
       const isInnerCore = distFromCenter < 0.68;
@@ -237,19 +295,19 @@ export function NeuralMesh({ scrollProgress = 0 }: NeuralMeshProps) {
       col[i * 3 + 2] = chosenColor.b;
     }
 
-    // 2. Synaptic connections between proximate nodes
+    // 2. Synaptic connections with controlled segment budget
     const linesPos: number[] = [];
     const linesCol: number[] = [];
-    const maxConn = 3;
+    let lineCount = 0;
 
     for (let i = 0; i < nodeCount; i += 2) {
-      let conn = 0;
+      if (lineCount >= maxLines) break;
       const x1 = pos[i * 3];
       const y1 = pos[i * 3 + 1];
       const z1 = pos[i * 3 + 2];
 
       for (let j = i + 1; j < nodeCount; j += 3) {
-        if (conn >= maxConn) break;
+        if (lineCount >= maxLines) break;
 
         const x2 = pos[j * 3];
         const y2 = pos[j * 3 + 1];
@@ -264,7 +322,7 @@ export function NeuralMesh({ scrollProgress = 0 }: NeuralMeshProps) {
           linesPos.push(x1, y1, z1, x2, y2, z2);
           linesCol.push(col[i * 3], col[i * 3 + 1], col[i * 3 + 2]);
           linesCol.push(col[j * 3], col[j * 3 + 1], col[j * 3 + 2]);
-          conn++;
+          lineCount++;
         }
       }
     }
@@ -277,11 +335,14 @@ export function NeuralMesh({ scrollProgress = 0 }: NeuralMeshProps) {
       connectionPositions: new Float32Array(linesPos),
       connectionColors: new Float32Array(linesCol),
     };
-  }, [nodeCount, maxLineDist]);
+  }, [config]);
 
   const groupRef = React.useRef<THREE.Group>(null);
   const coreRef = React.useRef<THREE.Mesh>(null);
   const shaderMatRef = React.useRef<THREE.ShaderMaterial>(null);
+  const pointsGeoRef = React.useRef<THREE.BufferGeometry>(null);
+  const linesGeoRef = React.useRef<THREE.BufferGeometry>(null);
+  const linesMatRef = React.useRef<THREE.LineBasicMaterial>(null);
 
   // Shader uniforms
   const uniforms = React.useMemo(() => {
@@ -294,38 +355,63 @@ export function NeuralMesh({ scrollProgress = 0 }: NeuralMeshProps) {
     };
   }, []);
 
-  // Frame animation loop
+  // Proper Three.js resource disposal on unmount to prevent WebGL memory leaks
+  React.useEffect(() => {
+    const pointsGeo = pointsGeoRef.current;
+    const linesGeo = linesGeoRef.current;
+    const shaderMat = shaderMatRef.current;
+    const linesMat = linesMatRef.current;
+
+    return () => {
+      pointsGeo?.dispose();
+      linesGeo?.dispose();
+      shaderMat?.dispose();
+      linesMat?.dispose();
+    };
+  }, []);
+
+  // Frame animation loop with zero runtime allocations
   useFrame((state, delta) => {
+    // Suspend work when tab is hidden or backgrounded
+    if (typeof document !== "undefined" && document.hidden) return;
+
+    if (!hasSignaledReady.current) {
+      hasSignaledReady.current = true;
+      onReady?.();
+    }
+
     const time = state.clock.getElapsedTime();
     const isMouseActive = mouseRef.current.active;
     const mx = mouseRef.current.x;
     const my = mouseRef.current.y;
 
-    // 1. Update shader uniforms & 3D ray projection
+    // 1. Update shader uniforms & 3D ray projection using pre-allocated vectors
     if (shaderMatRef.current) {
       shaderMatRef.current.uniforms.uTime.value = time;
       shaderMatRef.current.uniforms.uMouseActive.value = isMouseActive ? 1.0 : 0.0;
 
       if (isMouseActive) {
-        const mouseVec = new THREE.Vector3(mx, my, 0.5);
-        mouseVec.unproject(camera);
-        const rayDir = mouseVec.sub(camera.position).normalize();
+        tempMouseVec.set(mx, my, 0.5).unproject(camera);
+        tempRayDir.copy(tempMouseVec).sub(camera.position).normalize();
 
         shaderMatRef.current.uniforms.uRayOrigin.value.copy(camera.position);
-        shaderMatRef.current.uniforms.uRayDir.value.copy(rayDir);
+        shaderMatRef.current.uniforms.uRayDir.value.copy(tempRayDir);
       }
     }
 
-    // 2. Mouse Parallax and Continuous Rotation
+    // 2. Continuous rotation & mouse parallax
     if (groupRef.current) {
-      const targetRotY = time * 0.085 + (isMouseActive ? mx * 0.38 : 0);
+      const targetRotY = time * config.rotationSpeed + (isMouseActive ? mx * 0.38 : 0);
       const targetRotX = isMouseActive ? -my * 0.24 : 0;
 
       groupRef.current.rotation.y += (targetRotY - groupRef.current.rotation.y) * 0.055;
       groupRef.current.rotation.x += (targetRotX - groupRef.current.rotation.x) * 0.055;
 
-      // 3. Scroll-Driven Descent & Section Choreography
-      // The brain gracefully glides down through the sections as the user scrolls!
+      // 3. Scroll-Driven Descent (read directly from compositor without triggering React renders)
+      const scrollY = typeof window !== "undefined" ? window.scrollY : 0;
+      const docHeight = typeof document !== "undefined" ? document.documentElement.scrollHeight - window.innerHeight : 1;
+      const scrollProgress = docHeight > 0 ? Math.min(1, Math.max(0, scrollY / docHeight)) : 0;
+
       let targetX = isMobile ? 0 : 1.6;
       let targetY = isMobile ? 0.6 : 0.1;
       let targetZ = isMobile ? -0.5 : 0.1;
@@ -359,7 +445,7 @@ export function NeuralMesh({ scrollProgress = 0 }: NeuralMeshProps) {
         targetZ = THREE.MathUtils.lerp(-0.2, 0.0, t);
         targetScale = THREE.MathUtils.lerp(isMobile ? 0.75 : 1.1, isMobile ? 0.72 : 1.05, t);
       } else {
-        // Final Engagement CTA: Glides to bottom center with high radiant glow
+        // Final Engagement CTA: Glides to bottom center with radiant glow
         const t = (scrollProgress - 0.82) / 0.18;
         targetX = THREE.MathUtils.lerp(isMobile ? 0 : 1.7, 0.0, t);
         targetY = THREE.MathUtils.lerp(-0.45, -0.15, t);
@@ -376,7 +462,7 @@ export function NeuralMesh({ scrollProgress = 0 }: NeuralMeshProps) {
       );
     }
 
-    // 4. Subtle central STARX nucleus pulse
+    // 4. Central STARX nucleus pulse
     if (coreRef.current) {
       coreRef.current.rotation.y -= delta * 0.45;
       coreRef.current.rotation.x += delta * 0.22;
@@ -389,7 +475,7 @@ export function NeuralMesh({ scrollProgress = 0 }: NeuralMeshProps) {
     <group ref={groupRef}>
       {/* 1. Hollow Triangle Brain Point Cloud */}
       <points>
-        <bufferGeometry>
+        <bufferGeometry ref={pointsGeoRef}>
           <bufferAttribute
             attach="attributes-position"
             args={[positions, 3]}
@@ -420,7 +506,7 @@ export function NeuralMesh({ scrollProgress = 0 }: NeuralMeshProps) {
 
       {/* 2. Synaptic Connective Filaments */}
       <lineSegments>
-        <bufferGeometry>
+        <bufferGeometry ref={linesGeoRef}>
           <bufferAttribute
             attach="attributes-position"
             args={[connectionPositions, 3]}
@@ -431,9 +517,10 @@ export function NeuralMesh({ scrollProgress = 0 }: NeuralMeshProps) {
           />
         </bufferGeometry>
         <lineBasicMaterial
+          ref={linesMatRef}
           vertexColors
           transparent
-          opacity={0.22}
+          opacity={config.lineOpacity}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
         />

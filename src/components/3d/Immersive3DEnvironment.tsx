@@ -3,9 +3,9 @@
 import * as React from "react";
 import dynamic from "next/dynamic";
 import { isWebGLAvailable } from "./WebGLDetector";
-import { NeuralMesh } from "./NeuralMesh";
+import { AmbientFallback } from "./AmbientFallback";
 
-// Dynamically import ThreeCanvas to ensure it is isolated strictly to the client bundle
+// Dynamically import ThreeCanvas strictly after initial page load & main thread idle
 const DynamicThreeCanvas = dynamic(
   () => import("./ThreeCanvas").then((mod) => mod.ThreeCanvas),
   {
@@ -14,15 +14,13 @@ const DynamicThreeCanvas = dynamic(
   }
 );
 
-function AmbientFallback() {
-  return (
-    <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden bg-[#07111F]">
-      <div className="absolute top-1/4 left-1/3 h-[500px] w-[500px] rounded-full bg-[#1769AA]/20 blur-[150px] animate-pulse" />
-      <div className="absolute bottom-1/3 right-1/4 h-[600px] w-[600px] rounded-full bg-[#32A9E8]/15 blur-[170px]" />
-      <div className="absolute top-2/3 left-1/5 h-[400px] w-[400px] rounded-full bg-[#73D8FF]/10 blur-[140px]" />
-    </div>
-  );
-}
+// Dynamically import NeuralMesh particle math
+const DynamicNeuralMesh = dynamic(
+  () => import("./NeuralMesh").then((mod) => mod.NeuralMesh),
+  {
+    ssr: false,
+  }
+);
 
 const noopSubscribe = () => () => {};
 
@@ -39,32 +37,27 @@ export function Immersive3DEnvironment() {
     () => false
   );
 
-  const [scrollProgress, setScrollProgress] = React.useState(0);
+  const [shouldLoad3D, setShouldLoad3D] = React.useState(false);
+  const [sceneReady, setSceneReady] = React.useState(false);
 
+  // Progressive loading: Defer WebGL context init to browser idle time to guarantee instant LCP & TBT
   React.useEffect(() => {
-    let ticking = false;
+    if (!isMounted || !hasWebGL) return;
 
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-          const current = totalHeight > 0 ? window.scrollY / totalHeight : 0;
-          setScrollProgress(Math.min(1, Math.max(0, current)));
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
+    if ("requestIdleCallback" in window) {
+      const idleHandle = (window as Window).requestIdleCallback(
+        () => setShouldLoad3D(true),
+        { timeout: 1000 }
+      );
+      return () => (window as Window).cancelIdleCallback(idleHandle);
+    } else {
+      const timer = setTimeout(() => setShouldLoad3D(true), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isMounted, hasWebGL]);
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
-  if (!isMounted || !hasWebGL) {
+  // Stage 1: Fallback to pure CSS ambient gradient glows if WebGL is unavailable or still preparing
+  if (!isMounted || !hasWebGL || !shouldLoad3D) {
     return <AmbientFallback />;
   }
 
@@ -73,13 +66,23 @@ export function Immersive3DEnvironment() {
       aria-hidden="true"
       className="fixed inset-0 pointer-events-none -z-10 h-screen w-screen overflow-hidden"
     >
-      <DynamicThreeCanvas
-        cameraPosition={[0, 0, 5.2]}
-        fov={48}
-        className="w-full h-full"
+      {/* Background depth glow: Always present during seamless fade-in */}
+      <AmbientFallback />
+
+      {/* Stage 3: Smooth WebGL scene fade-in */}
+      <div
+        className={`w-full h-full transition-opacity duration-1000 ease-out ${
+          sceneReady ? "opacity-100" : "opacity-0"
+        }`}
       >
-        <NeuralMesh scrollProgress={scrollProgress} />
-      </DynamicThreeCanvas>
+        <DynamicThreeCanvas
+          cameraPosition={[0, 0, 5.2]}
+          fov={48}
+          className="w-full h-full"
+        >
+          <DynamicNeuralMesh onReady={() => setSceneReady(true)} />
+        </DynamicThreeCanvas>
+      </div>
     </div>
   );
 }

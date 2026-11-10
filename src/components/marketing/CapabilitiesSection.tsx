@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/motion/Reveal";

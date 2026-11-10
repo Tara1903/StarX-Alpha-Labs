@@ -21,11 +21,15 @@ export const ThreeCanvas: React.FC<ThreeCanvasProps> = ({
     <div className={cn("relative w-full h-full overflow-hidden", className)}>
       <Canvas
         camera={{ position: cameraPosition, fov }}
-        dpr={[1, 2]}
+        // Capping DPR to 1.5 avoids rendering 4x to 9x pixels on dense screens with zero visible loss
+        dpr={[1, 1.5]}
         gl={{
-          antialias: true,
+          // Analytical shader SDF has built-in smoothstep antialiasing; hardware MSAA is disabled to save fill rate
+          antialias: false,
           alpha: true,
           powerPreference: "high-performance",
+          stencil: false,
+          depth: true,
         }}
       >
         {children}
