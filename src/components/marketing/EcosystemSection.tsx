@@ -4,6 +4,7 @@ import * as React from "react";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { SITE_CONFIG } from "@/lib/constants";
+import { getStarxFlowDestinationUrl } from "@/lib/ecosystem";
 import { Reveal } from "@/components/motion/Reveal";
 import { ArrowUpRight, Bot, Cpu, MessageSquare, Workflow } from "lucide-react";
 
@@ -61,7 +62,7 @@ export function EcosystemSection() {
 
             <div className="pt-2">
               <a
-                href={SITE_CONFIG.ecosystem.starxFlowUrl}
+                href={getStarxFlowDestinationUrl({ feature: "automation", campaign: "labs_homepage_ecosystem" })}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#1769AA] hover:bg-[#12558B] text-white font-medium text-sm transition-all shadow-lg shadow-[#1769AA]/20"
