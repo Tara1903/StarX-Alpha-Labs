@@ -13,15 +13,16 @@ export function StarxEmblem({ pointerPosition }: StarxEmblemProps) {
   const coreRef = React.useRef<Mesh>(null);
   const outerStarRef = React.useRef<Group>(null);
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     if (groupRef.current) {
       // Base continuous rotation
       groupRef.current.rotation.y += delta * 0.35;
 
-      // Pointer tilt interaction if available
-      if (pointerPosition) {
-        const targetX = pointerPosition.y * 0.35;
-        const targetZ = -pointerPosition.x * 0.35;
+      // Pointer tilt interaction using R3F state.pointer (or optional pointerPosition prop)
+      const pointer = pointerPosition || state.pointer;
+      if (pointer) {
+        const targetX = pointer.y * 0.35;
+        const targetZ = -pointer.x * 0.35;
         groupRef.current.rotation.x += (targetX - groupRef.current.rotation.x) * 0.05;
         groupRef.current.rotation.z += (targetZ - groupRef.current.rotation.z) * 0.05;
       }

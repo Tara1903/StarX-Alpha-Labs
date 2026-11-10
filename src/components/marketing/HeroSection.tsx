@@ -100,7 +100,7 @@ export function HeroSection() {
 
             <SceneBoundary
               cameraPosition={[0, 0, 5]}
-              className="w-full h-full"
+              className="w-full h-full cursor-grab active:cursor-grabbing"
               fallbackContent={
                 <div className="h-full w-full flex flex-col items-center justify-center p-8 text-center bg-[#0F2038] border border-[#19375E] rounded-3xl">
                   <div className="h-24 w-24 rounded-2xl bg-gradient-to-br from-[#102D50] to-[#1769AA] border border-[#32A9E8]/40 flex items-center justify-center font-extrabold text-3xl text-white shadow-xl mb-4">
