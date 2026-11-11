@@ -61,6 +61,7 @@ interface PricingPackagesModuleProps {
   estimates: CustomerEstimate[];
   quotations: Quotation[];
   projects: ClientProject[];
+  initialSubTab?: "estimates" | "quotations" | "projects" | "packages";
   onConvertEstimate: (est: CustomerEstimate) => void;
   onAdvanceProjectStage: (projectId: string, newStage: any) => void;
   onShowToast: (msg: string) => void;
@@ -70,11 +71,18 @@ export function PricingPackagesModule({
   estimates: propEstimates,
   quotations: propQuotations,
   projects: propProjects,
+  initialSubTab,
   onConvertEstimate,
   onAdvanceProjectStage,
   onShowToast,
 }: PricingPackagesModuleProps) {
-  const [subTab, setSubTab] = useState<"estimates" | "quotations" | "projects" | "packages">("estimates");
+  const [subTab, setSubTab] = useState<"estimates" | "quotations" | "projects" | "packages">(initialSubTab || "estimates");
+
+  useEffect(() => {
+    if (initialSubTab) {
+      setSubTab(initialSubTab);
+    }
+  }, [initialSubTab]);
   const [division, setDivision] = useState<DivisionType>("website");
 
   // Local state synced with stores

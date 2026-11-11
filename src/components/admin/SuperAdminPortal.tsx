@@ -441,6 +441,7 @@ export function SuperAdminPortal() {
               estimates={estimates}
               quotations={quotations}
               projects={projects}
+              initialSubTab="estimates"
               onConvertEstimate={handleConvertEstimate}
               onAdvanceProjectStage={handleAdvanceProjectStage}
               onShowToast={showToast}
@@ -452,6 +453,7 @@ export function SuperAdminPortal() {
               estimates={estimates}
               quotations={quotations}
               projects={projects}
+              initialSubTab="quotations"
               onConvertEstimate={handleConvertEstimate}
               onAdvanceProjectStage={handleAdvanceProjectStage}
               onShowToast={showToast}
@@ -463,6 +465,7 @@ export function SuperAdminPortal() {
               estimates={estimates}
               quotations={quotations}
               projects={projects}
+              initialSubTab="projects"
               onConvertEstimate={handleConvertEstimate}
               onAdvanceProjectStage={handleAdvanceProjectStage}
               onShowToast={showToast}
@@ -498,6 +501,7 @@ export function SuperAdminPortal() {
               estimates={estimates}
               quotations={quotations}
               projects={projects}
+              initialSubTab="packages"
               onConvertEstimate={handleConvertEstimate}
               onAdvanceProjectStage={handleAdvanceProjectStage}
               onShowToast={showToast}
