@@ -22,7 +22,11 @@ import {
   LogOut,
   X,
   ExternalLink,
-  ShieldCheck
+  ShieldCheck,
+  Calculator,
+  FileCheck,
+  FileCheck2,
+  ShieldAlert
 } from "lucide-react";
 
 interface CustomerSidebarProps {
@@ -44,14 +48,18 @@ export function CustomerSidebar({
 }: CustomerSidebarProps) {
   const navItems: { id: CustomerPortalTab; label: string; icon: any; count?: number }[] = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "estimates", label: "My Estimates", icon: Calculator },
+    { id: "proposals", label: "My Proposals", icon: FileCheck },
+    { id: "agreements", label: "My Agreements", icon: FileCheck2 },
     { id: "projects", label: "My Projects", icon: FolderKanban, count: session?.assignedProjects.length },
     { id: "milestones", label: "Milestones & Delivery", icon: Milestone },
     { id: "tasks", label: "Tasks & Actions", icon: CheckSquare },
     { id: "documents", label: "Deliverables & Files", icon: FileText },
-    { id: "finances", label: "Invoices & Quotes", icon: Receipt },
+    { id: "finances", label: "Invoices & Payments", icon: Receipt },
     { id: "discussions", label: "Team Discussions", icon: MessageSquare },
     { id: "change-requests", label: "Change Requests", icon: GitPullRequest },
-    { id: "support", label: "Assistance & Help", icon: HelpCircle },
+    { id: "support", label: "Assistance & Support", icon: HelpCircle },
+    { id: "warranty", label: "Warranty & SLA", icon: ShieldCheck },
     { id: "organization", label: "My Organization", icon: Building2 },
     { id: "account", label: "Account & Profile", icon: UserCheck },
   ];

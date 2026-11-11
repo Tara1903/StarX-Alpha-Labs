@@ -55,7 +55,7 @@ export function DashboardModule({
   const totalProjects = projects.length;
 
   const pipelineValue = estimates.reduce((acc, e) => acc + (e.grandTotal || 0), 0);
-  const activeProjectsValue = projects.reduce((acc, p) => acc + (p.totalBudget || 0), 0);
+  const activeProjectsValue = projects.reduce((acc, p) => acc + (p.totalCost || p.totalBudget || 0), 0);
 
   // Status breakdown
   const statusCounts = leads.reduce<Record<string, number>>((acc, l) => {

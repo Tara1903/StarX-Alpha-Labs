@@ -65,12 +65,30 @@ export function DashboardModule({
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => onNavigateTab("estimates")}
+              className="px-4 py-2 rounded-xl bg-[#0A1940] hover:bg-[#0c2254] border border-[#00D9FF]/40 text-[#00D9FF] hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-md"
+            >
+              <span>My Estimates ↗</span>
+            </button>
+            <button
+              onClick={() => onNavigateTab("proposals")}
+              className="px-4 py-2 rounded-xl bg-[#0A1940] hover:bg-[#0c2254] border border-purple-500/40 text-purple-300 hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-md"
+            >
+              <span>My Proposals ↗</span>
+            </button>
+            <button
+              onClick={() => onNavigateTab("agreements")}
+              className="px-4 py-2 rounded-xl bg-[#0A1940] hover:bg-[#0c2254] border border-emerald-500/40 text-emerald-300 hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-md"
+            >
+              <span>Agreements ↗</span>
+            </button>
             <button
               onClick={() => onNavigateTab("milestones")}
-              className="px-5 py-2.5 rounded-full bg-gradient-to-r from-[#087BFF] to-[#00D9FF] text-white text-xs font-bold shadow-lg shadow-[#087BFF]/30 hover:brightness-110 transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#087BFF] to-[#00D9FF] text-white text-xs font-bold shadow-lg shadow-[#087BFF]/30 hover:brightness-110 transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <span>View Milestone Roadmap</span>
+              <span>View Roadmap</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>

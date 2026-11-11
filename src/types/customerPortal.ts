@@ -207,6 +207,9 @@ export interface CustomerSessionContext {
 
 export type CustomerPortalTab = 
   | "dashboard" 
+  | "estimates"
+  | "proposals"
+  | "agreements"
   | "projects" 
   | "milestones" 
   | "tasks" 
@@ -215,5 +218,6 @@ export type CustomerPortalTab =
   | "discussions" 
   | "change-requests" 
   | "support" 
+  | "warranty"
   | "organization" 
   | "account";

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { 
   CustomerPortalTab, 
   CustomerSessionContext, 
@@ -27,10 +28,23 @@ import { ChangeRequestsModule } from "./modules/ChangeRequestsModule";
 import { SupportModule } from "./modules/SupportModule";
 import { OrganizationModule } from "./modules/OrganizationModule";
 import { AccountModule } from "./modules/AccountModule";
+import { EstimatesModule } from "./modules/EstimatesModule";
+import { ProposalsModule } from "./modules/ProposalsModule";
+import { AgreementsModule } from "./modules/AgreementsModule";
+import { WarrantyModule } from "./modules/WarrantyModule";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 
 export function CustomerPortalMaster() {
-  const [activeTab, setActiveTab] = useState<CustomerPortalTab>("dashboard");
+  const searchParams = useSearchParams();
+  const initialTab = (searchParams.get("tab") as CustomerPortalTab) || "dashboard";
+  const initialContextId = searchParams.get("id") || "";
+
+  const [activeTab, setActiveTab] = useState<CustomerPortalTab>(
+    ["dashboard", "estimates", "proposals", "agreements", "projects", "milestones", "tasks", "documents", "finances", "discussions", "change-requests", "support", "warranty", "organization", "account"].includes(initialTab)
+      ? initialTab
+      : "dashboard"
+  );
+  const [activeContextId, setActiveContextId] = useState<string>(initialContextId);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [session, setSession] = useState<CustomerSessionContext | null>(null);
   const [loading, setLoading] = useState(true);
@@ -419,7 +433,33 @@ export function CustomerPortalMaster() {
               milestones={milestones}
               tasks={tasks}
               updates={updates}
-              onNavigateTab={setActiveTab}
+              onNavigateTab={(tab) => setActiveTab(tab as CustomerPortalTab)}
+            />
+          )}
+
+          {activeTab === "estimates" && (
+            <EstimatesModule
+              filterEstimateId={activeContextId}
+              onNavigateTab={(tab, id) => {
+                if (id) setActiveContextId(id);
+                setActiveTab(tab as CustomerPortalTab);
+              }}
+            />
+          )}
+
+          {activeTab === "proposals" && (
+            <ProposalsModule
+              filterProposalId={activeContextId}
+              onNavigateTab={(tab, id) => {
+                if (id) setActiveContextId(id);
+                setActiveTab(tab as CustomerPortalTab);
+              }}
+            />
+          )}
+
+          {activeTab === "agreements" && (
+            <AgreementsModule
+              onNavigateTab={(tab) => setActiveTab(tab as CustomerPortalTab)}
             />
           )}
 
@@ -474,6 +514,12 @@ export function CustomerPortalMaster() {
             <SupportModule
               tickets={tickets}
               onCreateTicket={handleCreateTicket}
+            />
+          )}
+
+          {activeTab === "warranty" && (
+            <WarrantyModule
+              onNavigateTab={(tab) => setActiveTab(tab as CustomerPortalTab)}
             />
           )}
 

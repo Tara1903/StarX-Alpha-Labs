@@ -33,7 +33,8 @@ import {
   DevelopmentAddon,
   HostingMaintenancePlan
 } from "@/data/developmentPackages";
-import { saveEstimateToStore, CustomerEstimate } from "@/lib/estimateStore";
+import { saveEstimateToStore, CustomerEstimate, generateEstimateId } from "@/lib/estimateStore";
+import { printEstimatePDF } from "@/lib/pdfGenerator";
 
 export function ProjectCalculatorClient() {
   const searchParams = useSearchParams();
@@ -92,11 +93,16 @@ export function ProjectCalculatorClient() {
     businessName: "",
     email: "",
     phone: "",
-    notes: ""
+    notes: "",
+    preferredContact: "WhatsApp" as "WhatsApp" | "Phone Call" | "Google Meet" | "Email",
+    preferredMeetingTime: "",
+    consentAccepted: false
   });
 
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedEstimate, setSubmittedEstimate] = useState<CustomerEstimate | null>(null);
+  const [showEstimateDetailModal, setShowEstimateDetailModal] = useState(false);
 
   // Available add-ons for the chosen division
   const relevantAddons = useMemo(() => {
@@ -138,24 +144,48 @@ export function ProjectCalculatorClient() {
   const gstAmount = Math.round(subtotal * 0.18);
   const grandTotal = subtotal + gstAmount;
 
+  // Validation
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+    if (!clientInfo.fullName.trim() || clientInfo.fullName.trim().length < 2) {
+      errors.fullName = "Please enter your full legal or contact name.";
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!clientInfo.email.trim() || !emailRegex.test(clientInfo.email.trim())) {
+      errors.email = "Please enter a valid work email address.";
+    }
+    const cleanPhone = clientInfo.phone.replace(/[\s\-\(\)\+]/g, "");
+    if (!cleanPhone || cleanPhone.length < 10) {
+      errors.phone = "Please enter a valid 10-digit mobile or WhatsApp number.";
+    }
+    if (!clientInfo.consentAccepted) {
+      errors.consent = "You must agree to allow STARX ALPHA LABS to contact you regarding this estimate.";
+    }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   // Form submission
   const handleSubmitEstimate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!clientInfo.fullName || !clientInfo.email || !clientInfo.phone) {
-      alert("Please enter your name, email, and phone number.");
+    if (!validateForm()) {
       return;
     }
 
     setIsSubmitting(true);
-    const estimateNumber = `EST-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const estimateNumber = generateEstimateId();
+    const now = new Date();
+    const validUntil = new Date(now.getTime() + 30 * 86400000).toISOString();
 
     const newEstimate: CustomerEstimate = {
       id: "est_" + Date.now(),
       estimateNumber,
-      clientName: clientInfo.fullName,
-      clientBusiness: clientInfo.businessName || "Individual / Startup",
-      clientEmail: clientInfo.email,
-      clientPhone: clientInfo.phone,
+      clientName: clientInfo.fullName.trim(),
+      clientBusiness: (clientInfo.businessName || "Individual / Startup").trim(),
+      clientEmail: clientInfo.email.trim().toLowerCase(),
+      clientPhone: clientInfo.phone.trim(),
+      preferredContact: clientInfo.preferredContact,
+      preferredMeetingTime: clientInfo.preferredMeetingTime.trim() || undefined,
       division: selectedDivision,
       packageCode: selectedPackage.code,
       packageName: selectedPackage.name,
@@ -165,18 +195,61 @@ export function ProjectCalculatorClient() {
       hostingCost,
       maintenanceCost,
       subtotal,
+      taxRate: 0.18,
       gstAmount,
       grandTotal,
-      notes: clientInfo.notes,
-      createdAt: new Date().toISOString(),
-      status: "New"
+      notes: clientInfo.notes.trim() || undefined,
+      consentAccepted: true,
+      status: "Submitted",
+      createdAt: now.toISOString(),
+      validUntil,
+      updatedAt: now.toISOString(),
+      history: [
+        {
+          timestamp: now.toISOString(),
+          status: "Submitted",
+          actor: "Customer (Online Calculator)",
+          note: "Official estimate generated and locked from interactive calculator"
+        }
+      ]
     };
 
     try {
+      // 1. Call server API
+      await fetch("/api/estimates/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: clientInfo.fullName,
+          email: clientInfo.email,
+          phone: clientInfo.phone,
+          businessName: clientInfo.businessName,
+          division: selectedDivision,
+          packageCode: selectedPackage.code,
+          packageName: selectedPackage.name,
+          basePrice,
+          selectedAddons: newEstimate.selectedAddons,
+          addonsTotal,
+          hostingCost,
+          maintenanceCost,
+          subtotal,
+          gstAmount,
+          grandTotal,
+          notes: clientInfo.notes,
+          preferredContact: clientInfo.preferredContact,
+          preferredMeetingTime: clientInfo.preferredMeetingTime,
+          consentAccepted: true
+        })
+      });
+
+      // 2. Persist to local store for instant customer portal access
       saveEstimateToStore(newEstimate);
       setSubmittedEstimate(newEstimate);
     } catch (err) {
       console.error("Failed to save estimate", err);
+      // Resilient fallback: ensure customer still gets their estimate confirmation
+      saveEstimateToStore(newEstimate);
+      setSubmittedEstimate(newEstimate);
     } finally {
       setIsSubmitting(false);
     }
@@ -255,62 +328,245 @@ export function ProjectCalculatorClient() {
         {/* Wizard Steps Content (Left 2 cols) */}
         <div className="lg:col-span-2 space-y-6">
           {submittedEstimate ? (
-            /* Success confirmation screen */
-            <div className="p-8 rounded-3xl bg-[#0A1940] border border-[#00C98B]/40 shadow-2xl space-y-6 text-center animate-fade-in">
-              <div className="w-16 h-16 rounded-full bg-[#00C98B]/20 text-[#00C98B] flex items-center justify-center mx-auto">
-                <CheckCircle2 className="w-10 h-10" />
-              </div>
-              <div>
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#00C98B]">
-                  Estimate Successfully Generated &amp; Saved
-                </span>
-                <h3 className="text-2xl sm:text-3xl font-extrabold text-white mt-1">
-                  Reference: {submittedEstimate.estimateNumber}
-                </h3>
-                <p className="text-xs text-[#C8D5EF] mt-2 max-w-md mx-auto">
-                  Thank you, {submittedEstimate.clientName}. An engineering lead from StarX Alpha Labs has received your specification
-                  and will contact you within 2-4 business hours with an official technical scope and kickoff timeline.
+            /* Official Project Estimate Confirmation Screen */
+            <div className="p-8 sm:p-10 rounded-3xl bg-[#0A1940] border border-[#00D9FF]/40 shadow-2xl space-y-6 animate-fade-in">
+              <div className="text-center space-y-3">
+                <div className="w-16 h-16 rounded-full bg-[#00C98B]/20 text-[#00C98B] flex items-center justify-center mx-auto border border-[#00C98B]/30 shadow-lg shadow-[#00C98B]/20">
+                  <CheckCircle2 className="w-10 h-10" />
+                </div>
+                <div className="inline-block px-3 py-1 rounded-full bg-[#00D9FF]/10 border border-[#00D9FF]/30 text-[11px] font-mono font-bold text-[#00D9FF] uppercase tracking-wider">
+                  Estimate Submitted — Awaiting Requirement Verification.
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
+                  Your Project Estimate Request Has Been Received!
+                </h2>
+                <p className="text-xs text-[#C8D5EF] max-w-lg mx-auto">
+                  Your official technical scope snapshot is locked with Reference ID{" "}
+                  <span className="font-mono font-bold text-[#00D9FF]">{submittedEstimate.estimateNumber}</span>.
+                  Our senior engineering leads will verify your technical parameters and assemble your formal proposal.
                 </p>
               </div>
 
-              {/* Summary box */}
-              <div className="p-5 rounded-2xl bg-[#071638] text-left text-xs space-y-2 border border-white/5">
-                <div className="flex justify-between">
-                  <span className="text-[#C8D5EF]">Package:</span>
-                  <span className="font-bold text-white">{submittedEstimate.packageCode} — {submittedEstimate.packageName}</span>
+              {/* Estimate Snapshot Card */}
+              <div className="p-6 rounded-2xl bg-[#071638] border border-white/10 space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b border-white/10 text-xs">
+                  <div>
+                    <span className="text-slate-400 block text-[10px] uppercase font-mono">Estimate Reference ID</span>
+                    <span className="font-mono font-bold text-base text-[#00D9FF]">{submittedEstimate.estimateNumber}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[10px] uppercase font-mono">Submission Timestamp</span>
+                    <span className="text-white font-semibold">
+                      {new Date(submittedEstimate.createdAt).toLocaleString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit"
+                      })}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[10px] uppercase font-mono">Customer &amp; Business</span>
+                    <span className="text-white font-bold">{submittedEstimate.clientName}</span>
+                    <span className="text-[#C8D5EF] block">{submittedEstimate.clientBusiness}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 block text-[10px] uppercase font-mono">Selected Architecture Package</span>
+                    <span className="text-white font-bold">{submittedEstimate.packageCode} — {submittedEstimate.packageName}</span>
+                    <span className="text-xs uppercase font-mono text-[#00D9FF]">Division: {submittedEstimate.division}</span>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-[#C8D5EF]">Division:</span>
-                  <span className="uppercase font-mono text-[#00D9FF]">{submittedEstimate.division}</span>
+
+                {/* Financial Summary */}
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between text-[#C8D5EF]">
+                    <span>Base Engineering Package:</span>
+                    <span className="font-mono text-white font-bold">{formatINR(submittedEstimate.basePrice)}</span>
+                  </div>
+                  {submittedEstimate.selectedAddons.length > 0 && (
+                    <div className="flex justify-between text-[#C8D5EF]">
+                      <span>Add-on Modules ({submittedEstimate.selectedAddons.length}):</span>
+                      <span className="font-mono text-white font-bold">+{formatINR(submittedEstimate.addonsTotal)}</span>
+                    </div>
+                  )}
+                  {submittedEstimate.hostingCost > 0 && (
+                    <div className="flex justify-between text-[#C8D5EF]">
+                      <span>Cloud &amp; Hosting Architecture:</span>
+                      <span className="font-mono text-white font-bold">+{formatINR(submittedEstimate.hostingCost)}</span>
+                    </div>
+                  )}
+                  {submittedEstimate.maintenanceCost > 0 && (
+                    <div className="flex justify-between text-[#C8D5EF]">
+                      <span>Maintenance Care SLA (1st Month):</span>
+                      <span className="font-mono text-white font-bold">+{formatINR(submittedEstimate.maintenanceCost)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-slate-300 pt-2 border-t border-white/5">
+                    <span>Subtotal:</span>
+                    <span className="font-mono font-bold text-[#00D9FF]">{formatINR(submittedEstimate.subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-400 text-[11px]">
+                    <span>Applicable GST (18%):</span>
+                    <span className="font-mono">{formatINR(submittedEstimate.gstAmount)}</span>
+                  </div>
+                  <div className="flex justify-between items-baseline pt-2 border-t border-white/10 text-sm">
+                    <span className="font-extrabold text-white">Estimated Project Investment:</span>
+                    <span className="font-mono font-extrabold text-xl text-[#00D9FF]">
+                      {formatINR(submittedEstimate.grandTotal)}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-[#C8D5EF]">Add-ons Selected:</span>
-                  <span className="font-bold text-white">{submittedEstimate.selectedAddons.length} modules</span>
-                </div>
-                <div className="flex justify-between pt-2 border-t border-white/5 text-sm">
-                  <span className="font-bold text-white">Estimated Investment:</span>
-                  <span className="font-extrabold text-[#00D9FF]">{formatINR(submittedEstimate.grandTotal)} (incl. GST)</span>
+
+                <div className="p-3 rounded-xl bg-purple-950/30 border border-purple-500/20 text-[11px] text-purple-200">
+                  <strong className="text-white block font-mono text-[10px] uppercase">Preliminary Estimate Disclaimer</strong>
+                  PRELIMINARY PROJECT ESTIMATE — SUBJECT TO REQUIREMENT VERIFICATION AND FINAL APPROVAL.
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-3 justify-center pt-2">
-                <Link
-                  href="/customer"
-                  className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#087BFF] to-[#00D9FF] text-white font-bold text-xs shadow-lg"
+              {/* 4 ACTION BUTTONS MANDATED IN PROMPT */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                {/* 1. View My Estimate */}
+                <button
+                  type="button"
+                  onClick={() => setShowEstimateDetailModal(true)}
+                  className="px-5 py-3 rounded-xl bg-[#071638] hover:bg-[#0c2254] border border-white/10 hover:border-[#00D9FF]/40 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
                 >
-                  View in Customer Portal →
+                  <FileText className="w-4 h-4 text-[#00D9FF]" />
+                  <span>View My Estimate</span>
+                </button>
+
+                {/* 2. Download Estimate PDF */}
+                <button
+                  type="button"
+                  onClick={() => printEstimatePDF(submittedEstimate)}
+                  className="px-5 py-3 rounded-xl bg-gradient-to-r from-[#087BFF] to-[#00D9FF] hover:brightness-110 text-white font-extrabold text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#087BFF]/30 cursor-pointer"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>Download Estimate PDF (A4)</span>
+                </button>
+
+                {/* 3. Contact STARX ALPHA LABS (WhatsApp 9630937033) */}
+                <a
+                  href={`https://wa.me/919630937033?text=${encodeURIComponent(
+                    `Hi STARX ALPHA LABS, I have configured and locked my Project Estimate ${submittedEstimate.estimateNumber} for package ${submittedEstimate.packageCode} (${formatINR(submittedEstimate.grandTotal)}). Please connect with me regarding requirement verification.`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-5 py-3 rounded-xl bg-[#00C98B]/20 hover:bg-[#00C98B]/30 border border-[#00C98B]/40 text-[#00C98B] font-extrabold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <span>💬 Contact STARX ALPHA LABS (9630937033)</span>
+                </a>
+
+                {/* 4. Track My Request */}
+                <Link
+                  href={`/customer?tab=estimates&id=${encodeURIComponent(submittedEstimate.estimateNumber)}`}
+                  className="px-5 py-3 rounded-xl bg-[#071638] hover:bg-[#0A1940] border border-white/20 text-[#00D9FF] hover:text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <ArrowRight className="w-4 h-4" />
+                  <span>Track My Request in Customer Portal →</span>
                 </Link>
+              </div>
+
+              <div className="text-center pt-2">
                 <button
                   type="button"
                   onClick={() => {
                     setSubmittedEstimate(null);
                     setCurrentStep(1);
                   }}
-                  className="px-6 py-3 rounded-xl bg-[#071638] text-[#C8D5EF] hover:text-white border border-white/10 text-xs font-semibold"
+                  className="text-xs text-slate-400 hover:text-white underline underline-offset-4 cursor-pointer"
                 >
                   Configure Another Estimate
                 </button>
               </div>
+
+              {/* View Estimate Details Modal */}
+              {showEstimateDetailModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+                  <div className="bg-[#0A1940] border border-[#00D9FF]/40 rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto">
+                    <div className="flex justify-between items-start border-b border-white/10 pb-4">
+                      <div>
+                        <span className="text-[10px] font-mono uppercase text-[#00D9FF]">Estimate Specification</span>
+                        <h3 className="text-xl font-bold text-white">{submittedEstimate.estimateNumber}</h3>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowEstimateDetailModal(false)}
+                        className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-white flex items-center justify-center cursor-pointer text-sm"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <div className="space-y-4 text-xs">
+                      <div className="grid grid-cols-2 gap-3 p-4 rounded-xl bg-[#071638]">
+                        <div>
+                          <span className="text-slate-400 block text-[10px]">Client</span>
+                          <span className="font-bold text-white">{submittedEstimate.clientName}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 block text-[10px]">Brand / Business</span>
+                          <span className="font-bold text-white">{submittedEstimate.clientBusiness}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 block text-[10px]">Email</span>
+                          <span className="text-white">{submittedEstimate.clientEmail}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400 block text-[10px]">Phone / WhatsApp</span>
+                          <span className="text-white">{submittedEstimate.clientPhone}</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <span className="font-bold text-white uppercase text-[10px] tracking-wider text-[#00D9FF] block">
+                          Selected Features &amp; Add-ons
+                        </span>
+                        <div className="p-3 rounded-xl bg-[#071638] space-y-1.5">
+                          <div className="flex justify-between font-bold text-white">
+                            <span>{submittedEstimate.packageCode} — {submittedEstimate.packageName}</span>
+                            <span>{formatINR(submittedEstimate.basePrice)}</span>
+                          </div>
+                          {submittedEstimate.selectedAddons.map((addon) => (
+                            <div key={addon.id} className="flex justify-between text-slate-300">
+                              <span>+ {addon.name}</span>
+                              <span className="font-mono">+{formatINR(addon.price)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="p-4 rounded-xl bg-[#071638] border border-white/10 flex justify-between items-center text-sm">
+                        <span className="font-bold text-white">Total Investment (incl. 18% GST):</span>
+                        <span className="font-mono font-extrabold text-[#00D9FF] text-base">
+                          {formatINR(submittedEstimate.grandTotal)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowEstimateDetailModal(false);
+                          printEstimatePDF(submittedEstimate);
+                        }}
+                        className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#087BFF] to-[#00D9FF] text-white font-bold text-xs cursor-pointer"
+                      >
+                        Print / Download PDF
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowEstimateDetailModal(false)}
+                        className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold cursor-pointer"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <>
@@ -641,10 +897,18 @@ export function ProjectCalculatorClient() {
               {currentStep === 7 && (
                 <div className="p-6 sm:p-8 rounded-3xl bg-[#0A1940] border border-white/5 space-y-6">
                   <div>
-                    <h3 className="text-xl font-bold text-white">Generate Official Proposal &amp; Lock Estimate</h3>
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#00D9FF]">
+                      Final Requirement Validation
+                    </span>
+                    <h3 className="text-xl font-bold text-white mt-1">Generate &amp; Lock Official Project Estimate</h3>
                     <p className="text-xs text-[#C8D5EF] mt-1">
-                      Enter your details to generate your official PDF estimate and receive formal milestone scope.
+                      Enter your details to generate your official PDF estimate snapshot and initiate requirement verification.
                     </p>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-purple-950/30 border border-purple-500/20 text-[11px] text-purple-200">
+                    <strong className="text-white block font-mono text-[10px] uppercase">Preliminary Estimate Disclaimer</strong>
+                    PRELIMINARY PROJECT ESTIMATE — SUBJECT TO REQUIREMENT VERIFICATION AND FINAL APPROVAL.
                   </div>
 
                   <form onSubmit={handleSubmitEstimate} className="space-y-4">
@@ -657,8 +921,11 @@ export function ProjectCalculatorClient() {
                           value={clientInfo.fullName}
                           onChange={(e) => setClientInfo({ ...clientInfo, fullName: e.target.value })}
                           placeholder="e.g. Rajesh Kumar"
-                          className="w-full px-4 py-2.5 rounded-xl bg-[#071638] border border-white/10 text-white text-xs focus:border-[#00D9FF] focus:outline-none"
+                          className={`w-full px-4 py-2.5 rounded-xl bg-[#071638] border text-white text-xs focus:border-[#00D9FF] focus:outline-none ${
+                            formErrors.fullName ? "border-red-500" : "border-white/10"
+                          }`}
                         />
+                        {formErrors.fullName && <p className="text-[10px] text-red-400">{formErrors.fullName}</p>}
                       </div>
 
                       <div className="space-y-1.5">
@@ -682,18 +949,51 @@ export function ProjectCalculatorClient() {
                           value={clientInfo.email}
                           onChange={(e) => setClientInfo({ ...clientInfo, email: e.target.value })}
                           placeholder="rajesh@apexlogistics.in"
-                          className="w-full px-4 py-2.5 rounded-xl bg-[#071638] border border-white/10 text-white text-xs focus:border-[#00D9FF] focus:outline-none"
+                          className={`w-full px-4 py-2.5 rounded-xl bg-[#071638] border text-white text-xs focus:border-[#00D9FF] focus:outline-none ${
+                            formErrors.email ? "border-red-500" : "border-white/10"
+                          }`}
                         />
+                        {formErrors.email && <p className="text-[10px] text-red-400">{formErrors.email}</p>}
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-300">WhatsApp / Phone Number *</label>
+                        <label className="text-xs font-semibold text-slate-300">WhatsApp / Phone Number (+91) *</label>
                         <input
                           type="tel"
                           required
                           value={clientInfo.phone}
                           onChange={(e) => setClientInfo({ ...clientInfo, phone: e.target.value })}
                           placeholder="+91 98765 43210"
+                          className={`w-full px-4 py-2.5 rounded-xl bg-[#071638] border text-white text-xs focus:border-[#00D9FF] focus:outline-none ${
+                            formErrors.phone ? "border-red-500" : "border-white/10"
+                          }`}
+                        />
+                        {formErrors.phone && <p className="text-[10px] text-red-400">{formErrors.phone}</p>}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-300">Preferred Contact Method</label>
+                        <select
+                          value={clientInfo.preferredContact}
+                          onChange={(e) => setClientInfo({ ...clientInfo, preferredContact: e.target.value as any })}
+                          className="w-full px-4 py-2.5 rounded-xl bg-[#071638] border border-white/10 text-white text-xs focus:border-[#00D9FF] focus:outline-none"
+                        >
+                          <option value="WhatsApp">WhatsApp (Fastest Response)</option>
+                          <option value="Phone Call">Direct Phone Call</option>
+                          <option value="Google Meet">Google Meet Video Scoping</option>
+                          <option value="Email">Formal Email Specification</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-300">Preferred Meeting Time (Optional)</label>
+                        <input
+                          type="text"
+                          value={clientInfo.preferredMeetingTime}
+                          onChange={(e) => setClientInfo({ ...clientInfo, preferredMeetingTime: e.target.value })}
+                          placeholder="e.g. Tomorrow 3:00 PM IST or Weekend"
                           className="w-full px-4 py-2.5 rounded-xl bg-[#071638] border border-white/10 text-white text-xs focus:border-[#00D9FF] focus:outline-none"
                         />
                       </div>
@@ -710,6 +1010,29 @@ export function ProjectCalculatorClient() {
                       />
                     </div>
 
+                    {/* MANDATORY CONSENT CHECKBOX */}
+                    <div className="p-3.5 rounded-xl bg-[#071638] border border-white/10 space-y-2">
+                      <label className="flex items-start gap-2.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={clientInfo.consentAccepted}
+                          onChange={(e) => setClientInfo({ ...clientInfo, consentAccepted: e.target.checked })}
+                          className="mt-0.5 rounded text-[#00D9FF] focus:ring-[#00D9FF] cursor-pointer"
+                        />
+                        <span className="text-xs text-[#C8D5EF] leading-relaxed">
+                          I agree that <strong>STARX ALPHA LABS</strong> may contact me regarding this project enquiry and estimate. Read our{" "}
+                          <Link href="/privacy" target="_blank" className="text-[#00D9FF] underline">
+                            Privacy Policy
+                          </Link>{" "}
+                          and{" "}
+                          <Link href="/terms" target="_blank" className="text-[#00D9FF] underline">
+                            Terms of Service
+                          </Link>.
+                        </span>
+                      </label>
+                      {formErrors.consent && <p className="text-[10px] text-red-400 pl-6">{formErrors.consent}</p>}
+                    </div>
+
                     <button
                       type="submit"
                       disabled={isSubmitting}
@@ -718,6 +1041,10 @@ export function ProjectCalculatorClient() {
                       <Send className="w-4 h-4" />
                       <span>{isSubmitting ? "Generating Official Estimate..." : "Generate & Lock My Official Estimate ↗"}</span>
                     </button>
+
+                    <p className="text-[11px] text-slate-400 text-center">
+                      🔒 <em>Note:</em> Locking your estimate snapshot preserves your pricing configuration for 30 days. It does NOT commit you to payment or contract.
+                    </p>
                   </form>
                 </div>
               )}
@@ -824,6 +1151,11 @@ export function ProjectCalculatorClient() {
                   <span className="text-xl font-extrabold text-white">{formatINR(grandTotal)}</span>
                 </div>
                 <span className="text-[10px] font-mono text-[#00C98B]">Fixed Milestone Scope</span>
+              </div>
+
+              {/* Preliminary Disclaimer Notice */}
+              <div className="p-2.5 rounded-lg bg-[#071638] border border-white/5 text-[10px] text-slate-400 font-mono leading-tight">
+                PRELIMINARY PROJECT ESTIMATE — SUBJECT TO REQUIREMENT VERIFICATION AND FINAL APPROVAL.
               </div>
             </div>
 

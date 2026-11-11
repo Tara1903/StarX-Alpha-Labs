@@ -37,6 +37,9 @@ export function CustomerHeader({
 
   const tabTitles: Record<CustomerPortalTab, { title: string; subtitle: string }> = {
     dashboard: { title: "Executive Client Dashboard", subtitle: "Real-time delivery progress, active sprints, and upcoming deliverables." },
+    estimates: { title: "My Estimates", subtitle: "Review immutable project estimate snapshots generated via the StarX Alpha Labs Interactive Calculator." },
+    proposals: { title: "My Proposals", subtitle: "Review technical specifications, milestone deliverables, architecture contracts, and formal payment schedules." },
+    agreements: { title: "My Agreements", subtitle: "Executed master service agreements, statements of work, and verifiable electronic signature audit trails." },
     projects: { title: "Assigned Projects", subtitle: "Technical specifications, stage tracking, and architecture repositories." },
     milestones: { title: "Milestones & 13-Stage Delivery", subtitle: "Sequential delivery roadmap, milestone criteria, and sprint completion dates." },
     tasks: { title: "Action Items & Approvals", subtitle: "Pending client decisions, design signoffs, and feedback requests." },
@@ -45,6 +48,7 @@ export function CustomerHeader({
     discussions: { title: "Project Discussions", subtitle: "Direct channel with your assigned StarX Alpha Labs engineering team." },
     "change-requests": { title: "Scope Change Requests", subtitle: "Submit and review formal scope adjustments, additions, and revisions." },
     support: { title: "Assistance & Help Desk", subtitle: "Submit technical inquiries, report blockers, or request engineering assistance." },
+    warranty: { title: "Warranty & Maintenance SLA", subtitle: "Track your 30-Day Post-Launch Hypercare Warranty scope and explore continuous maintenance SLA tiers." },
     organization: { title: "Organization & Members", subtitle: "Authorized corporate identity, contacts, and invited team members." },
     account: { title: "Account & Security", subtitle: "Manage your authenticated credentials, preferences, and security." },
   };
