@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS public.gateway_settings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   gateway_url TEXT NOT NULL DEFAULT 'https://payments.starx-alpha-labs.com',
   environment TEXT NOT NULL CHECK (environment IN ('sandbox', 'live')) DEFAULT 'sandbox',
-  webhook_url TEXT NOT NULL DEFAULT 'https://starx-alpha-labs.vercel.app/api/webhooks/upi-gateway',
+  webhook_url TEXT NOT NULL DEFAULT 'https://www.starxalphalabs.online/api/webhooks/upi-gateway',
   auto_expiry_minutes INT NOT NULL DEFAULT 30,
   is_enabled BOOLEAN NOT NULL DEFAULT true,
   active_provider TEXT NOT NULL CHECK (active_provider IN ('generic_upi', 'paytm_pg', 'phonepe_pg')) DEFAULT 'generic_upi',
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS public.gateway_settings (
 
 -- Seed default gateway configuration if empty
 INSERT INTO public.gateway_settings (gateway_url, environment, webhook_url, auto_expiry_minutes, is_enabled, active_provider)
-SELECT 'https://payments.starx-alpha-labs.com', 'sandbox', 'https://starx-alpha-labs.vercel.app/api/webhooks/upi-gateway', 30, true, 'generic_upi'
+SELECT 'https://payments.starxalphalabs.online', 'sandbox', 'https://www.starxalphalabs.online/api/webhooks/upi-gateway', 30, true, 'generic_upi'
 WHERE NOT EXISTS (SELECT 1 FROM public.gateway_settings);
 
 -- 2. GATEWAY TRANSACTIONS TABLE

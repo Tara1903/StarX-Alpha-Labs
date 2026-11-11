@@ -5,7 +5,7 @@ export const SITE_CONFIG = {
   tagline: "Build Smarter. Lead Tomorrow.",
   description:
     "StarX Alpha Labs is a technology and software engineering company building modern digital products, intelligent applications and custom technology solutions for businesses.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://starx-alpha-labs.vercel.app",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://www.starxalphalabs.online",
   founder: {
     name: "Hari Singh",
     designation: "Founder & Tech Lead",

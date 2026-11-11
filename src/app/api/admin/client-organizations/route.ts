@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: error.message }, { status: 500 });
       }
 
-      const inviteUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://starx-alpha-labs.vercel.app'}/customer/invite/${token}`;
+      const inviteUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.starxalphalabs.online'}/customer/invite/${token}`;
 
       return NextResponse.json({
         success: true,

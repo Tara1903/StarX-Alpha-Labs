@@ -171,7 +171,7 @@ export function CustomerPortalMaster() {
     // 13-stage verified milestone delivery roadmap
     const defaultMilestones: ProjectMilestoneItem[] = [
       { id: "m-1", projectId: "proj-dental-portal-1", title: "Requirement Gathering & Technical Scope Signoff", stageOrder: 1, status: "completed", actualCompletionDate: "2026-11-02", clientVisible: true },
-      { id: "m-2", projectId: "proj-dental-portal-1", title: "UI/UX Wireframing & High-Fidelity Design Review", stageOrder: 2, status: "completed", actualCompletionDate: "2026-11-06", clientVisible: true, deliverableUrl: "https://starx-alpha-labs.vercel.app/demos/medical-dental/dental-clinic" },
+      { id: "m-2", projectId: "proj-dental-portal-1", title: "UI/UX Wireframing & High-Fidelity Design Review", stageOrder: 2, status: "completed", actualCompletionDate: "2026-11-06", clientVisible: true, deliverableUrl: "https://www.starxalphalabs.online/demos/medical-dental/dental-clinic" },
       { id: "m-3", projectId: "proj-dental-portal-1", title: "Architecture & PostgreSQL Database Setup", stageOrder: 3, status: "completed", actualCompletionDate: "2026-11-09", clientVisible: true },
       { id: "m-4", projectId: "proj-dental-portal-1", title: "Frontend / Mobile App UI Implementation", stageOrder: 4, status: "in_progress", targetDeliveryDate: "2026-11-15", clientVisible: true },
       { id: "m-5", projectId: "proj-dental-portal-1", title: "Backend Business Logic & Booking Slot Engine", stageOrder: 5, status: "awaiting_client", targetDeliveryDate: "2026-11-18", clientVisible: true },

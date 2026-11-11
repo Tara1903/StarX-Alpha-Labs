@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     title: "STARX Ecosystem & Independent Products | StarX Alpha Labs",
     description:
       "Explore the StarX technology ecosystem. Learn how StarX Alpha Labs and STARX FLOW operate as distinct, decoupled platforms.",
-    url: "https://starxlabs.io/ecosystem",
+    url: "https://www.starxalphalabs.online/ecosystem",
   },
 };
 
