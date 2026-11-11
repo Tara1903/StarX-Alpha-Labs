@@ -161,32 +161,32 @@ CREATE POLICY "Public insert customer_estimates" ON public.customer_estimates FO
 
 DROP POLICY IF EXISTS "Admin full development_packages" ON public.development_packages;
 CREATE POLICY "Admin full development_packages" ON public.development_packages FOR ALL USING (
-  auth.role() = 'service_role' OR EXISTS (SELECT 1 FROM public.admin_members WHERE user_id = auth.uid() AND is_active = true)
+  auth.role() = 'service_role' OR public.is_admin()
 );
 
 DROP POLICY IF EXISTS "Admin full development_addons" ON public.development_addons;
 CREATE POLICY "Admin full development_addons" ON public.development_addons FOR ALL USING (
-  auth.role() = 'service_role' OR EXISTS (SELECT 1 FROM public.admin_members WHERE user_id = auth.uid() AND is_active = true)
+  auth.role() = 'service_role' OR public.is_admin()
 );
 
 DROP POLICY IF EXISTS "Admin full theme_settings" ON public.theme_settings;
 CREATE POLICY "Admin full theme_settings" ON public.theme_settings FOR ALL USING (
-  auth.role() = 'service_role' OR EXISTS (SELECT 1 FROM public.admin_members WHERE user_id = auth.uid() AND is_active = true)
+  auth.role() = 'service_role' OR public.is_admin()
 );
 
 DROP POLICY IF EXISTS "Admin full customer_estimates" ON public.customer_estimates;
 CREATE POLICY "Admin full customer_estimates" ON public.customer_estimates FOR ALL USING (
-  auth.role() = 'service_role' OR EXISTS (SELECT 1 FROM public.admin_members WHERE user_id = auth.uid() AND is_active = true)
+  auth.role() = 'service_role' OR public.is_admin()
 );
 
 DROP POLICY IF EXISTS "Admin full quotations" ON public.quotations;
 CREATE POLICY "Admin full quotations" ON public.quotations FOR ALL USING (
-  auth.role() = 'service_role' OR EXISTS (SELECT 1 FROM public.admin_members WHERE user_id = auth.uid() AND is_active = true)
+  auth.role() = 'service_role' OR public.is_admin()
 );
 
 DROP POLICY IF EXISTS "Admin full client_projects" ON public.client_projects;
 CREATE POLICY "Admin full client_projects" ON public.client_projects FOR ALL USING (
-  auth.role() = 'service_role' OR EXISTS (SELECT 1 FROM public.admin_members WHERE user_id = auth.uid() AND is_active = true)
+  auth.role() = 'service_role' OR public.is_admin()
 );
 
 
@@ -288,20 +288,20 @@ CREATE POLICY "Public insert for agency partnerships" ON public.agency_partnersh
 
 DROP POLICY IF EXISTS "Admin full access for video categories" ON public.video_categories;
 CREATE POLICY "Admin full access for video categories" ON public.video_categories FOR ALL USING (
-  auth.role() = 'service_role' OR EXISTS (SELECT 1 FROM public.admin_members WHERE user_id = auth.uid() AND is_active = true)
+  auth.role() = 'service_role' OR public.is_admin()
 );
 
 DROP POLICY IF EXISTS "Admin full access for videos" ON public.videos;
 CREATE POLICY "Admin full access for videos" ON public.videos FOR ALL USING (
-  auth.role() = 'service_role' OR EXISTS (SELECT 1 FROM public.admin_members WHERE user_id = auth.uid() AND is_active = true)
+  auth.role() = 'service_role' OR public.is_admin()
 );
 
 DROP POLICY IF EXISTS "Admin full access for demo requests" ON public.demo_requests;
 CREATE POLICY "Admin full access for demo requests" ON public.demo_requests FOR ALL USING (
-  auth.role() = 'service_role' OR EXISTS (SELECT 1 FROM public.admin_members WHERE user_id = auth.uid() AND is_active = true)
+  auth.role() = 'service_role' OR public.is_admin()
 );
 
 DROP POLICY IF EXISTS "Admin full access for agency partnerships" ON public.agency_partnerships;
 CREATE POLICY "Admin full access for agency partnerships" ON public.agency_partnerships FOR ALL USING (
-  auth.role() = 'service_role' OR EXISTS (SELECT 1 FROM public.admin_members WHERE user_id = auth.uid() AND is_active = true)
+  auth.role() = 'service_role' OR public.is_admin()
 );

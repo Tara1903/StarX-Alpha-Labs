@@ -108,27 +108,23 @@ CREATE POLICY "Public insert for agency partnerships"
 CREATE POLICY "Admin full access for video categories"
   ON public.video_categories FOR ALL
   USING (
-    auth.role() = 'service_role' OR
-    EXISTS (SELECT 1 FROM public.admin_members WHERE user_id = auth.uid() AND is_active = true)
+    auth.role() = 'service_role' OR public.is_admin()
   );
 
 CREATE POLICY "Admin full access for videos"
   ON public.videos FOR ALL
   USING (
-    auth.role() = 'service_role' OR
-    EXISTS (SELECT 1 FROM public.admin_members WHERE user_id = auth.uid() AND is_active = true)
+    auth.role() = 'service_role' OR public.is_admin()
   );
 
 CREATE POLICY "Admin full access for demo requests"
   ON public.demo_requests FOR ALL
   USING (
-    auth.role() = 'service_role' OR
-    EXISTS (SELECT 1 FROM public.admin_members WHERE user_id = auth.uid() AND is_active = true)
+    auth.role() = 'service_role' OR public.is_admin()
   );
 
 CREATE POLICY "Admin full access for agency partnerships"
   ON public.agency_partnerships FOR ALL
   USING (
-    auth.role() = 'service_role' OR
-    EXISTS (SELECT 1 FROM public.admin_members WHERE user_id = auth.uid() AND is_active = true)
+    auth.role() = 'service_role' OR public.is_admin()
   );
