@@ -7,14 +7,15 @@ import * as THREE from "three";
 export function Hero3DGlobe() {
   const globeRef = useRef<THREE.Group>(null);
   const particlesRef = useRef<THREE.Points>(null);
-  const ringRef = useRef<THREE.Mesh>(null);
+  const ring1Ref = useRef<THREE.Mesh>(null);
+  const ring2Ref = useRef<THREE.Mesh>(null);
 
   // Generate particle constellation around the globe
   const [particlesPos] = useMemo(() => {
-    const count = 350;
+    const count = 450;
     const positions = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      const radius = 2.4 + Math.random() * 0.8;
+      const radius = 2.4 + Math.random() * 0.9;
       const theta = Math.random() * Math.PI * 2;
       const phi = (Math.random() - 0.5) * Math.PI;
       positions[i * 3] = radius * Math.cos(theta) * Math.cos(phi);
@@ -27,80 +28,87 @@ export function Hero3DGlobe() {
   useFrame(({ clock, pointer }) => {
     const t = clock.getElapsedTime();
     if (globeRef.current) {
-      // Base rotation
-      globeRef.current.rotation.y = t * 0.12;
+      // Base continuous rotation
+      globeRef.current.rotation.y = t * 0.14;
       globeRef.current.rotation.x = Math.sin(t * 0.05) * 0.08;
 
-      // Mouse parallax tilt
-      globeRef.current.rotation.y += pointer.x * 0.02;
-      globeRef.current.rotation.x += -pointer.y * 0.02;
+      // Smooth mouse cursor parallax reaction
+      globeRef.current.rotation.y += pointer.x * 0.04;
+      globeRef.current.rotation.x += -pointer.y * 0.04;
     }
 
     if (particlesRef.current) {
-      particlesRef.current.rotation.y = -t * 0.08;
-      particlesRef.current.rotation.z = Math.cos(t * 0.06) * 0.05;
+      particlesRef.current.rotation.y = -t * 0.1;
+      particlesRef.current.rotation.z = Math.cos(t * 0.06) * 0.08;
     }
 
-    if (ringRef.current) {
-      ringRef.current.rotation.z = t * 0.15;
+    if (ring1Ref.current) {
+      ring1Ref.current.rotation.z = t * 0.2;
+      ring1Ref.current.rotation.x = Math.PI / 3 + Math.sin(t * 0.1) * 0.05;
+    }
+
+    if (ring2Ref.current) {
+      ring2Ref.current.rotation.z = -t * 0.16;
     }
   });
 
   return (
-    <group ref={globeRef} position={[0.4, 0, 0]}>
-      {/* Outer Wireframe Sphere */}
+    <group ref={globeRef} position={[0, 0.2, 0]}>
+      {/* Outer Primary Holographic Wireframe Sphere */}
       <mesh>
-        <sphereGeometry args={[2.2, 32, 24]} />
+        <sphereGeometry args={[2.35, 36, 28]} />
+        <meshBasicMaterial
+          color="#00D9FF"
+          wireframe
+          transparent
+          opacity={0.32}
+        />
+      </mesh>
+
+      {/* Secondary Tech Wireframe Grid */}
+      <mesh scale={0.97}>
+        <sphereGeometry args={[2.35, 24, 20]} />
         <meshBasicMaterial
           color="#087BFF"
           wireframe
           transparent
-          opacity={0.16}
+          opacity={0.22}
         />
       </mesh>
 
-      {/* Inner Dense Wireframe */}
-      <mesh scale={0.96}>
-        <sphereGeometry args={[2.2, 20, 16]} />
+      {/* Glowing Tech Atmosphere Core */}
+      <mesh scale={0.9}>
+        <sphereGeometry args={[2.35, 32, 32]} />
+        <meshBasicMaterial
+          color="#071638"
+          transparent
+          opacity={0.7}
+        />
+      </mesh>
+
+      {/* Orbital Ellipse 1 — Cyan Neon Ring */}
+      <mesh ref={ring1Ref} rotation={[Math.PI / 3, 0.2, 0]}>
+        <ringGeometry args={[2.8, 2.84, 80]} />
         <meshBasicMaterial
           color="#00D9FF"
-          wireframe
           transparent
-          opacity={0.12}
+          opacity={0.55}
+          side={THREE.DoubleSide}
         />
       </mesh>
 
-      {/* Core Glowing Atmosphere Sphere */}
-      <mesh scale={0.88}>
-        <sphereGeometry args={[2.2, 32, 32]} />
+      {/* Orbital Ellipse 2 — Magenta/Purple Tech Ring */}
+      <mesh ref={ring2Ref} rotation={[-Math.PI / 3.8, Math.PI / 5, 0]}>
+        <ringGeometry args={[3.0, 3.03, 80]} />
         <meshBasicMaterial
-          color="#031640"
-          transparent
-          opacity={0.65}
-        />
-      </mesh>
-
-      {/* Orbital Data Rings */}
-      <mesh ref={ringRef} rotation={[Math.PI / 3, 0, 0]}>
-        <ringGeometry args={[2.6, 2.63, 64]} />
-        <meshBasicMaterial
-          color="#00D9FF"
+          color="#E52BFF"
           transparent
           opacity={0.45}
           side={THREE.DoubleSide}
         />
       </mesh>
-      <mesh rotation={[-Math.PI / 4, Math.PI / 6, 0]}>
-        <ringGeometry args={[2.75, 2.78, 64]} />
-        <meshBasicMaterial
-          color="#E52BFF"
-          transparent
-          opacity={0.35}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
 
-      {/* Floating Orbital Particle Points */}
+      {/* Floating Constellation Data Points */}
       <points ref={particlesRef}>
         <bufferGeometry>
           <bufferAttribute
@@ -110,9 +118,9 @@ export function Hero3DGlobe() {
         </bufferGeometry>
         <pointsMaterial
           color="#00D9FF"
-          size={0.045}
+          size={0.055}
           transparent
-          opacity={0.8}
+          opacity={0.85}
           blending={THREE.AdditiveBlending}
         />
       </points>

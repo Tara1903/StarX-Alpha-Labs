@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { Laptop, Smartphone, Globe, Layers, Sparkles, CheckCircle2 } from "lucide-react";
+import { Laptop, Smartphone, Globe, ArrowUpRight } from "lucide-react";
 
 // Dynamically import ThreeCanvas to avoid SSR issues
 const DynamicThreeCanvas = dynamic(
@@ -16,185 +16,290 @@ const DynamicHero3DGlobe = dynamic(
 );
 
 export function HeroDeviceStage() {
+  const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const laptopRef = useRef<HTMLDivElement>(null);
+  const phoneRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    const stage = stageRef.current;
-    if (!stage) return;
+    const container = containerRef.current;
+    if (!container) return;
 
+    let targetRotX = 0;
+    let targetRotY = 0;
+    let currentRotX = 0;
+    let currentRotY = 0;
     let rafId: number | null = null;
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (rafId) cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        const rect = stage.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        const deltaX = (e.clientX - centerX) / (window.innerWidth / 2);
-        const deltaY = (e.clientY - centerY) / (window.innerHeight / 2);
+      const rect = container.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
 
-        // 3D Tilt calculation
-        const rotY = deltaX * 12; // degrees
-        const rotX = -deltaY * 12;
+      // Normalized delta [-1, 1] relative to stage center
+      const deltaX = (e.clientX - centerX) / (window.innerWidth / 2);
+      const deltaY = (e.clientY - centerY) / (window.innerHeight / 2);
 
-        stage.style.transform = `perspective(1200px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) scale3d(1.02, 1.02, 1.02)`;
-      });
+      // Clamp target rotation angles
+      targetRotY = Math.max(-18, Math.min(18, deltaX * 16));
+      targetRotX = Math.max(-14, Math.min(14, -deltaY * 14));
+
+      // Specular spotlight coordinates on the device glass
+      const spotX = `${Math.round(((e.clientX - rect.left) / rect.width) * 100)}%`;
+      const spotY = `${Math.round(((e.clientY - rect.top) / rect.height) * 100)}%`;
+
+      if (laptopRef.current) {
+        laptopRef.current.style.setProperty("--spot-x", spotX);
+        laptopRef.current.style.setProperty("--spot-y", spotY);
+      }
+      if (phoneRef.current) {
+        phoneRef.current.style.setProperty("--spot-x", spotX);
+        phoneRef.current.style.setProperty("--spot-y", spotY);
+      }
     };
 
     const handleMouseLeave = () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      stage.style.transform = `perspective(1200px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+      targetRotX = 0;
+      targetRotY = 0;
+    };
+
+    // Smooth physics loop with spring inertia
+    const animate = () => {
+      // Lerp smoothing factor
+      currentRotX += (targetRotX - currentRotX) * 0.08;
+      currentRotY += (targetRotY - currentRotY) * 0.08;
+
+      if (stageRef.current) {
+        stageRef.current.style.transform = `perspective(1200px) rotateX(${currentRotX.toFixed(
+          2
+        )}deg) rotateY(${currentRotY.toFixed(2)}deg)`;
+      }
+
+      // Elevated parallax for smartphone (floats forward and translates in 3D)
+      if (phoneRef.current) {
+        const phoneTranslateX = currentRotY * 1.2;
+        const phoneTranslateY = -currentRotX * 0.8;
+        phoneRef.current.style.transform = `translate3d(${phoneTranslateX.toFixed(
+          1
+        )}px, ${phoneTranslateY.toFixed(
+          1
+        )}px, 55px) rotateZ(5deg) rotateX(${(-currentRotX * 0.6).toFixed(
+          2
+        )}deg) rotateY(${(currentRotY * 0.7).toFixed(2)}deg)`;
+      }
+
+      rafId = requestAnimationFrame(animate);
     };
 
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
-    stage.addEventListener("mouseleave", handleMouseLeave);
+    container.addEventListener("mouseleave", handleMouseLeave);
+    rafId = requestAnimationFrame(animate);
 
     return () => {
       if (rafId) cancelAnimationFrame(rafId);
       window.removeEventListener("mousemove", handleMouseMove);
-      stage.removeEventListener("mouseleave", handleMouseLeave);
+      container.removeEventListener("mouseleave", handleMouseLeave);
     };
   }, []);
 
   return (
-    <div className="relative w-full max-w-xl mx-auto flex items-center justify-center min-h-[460px] select-none">
-      
-      {/* 3D Holographic Globe Canvas in Background */}
+    <div
+      ref={containerRef}
+      className="relative w-full max-w-2xl mx-auto flex items-center justify-center min-h-[480px] sm:min-h-[520px] select-none py-6"
+    >
+      {/* 1. 3D Holographic Wireframe Globe in Background (Centered) */}
       {mounted && (
-        <div className="absolute inset-0 -top-8 w-full h-[520px] pointer-events-none z-0 opacity-85">
-          <DynamicThreeCanvas cameraPosition={[0, 0, 6]} fov={45}>
-            <ambientLight intensity={0.5} />
-            <pointLight position={[10, 10, 10]} intensity={1.5} color="#00D9FF" />
-            <pointLight position={[-10, -10, -10]} intensity={1.0} color="#E52BFF" />
+        <div className="absolute inset-0 -top-6 w-full h-[540px] pointer-events-none z-0 opacity-90 flex items-center justify-center">
+          <DynamicThreeCanvas cameraPosition={[0, 0, 6.2]} fov={45}>
+            <ambientLight intensity={0.6} />
+            <pointLight position={[10, 10, 10]} intensity={2.0} color="#00D9FF" />
+            <pointLight position={[-10, -10, -10]} intensity={1.5} color="#E52BFF" />
             <DynamicHero3DGlobe />
           </DynamicThreeCanvas>
         </div>
       )}
 
-      {/* Ambient Neon Backlight Aura */}
-      <div className="absolute w-[450px] h-[450px] rounded-full bg-gradient-to-tr from-[#087BFF]/25 via-[#00D9FF]/20 to-[#E52BFF]/25 blur-[120px] pointer-events-none -z-10" />
+      {/* Ambient Neon Backlight Aura Behind Devices */}
+      <div className="absolute w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-[#087BFF]/25 via-[#00D9FF]/20 to-[#E52BFF]/25 blur-[140px] pointer-events-none -z-10" />
 
-      {/* 3D Device Rig (Mouse-Reactive) */}
+      {/* 2. 3D Device Stage (Mouse-Reactive Parallax Rig) */}
       <div
         ref={stageRef}
-        className="relative z-10 w-full transition-transform duration-200 ease-out preserve-3d"
+        className="relative z-10 w-full transition-transform duration-75 ease-out preserve-3d"
         style={{ transformStyle: "preserve-3d" }}
       >
-        {/* Floating 3D HUD Tag 1: Website Development */}
-        <div className="absolute -top-6 left-6 z-30 animate-bounce duration-1000" style={{ animationDuration: "3.5s" }}>
-          <div className="px-3.5 py-1.5 rounded-xl bg-[#071638]/95 border border-[#00D9FF]/70 text-white text-xs font-bold shadow-[0_0_20px_rgba(0,217,255,0.4)] flex items-center gap-2 backdrop-blur-xl">
-            <Globe className="w-4 h-4 text-[#00D9FF]" />
-            <span className="text-white font-extrabold tracking-wide">Website Development</span>
-          </div>
-          {/* Laser-Light Tether Line to Laptop */}
-          <div className="w-0.5 h-6 bg-gradient-to-b from-[#00D9FF] via-[#00D9FF]/60 to-transparent ml-6 shadow-[0_0_8px_#00D9FF]" />
-        </div>
-
-        {/* Floating 3D HUD Tag 2: Mobile App Development */}
-        <div className="absolute -top-3 right-4 z-30 animate-bounce duration-1000" style={{ animationDuration: "4s", animationDelay: "1s" }}>
-          <div className="px-3.5 py-1.5 rounded-xl bg-[#071638]/95 border border-[#E52BFF]/70 text-white text-xs font-bold shadow-[0_0_20px_rgba(229,43,255,0.4)] flex items-center gap-2 backdrop-blur-xl">
-            <Smartphone className="w-4 h-4 text-[#E52BFF]" />
-            <span className="text-white font-extrabold tracking-wide">Mobile App Development</span>
-          </div>
-          {/* Laser-Light Tether Line to Phone */}
-          <div className="w-0.5 h-6 bg-gradient-to-b from-[#E52BFF] via-[#E52BFF]/60 to-transparent ml-8 shadow-[0_0_8px_#E52BFF]" />
-        </div>
-
-        {/* Floating 3D HUD Tag 3: Combo Website + App */}
-        <div className="absolute bottom-6 -right-6 z-30 animate-bounce duration-1000" style={{ animationDuration: "4.5s", animationDelay: "0.5s" }}>
-          <div className="p-3.5 rounded-2xl bg-[#071638]/95 border-2 border-[#087BFF]/70 text-white text-xs font-bold shadow-[0_0_30px_rgba(8,123,255,0.5)] flex flex-col items-center gap-1.5 backdrop-blur-xl ring-1 ring-[#00D9FF]/40">
-            <div className="flex items-center gap-1.5 text-[#00D9FF]">
-              <Laptop className="w-4 h-4" />
-              <span className="text-xs font-extrabold">+</span>
-              <Smartphone className="w-4 h-4" />
-            </div>
-            <span className="text-[11px] font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#00D9FF] via-[#FFFFFF] to-[#FF35B8]">
-              Combo Website + App
+        {/* ======================================================== */}
+        {/* FLOATING HUD BADGE 1: Website Development (Top Left)    */}
+        {/* ======================================================== */}
+        <div
+          className="absolute -top-7 left-4 sm:left-8 z-30 pointer-events-auto group cursor-default"
+          style={{ transform: "translateZ(80px)" }}
+        >
+          <div className="px-4 py-2 rounded-2xl bg-[#071638]/95 border-2 border-[#00D9FF] text-white text-xs font-extrabold shadow-[0_0_25px_#00D9FF,inset_0_0_12px_rgba(0,217,255,0.3)] flex items-center gap-2.5 backdrop-blur-xl transition-transform duration-200 group-hover:scale-105">
+            <Globe className="w-4 h-4 text-[#00D9FF] animate-spin-slow" />
+            <span className="text-white font-extrabold tracking-wide text-xs sm:text-sm whitespace-nowrap">
+              Website Development
             </span>
           </div>
+          {/* Cyan Glowing Laser Tether connecting to Laptop top bezel */}
+          <div className="w-[2px] h-7 bg-gradient-to-b from-[#00D9FF] via-[#00D9FF]/80 to-transparent ml-7 shadow-[0_0_10px_#00D9FF]" />
+          {/* Connection Dot on Laptop Rim */}
+          <div className="w-2 h-2 rounded-full bg-[#00D9FF] shadow-[0_0_10px_#00D9FF] ml-[25px] -mt-1 animate-pulse" />
         </div>
 
-        {/* 3D Realistic Laptop Container */}
-        <div className="relative mx-auto w-11/12 rounded-2xl bg-[#0A1940] border-2 border-[#00D9FF]/50 shadow-[0_20px_60px_rgba(0,217,255,0.35)] overflow-hidden p-3 transform -rotate-1 hover:rotate-0 transition-transform duration-300">
-          
-          {/* Laptop Screen Bezel */}
-          <div className="bg-[#030B24] rounded-xl border border-white/10 p-3.5 text-left space-y-3 shadow-inner">
-            {/* Browser Tab Header */}
-            <div className="flex items-center justify-between border-b border-white/10 pb-2">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                <span className="text-[10px] font-mono text-slate-400 ml-2">starxalphalabs.com</span>
+        {/* ======================================================== */}
+        {/* FLOATING HUD BADGE 2: Mobile App Development (Top Right) */}
+        {/* ======================================================== */}
+        <div
+          className="absolute -top-4 right-6 sm:right-10 z-30 pointer-events-auto group cursor-default"
+          style={{ transform: "translateZ(80px)" }}
+        >
+          <div className="px-4 py-2 rounded-2xl bg-[#071638]/95 border-2 border-[#E52BFF] text-white text-xs font-extrabold shadow-[0_0_25px_#E52BFF,inset_0_0_12px_rgba(229,43,255,0.3)] flex items-center gap-2.5 backdrop-blur-xl transition-transform duration-200 group-hover:scale-105">
+            <Smartphone className="w-4 h-4 text-[#E52BFF]" />
+            <span className="text-white font-extrabold tracking-wide text-xs sm:text-sm whitespace-nowrap">
+              Mobile App Development
+            </span>
+          </div>
+          {/* Magenta Glowing Laser Tether connecting to Device */}
+          <div className="w-[2px] h-7 bg-gradient-to-b from-[#E52BFF] via-[#E52BFF]/80 to-transparent ml-8 shadow-[0_0_10px_#E52BFF]" />
+          {/* Connection Dot on Device Rim */}
+          <div className="w-2 h-2 rounded-full bg-[#E52BFF] shadow-[0_0_10px_#E52BFF] ml-[29px] -mt-1 animate-pulse" />
+        </div>
+
+        {/* ======================================================== */}
+        {/* 3D LAPTOP HARDWARE CHASSIS (Centerpiece)                 */}
+        {/* ======================================================== */}
+        <div
+          ref={laptopRef}
+          style={{ transform: "translateZ(20px)" }}
+          className="relative mx-auto w-[92%] sm:w-[90%] rounded-2xl bg-[#0A1940] border-2 border-[#00D9FF] shadow-[0_0_40px_rgba(0,217,255,0.45),0_25px_60px_rgba(0,0,0,0.8)] overflow-hidden p-3.5 sm:p-4 transition-all duration-200"
+        >
+          {/* Specular Cursor Glass Reflection Overlay */}
+          <div
+            className="absolute inset-0 pointer-events-none rounded-2xl z-20 opacity-70"
+            style={{
+              background:
+                "radial-gradient(550px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(0, 217, 255, 0.14), transparent 50%)",
+            }}
+          />
+
+          {/* Laptop Screen Display Area */}
+          <div className="bg-[#030B24] rounded-xl border border-white/10 p-3.5 sm:p-4 text-left space-y-3.5 shadow-inner relative z-10">
+            {/* Top Browser Bar matching screenshot */}
+            <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444] shadow-[0_0_6px_#EF4444]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B] shadow-[0_0_6px_#F59E0B]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] shadow-[0_0_6px_#10B981]" />
+                <span className="text-[11px] sm:text-xs font-mono text-slate-300 ml-3 tracking-wide">
+                  starxalphalabs.com
+                </span>
               </div>
-              <span className="text-[9px] font-mono font-bold text-[#00D9FF] uppercase tracking-wider bg-[#087BFF]/20 px-2 py-0.5 rounded border border-[#00D9FF]/30">
-                Live Web Core
+              <span className="text-[10px] font-mono font-extrabold text-[#00D9FF] uppercase tracking-wider bg-[#00D9FF]/10 px-2.5 py-0.5 rounded-md border border-[#00D9FF]/50 shadow-[0_0_12px_rgba(0,217,255,0.35)]">
+                LIVE WEB CORE
               </span>
             </div>
 
-            {/* Simulated Live Interface */}
-            <div className="p-3.5 rounded-xl bg-gradient-to-r from-[#087BFF]/20 via-[#071638] to-[#030B24] border border-[#00D9FF]/30 space-y-1.5">
+            {/* Simulated Live Product Screen Card */}
+            <div className="p-4 sm:p-5 rounded-xl bg-gradient-to-r from-[#087BFF]/20 via-[#071638]/90 to-[#030B24] border border-[#00D9FF]/35 space-y-2 shadow-lg">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-[9px] font-bold text-[#00D9FF] uppercase">
+                <span className="font-mono text-[10px] sm:text-xs font-extrabold text-[#00D9FF] uppercase tracking-wider">
                   STARX ALPHA LABS
                 </span>
-                <span className="w-1.5 h-1.5 rounded-full bg-[#00C98B] animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-[#00C98B] shadow-[0_0_8px_#00C98B] animate-pulse" />
               </div>
-              <div className="text-sm font-extrabold text-white">
+              <div className="text-base sm:text-lg lg:text-xl font-extrabold text-white tracking-tight leading-snug">
                 Professional Business Website
               </div>
-              <p className="text-[10px] text-[#C8D5EF] leading-relaxed">
-                Enterprise architecture with zero-trust database security, instantaneous page loads, and multi-currency billing.
+              <p className="text-xs sm:text-sm text-[#C8D5EF] leading-relaxed max-w-md">
+                Enterprise architecture with zero-trust database security, instantaneous multi-currency billing.
               </p>
             </div>
 
-            {/* 3 Metric Pills */}
-            <div className="grid grid-cols-3 gap-2 text-[9px] font-mono">
-              <div className="p-1.5 rounded-lg bg-[#071638] border border-white/5 text-slate-300 flex items-center justify-center gap-1">
+            {/* 3 Metric Pills on Screen */}
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 text-[10px] font-mono">
+              <div className="p-2 rounded-lg bg-[#071638] border border-white/10 text-slate-200 flex items-center justify-center gap-1.5 shadow-sm">
                 <span className="text-[#00D9FF]">⚡</span> 100/100 CWV
               </div>
-              <div className="p-1.5 rounded-lg bg-[#071638] border border-white/5 text-slate-300 flex items-center justify-center gap-1">
+              <div className="p-2 rounded-lg bg-[#071638] border border-white/10 text-slate-200 flex items-center justify-center gap-1.5 shadow-sm">
                 <span className="text-[#00C98B]">🛡️</span> Zero Trust
               </div>
-              <div className="p-1.5 rounded-lg bg-[#071638] border border-white/5 text-slate-300 flex items-center justify-center gap-1">
+              <div className="p-2 rounded-lg bg-[#071638] border border-white/10 text-slate-200 flex items-center justify-center gap-1.5 shadow-sm">
                 <span className="text-[#E52BFF]">🚀</span> Next.js 16
               </div>
             </div>
           </div>
 
-          {/* Laptop Base Lip / Keyboard Deck Notch */}
-          <div className="h-2.5 w-full bg-[#071638] rounded-b-xl border-t border-white/10 mt-1 flex items-center justify-center">
-            <div className="w-12 h-1 bg-white/20 rounded-full" />
+          {/* Laptop Base Lip / Keyboard Deck with Center Notch */}
+          <div className="h-3 w-full bg-[#071638] rounded-b-xl border-t border-white/10 mt-1.5 flex items-center justify-center">
+            <div className="w-14 h-1 bg-white/30 rounded-full" />
           </div>
         </div>
 
-        {/* 3D Realistic Smartphone Mockup (Overlapping Bottom Right) */}
-        <div className="absolute -bottom-4 right-1 w-36 sm:w-44 rounded-2xl bg-[#0A1940] border-2 border-[#E52BFF]/60 shadow-[0_20px_50px_rgba(229,43,255,0.45)] p-2.5 transform rotate-6 hover:rotate-2 transition-transform duration-300 z-20">
-          <div className="bg-[#030B24] rounded-xl border border-white/10 p-2 text-left space-y-2">
-            {/* Phone Top Notch */}
-            <div className="flex items-center justify-between border-b border-white/10 pb-1">
-              <span className="text-[8px] font-mono text-slate-400">9:41</span>
-              <div className="w-8 h-1 rounded-full bg-white/20" />
-              <span className="text-[8px] font-mono text-emerald-400">5G</span>
+        {/* ======================================================== */}
+        {/* 3D SMARTPHONE HARDWARE CHASSIS (Overlapping Bottom Right) */}
+        {/* ======================================================== */}
+        <div
+          ref={phoneRef}
+          className="absolute -bottom-6 -right-2 sm:right-2 w-44 sm:w-56 rounded-3xl bg-[#0A1940] border-2 border-[#873BFF] shadow-[0_20px_50px_rgba(135,59,255,0.55),0_0_35px_rgba(229,43,255,0.4)] p-3 z-30 transition-all duration-150"
+          style={{ transformStyle: "preserve-3d" }}
+        >
+          {/* Specular Cursor Glass Reflection Overlay */}
+          <div
+            className="absolute inset-0 pointer-events-none rounded-3xl z-20 opacity-70"
+            style={{
+              background:
+                "radial-gradient(350px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(229, 43, 255, 0.2), transparent 50%)",
+            }}
+          />
+
+          <div className="bg-[#030B24] rounded-2xl border border-white/10 p-2.5 text-left space-y-2.5 relative z-10 shadow-inner">
+            {/* Phone Top Notch / Status Bar */}
+            <div className="flex items-center justify-between border-b border-white/10 pb-1.5 px-1">
+              <span className="text-[9px] font-mono font-bold text-slate-300">9:41</span>
+              <div className="w-10 h-1 rounded-full bg-white/30" />
+              <span className="text-[9px] font-mono text-[#00C98B] font-bold">5G</span>
             </div>
 
             {/* Mobile App UI Card */}
-            <div className="p-2 rounded-lg bg-[#873BFF]/20 border border-[#E52BFF]/30 text-[9px] space-y-0.5">
-              <span className="font-bold text-white block">StarX Mobile App</span>
-              <span className="text-[#E52BFF] text-[8px] font-mono block">iOS &amp; Android Synced</span>
+            <div className="p-2.5 rounded-xl bg-gradient-to-r from-[#873BFF]/25 to-[#071638] border border-[#E52BFF]/40 text-[10px] space-y-1">
+              <span className="font-extrabold text-white block text-xs">StarX Mobile App</span>
+              <span className="text-[#E52BFF] text-[9px] font-mono block">iOS &amp; Android Synced</span>
             </div>
 
             {/* 2 Feature Tags */}
-            <div className="grid grid-cols-2 gap-1 text-[8px] font-mono">
-              <div className="p-1 rounded bg-[#071638] text-center text-slate-300 border border-white/5">
+            <div className="grid grid-cols-2 gap-1.5 text-[9px] font-mono font-semibold">
+              <div className="p-1.5 rounded-lg bg-[#071638] text-center text-slate-200 border border-white/10 shadow-sm">
                 🔔 Push
               </div>
-              <div className="p-1 rounded bg-[#071638] text-center text-slate-300 border border-white/5">
+              <div className="p-1.5 rounded-lg bg-[#071638] text-center text-slate-200 border border-white/10 shadow-sm">
                 🔒 FaceID
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* ======================================================== */}
+        {/* FLOATING HUD BADGE 3: Combo Website + App                */}
+        {/* (Floats directly above the Phone on the right)           */}
+        {/* ======================================================== */}
+        <div
+          className="absolute bottom-16 sm:bottom-20 -right-4 sm:-right-8 z-40 pointer-events-auto group cursor-default"
+          style={{ transform: "translateZ(95px)" }}
+        >
+          <div className="px-5 py-3 rounded-2xl bg-[#071638]/95 border-2 border-[#00D9FF] text-white shadow-[0_0_30px_rgba(0,217,255,0.6),inset_0_0_12px_rgba(0,217,255,0.3)] flex flex-col items-center gap-1.5 backdrop-blur-xl ring-1 ring-white/20 transition-transform duration-200 group-hover:scale-105">
+            {/* Top row: Laptop icon + '+' + Phone icon */}
+            <div className="flex items-center gap-2 text-[#00D9FF]">
+              <Laptop className="w-4 h-4 text-[#00D9FF]" />
+              <span className="text-xs font-black text-white">+</span>
+              <Smartphone className="w-4 h-4 text-[#00D9FF]" />
+            </div>
+            {/* Bottom row: Combo Website + App */}
+            <span className="text-xs sm:text-sm font-black tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-[#00D9FF] via-white to-[#FF35B8] whitespace-nowrap">
+              Combo Website + App
+            </span>
           </div>
         </div>
 
