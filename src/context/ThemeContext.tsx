@@ -64,6 +64,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed.colors) {
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setColors(parsed.colors);
           applyVariables(parsed.colors);
         }

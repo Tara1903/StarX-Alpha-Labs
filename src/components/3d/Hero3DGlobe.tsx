@@ -10,14 +10,21 @@ export function Hero3DGlobe() {
   const ring1Ref = useRef<THREE.Mesh>(null);
   const ring2Ref = useRef<THREE.Mesh>(null);
 
-  // Generate particle constellation around the globe
+  // Generate particle constellation around the globe with deterministic pure distribution
   const [particlesPos] = useMemo(() => {
     const count = 450;
     const positions = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      const radius = 2.4 + Math.random() * 0.9;
-      const theta = Math.random() * Math.PI * 2;
-      const phi = (Math.random() - 0.5) * Math.PI;
+      const rSeed = Math.sin(i * 12.9898) * 43758.5453;
+      const tSeed = Math.sin((i + 1) * 78.233) * 43758.5453;
+      const pSeed = Math.sin((i + 2) * 45.164) * 43758.5453;
+      const rVal = rSeed - Math.floor(rSeed);
+      const tVal = tSeed - Math.floor(tSeed);
+      const pVal = pSeed - Math.floor(pSeed);
+
+      const radius = 2.4 + rVal * 0.9;
+      const theta = tVal * Math.PI * 2;
+      const phi = (pVal - 0.5) * Math.PI;
       positions[i * 3] = radius * Math.cos(theta) * Math.cos(phi);
       positions[i * 3 + 1] = radius * Math.sin(phi);
       positions[i * 3 + 2] = radius * Math.sin(theta) * Math.cos(phi);

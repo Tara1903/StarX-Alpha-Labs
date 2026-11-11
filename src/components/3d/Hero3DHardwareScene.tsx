@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useMemo, useEffect, useState } from "react";
+import React, { useRef, useMemo, useSyncExternalStore } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import Link from "next/link";
@@ -353,10 +353,17 @@ function GlobeAssembly() {
     const count = 420;
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
+      const xSeed = Math.sin(i * 12.9898 + 1.0) * 43758.5453;
+      const ySeed = Math.sin(i * 78.233 + 2.0) * 43758.5453;
+      const zSeed = Math.sin(i * 45.164 + 3.0) * 43758.5453;
+      const xVal = xSeed - Math.floor(xSeed);
+      const yVal = ySeed - Math.floor(ySeed);
+      const zVal = zSeed - Math.floor(zSeed);
+
       // Data constellation particles span across the full background
-      pos[i * 3] = (Math.random() - 0.4) * 14;     // X spans from -5.6 to +8.4
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 8;  // Y spans vertically
-      pos[i * 3 + 2] = -2.0 - Math.random() * 4.0; // Z depth
+      pos[i * 3] = (xVal - 0.4) * 14;     // X spans from -5.6 to +8.4
+      pos[i * 3 + 1] = (yVal - 0.5) * 8;  // Y spans vertically
+      pos[i * 3 + 2] = -2.0 - zVal * 4.0; // Z depth
     }
     return pos;
   }, []);
@@ -620,13 +627,11 @@ function HardwareRig({
 // 4. MAIN EXPORT COMPONENT
 // =========================================================================
 
-export function Hero3DHardwareScene() {
-  const [mounted, setMounted] = useState(false);
-  const textures = useDeviceTextures();
+const emptySubscribe = () => () => {};
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+export function Hero3DHardwareScene() {
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
+  const textures = useDeviceTextures();
 
   if (!mounted) {
     return (

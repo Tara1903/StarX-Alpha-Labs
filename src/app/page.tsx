@@ -4,6 +4,7 @@ import { DivisionsSection } from "@/components/marketing/DivisionsSection";
 import { IndustriesSection } from "@/components/marketing/IndustriesSection";
 import { DemoShowcaseSection } from "@/components/marketing/DemoShowcaseSection";
 import { WhyChooseUsSection } from "@/components/marketing/WhyChooseUsSection";
+import { StarxFlowSection } from "@/components/marketing/StarxFlowSection";
 import { FinalCTA } from "@/components/marketing/FinalCTA";
 import { Footer } from "@/components/marketing/Footer";
 
@@ -44,7 +45,10 @@ export default function HomePage() {
         {/* 5. Why Choose STARX ALPHA LABS? (6 Strategic Pillars) */}
         <WhyChooseUsSection />
 
-        {/* 6. Have a Project in Mind? (Final Project CTA) */}
+        {/* 6. STARX FLOW — Flagship Independent AI Business Operating System */}
+        <StarxFlowSection />
+
+        {/* 7. Have a Project in Mind? (Final Project CTA) */}
         <FinalCTA />
       </main>
 
