@@ -1,148 +1,52 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { Container } from "@/components/ui/Container";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Select } from "@/components/ui/Select";
-import { Reveal } from "@/components/motion/Reveal";
-import { ArrowRight, CheckCircle2, Sparkles, ShieldCheck } from "lucide-react";
+import { Card3DTilt } from "@/components/ui/Card3DTilt";
+import { ArrowRight, Calendar, Sparkles, Send } from "lucide-react";
 
 export function FinalCTA() {
-  const [submitted, setSubmitted] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
-  const [email, setEmail] = React.useState("");
-  const [division, setDivision] = React.useState("systems");
-  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !email.includes("@")) {
-      setErrorMessage("Please enter a valid corporate email.");
-      return;
-    }
-    setLoading(true);
-    setErrorMessage(null);
-
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fullName: "Direct Lead",
-          email,
-          division,
-          message: `Inquiry submitted via Homepage Quick CTA for division: ${division}`,
-          sourcePage: "/",
-        }),
-      });
-
-      const data = await res.json();
-      setLoading(false);
-
-      if (res.ok && data.success) {
-        setSubmitted(true);
-      } else {
-        setErrorMessage(data.message || "Failed to submit. Please try again.");
-      }
-    } catch {
-      setLoading(false);
-      setErrorMessage("Network error. Please try again.");
-    }
-  };
-
   return (
-    <section id="contact" className="relative py-12 sm:py-14 md:py-16 overflow-hidden">
-      {/* Background ambient radial glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-[#1769AA]/20 via-[#32A9E8]/20 to-[#73D8FF]/15 blur-[160px] pointer-events-none -z-10" />
+    <section id="contact" className="py-20 bg-[#030B24] relative overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-[#087BFF]/20 via-[#00D9FF]/15 to-[#E52BFF]/20 blur-[160px] pointer-events-none -z-10" />
 
       <Container className="max-w-5xl">
-        <div className="p-8 sm:p-12 md:p-16 rounded-3xl glass-panel relative overflow-hidden border-[rgba(130,180,220,0.22)] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)]">
-          <div className="max-w-3xl mx-auto text-center space-y-6">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[rgba(130,180,220,0.2)] bg-[#102D50]/60 backdrop-blur-md">
-              <Sparkles className="w-3.5 h-3.5 text-[#73D8FF]" />
-              <span className="text-xs font-mono font-medium tracking-widest uppercase text-[#73D8FF]">
-                Direct Engineering Engagement
-              </span>
-            </div>
-
-            <Reveal direction="up" distance={15}>
-              <h2 className="text-display font-extrabold text-white tracking-tight leading-[1.05]">
-                Have an idea worth engineering?{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFFFFF] via-[#73D8FF] to-[#32A9E8]">
-                  Let&apos;s turn it into something real.
-                </span>
-              </h2>
-            </Reveal>
-
-            <Reveal direction="up" distance={15} delay={0.1}>
-              <p className="text-base sm:text-lg text-[#A3B4C7] max-w-2xl mx-auto font-light leading-relaxed">
-                Connect directly with our lead architects. We evaluate technical feasibility,
-                system architecture, and execution timelines within 24 business hours.
-              </p>
-            </Reveal>
-
-            {/* Quick Consultation Form */}
-            {submitted ? (
-              <div className="p-8 rounded-2xl bg-[#0B192B]/90 border border-[#73D8FF]/40 text-center space-y-3 animate-in fade-in max-w-lg mx-auto shadow-2xl">
-                <CheckCircle2 className="w-10 h-10 text-[#73D8FF] mx-auto animate-bounce" />
-                <h3 className="text-xl font-bold text-white">Engagement Request Received</h3>
-                <p className="text-xs text-[#A3B4C7]">
-                  An architectural director will review your inquiry and follow up at <strong className="text-white">{email}</strong> within 24 hours.
-                </p>
-                <div className="pt-3 border-t border-[rgba(130,180,220,0.14)] text-[11px] font-mono text-emerald-400 flex items-center justify-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                  Database Persisted — Securely registered in StarX Alpha Labs pipeline.
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="pt-4 max-w-xl mx-auto space-y-4">
-                {errorMessage && (
-                  <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300">
-                    {errorMessage}
-                  </div>
-                )}
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Input
-                    type="email"
-                    placeholder="Enter your corporate email address"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="h-13 bg-[#07111F]/80 border-[rgba(130,180,220,0.25)] text-white placeholder:text-slate-400 rounded-xl focus:border-[#73D8FF] text-sm"
-                  />
-                  <Select
-                    value={division}
-                    onChange={(e) => setDivision(e.target.value)}
-                    options={[
-                      { value: "digital", label: "STARX Digital (Web & E-Com)" },
-                      { value: "systems", label: "STARX Systems (Software)" },
-                      { value: "ai", label: "STARX AI (Intelligent Apps)" },
-                      { value: "general", label: "Comprehensive Architecture" },
-                    ]}
-                    className="h-13 bg-[#07111F]/80 border-[rgba(130,180,220,0.25)] text-white rounded-xl focus:border-[#73D8FF] text-xs sm:w-56"
-                  />
-                </div>
-
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="lg"
-                  isLoading={loading}
-                  className="w-full h-13 rounded-xl font-semibold text-sm uppercase tracking-wider bg-gradient-to-r from-[#1769AA] via-[#32A9E8] to-[#73D8FF] text-[#07111F] hover:brightness-110 shadow-lg shadow-[#32A9E8]/25 transition-all"
-                  rightIcon={<ArrowRight className="w-4 h-4 text-[#07111F]" />}
-                >
-                  Request Architectural Consultation
-                </Button>
-
-                <div className="flex items-center justify-center gap-2 pt-2 text-[11px] text-slate-400 font-mono">
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#73D8FF]" />
-                  <span>Strict NDA Protected • Zero Spam Guarantee</span>
-                </div>
-              </form>
-            )}
+        <Card3DTilt
+          glowColor="rgba(0, 217, 255, 0.75)"
+          className="p-10 sm:p-14 rounded-3xl bg-gradient-to-r from-[#0A1940] via-[#071638] to-[#0A1940] border-2 border-[#00D9FF]/40 shadow-[0_0_50px_rgba(0,217,255,0.22)] text-center space-y-6"
+        >
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#00D9FF]/30 bg-[#071638]/90 text-xs font-mono text-[#00D9FF] mx-auto">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Ready for Production Engineering</span>
           </div>
-        </div>
+
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+            Have a Project in Mind?
+          </h2>
+
+          <p className="text-base sm:text-lg text-[#C8D5EF] max-w-xl mx-auto leading-relaxed">
+            Let&apos;s turn your idea into a powerful digital solution. Fast deployment, dedicated senior engineering, and transparent milestone pricing.
+          </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+            <Link
+              href="/project-calculator"
+              className="px-8 py-4 rounded-full font-extrabold text-sm text-white bg-gradient-to-r from-[#E52BFF] via-[#FF941F] to-[#E52BFF] shadow-[0_0_30px_rgba(229,43,255,0.4)] hover:brightness-110 transition-all flex items-center gap-2"
+            >
+              <span>🚀 Start a Project Today</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            
+            <Link
+              href="/book-consultation"
+              className="px-7 py-4 rounded-full font-bold text-sm text-white bg-[#030B24] border border-[#00D9FF]/50 hover:border-[#00D9FF] shadow-[0_0_20px_rgba(0,217,255,0.2)] hover:bg-[#071638] transition-all flex items-center gap-2"
+            >
+              <Calendar className="w-4 h-4 text-[#00D9FF]" />
+              <span>Schedule a Call</span>
+            </Link>
+          </div>
+        </Card3DTilt>
       </Container>
     </section>
   );

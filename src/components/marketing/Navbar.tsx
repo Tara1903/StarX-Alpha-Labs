@@ -34,11 +34,11 @@ export function Navbar() {
 
   const navLinks: { label: string; href: string; badge?: string }[] = [
     { label: "Home", href: "/" },
-    { label: "Solutions", href: "/development-services" },
+    { label: "Solutions ▾", href: "/development-services" },
     { label: "Demo Center", href: "/demos", badge: "160+" },
     { label: "Pricing", href: "/pricing" },
-    { label: "Industries", href: "/industries" },
-    { label: "Company", href: "/about" },
+    { label: "Industries ▾", href: "/industries" },
+    { label: "Company ▾", href: "/about" },
   ];
 
   return (
@@ -122,7 +122,7 @@ export function Navbar() {
             href="/project-calculator"
             variant="primary"
             size="sm"
-            className="whitespace-nowrap px-4 py-2 text-xs font-extrabold bg-gradient-to-r from-[#087BFF] via-[#00D9FF] to-[#087BFF] hover:brightness-110 text-white shadow-lg shadow-[#087BFF]/30 border border-[#00D9FF]/40 rounded-xl"
+            className="whitespace-nowrap px-4 py-2 text-xs font-extrabold bg-gradient-to-r from-[#E52BFF] via-[#FF35B8] to-[#087BFF] hover:brightness-110 text-white shadow-[0_0_20px_rgba(229,43,255,0.4)] border border-[#E52BFF]/50 rounded-full"
             rightIcon={<ArrowUpRight className="w-3.5 h-3.5 text-white" />}
           >
             Get Free Quote
