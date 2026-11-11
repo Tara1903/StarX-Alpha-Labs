@@ -106,6 +106,26 @@ const TAB_TITLES: Record<AdminTabId, { title: string; subtitle: string }> = {
     title: "Operational Reports & CSV Export",
     subtitle: "Lead analytics, demo request trends, and full inventory export.",
   },
+  finance: {
+    title: "Financial Command & Cashflow",
+    subtitle: "Centralized commercial metrics, outstanding aging, and billing intelligence.",
+  },
+  contracts: {
+    title: "Client Contracts & MSAs",
+    subtitle: "Master services agreements, project statements of work, and execution tracking.",
+  },
+  invoices: {
+    title: "Sequential Tax Invoices",
+    subtitle: "Transaction-safe INV-YYYY-XXXX generation, balance tracking, and PDF printing.",
+  },
+  payments: {
+    title: "Manual Payment Receipts",
+    subtitle: "Verification desk for direct bank transfers (NEFT/RTGS/IMPS), UPI, and cheques.",
+  },
+  expenses: {
+    title: "Operational Expenses Ledger",
+    subtitle: "Approved technology, infrastructure, domain, and operational project costs.",
+  },
 };
 
 export function AdminHeader({

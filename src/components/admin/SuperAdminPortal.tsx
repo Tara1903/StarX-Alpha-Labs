@@ -15,6 +15,7 @@ import { BusinessSettingsModule } from "./modules/BusinessSettingsModule";
 import { AdminTeamModule } from "./modules/AdminTeamModule";
 import { AuditLogsModule } from "./modules/AuditLogsModule";
 import { ReportsModule } from "./modules/ReportsModule";
+import { FinanceModule } from "./modules/FinanceModule";
 import { AdminTabId, AdminUser, UnifiedLead, AdminNotification } from "./types";
 import { ALL_DEMOS } from "@/data/demos";
 import { DemoModel } from "@/types/demo";
@@ -501,6 +502,26 @@ export function SuperAdminPortal() {
               onAdvanceProjectStage={handleAdvanceProjectStage}
               onShowToast={showToast}
             />
+          )}
+
+          {activeTab === "finance" && (
+            <FinanceModule defaultSubTab="overview" />
+          )}
+
+          {activeTab === "contracts" && (
+            <FinanceModule defaultSubTab="contracts" />
+          )}
+
+          {activeTab === "invoices" && (
+            <FinanceModule defaultSubTab="invoices" />
+          )}
+
+          {activeTab === "payments" && (
+            <FinanceModule defaultSubTab="payments" />
+          )}
+
+          {activeTab === "expenses" && (
+            <FinanceModule defaultSubTab="expenses" />
           )}
 
           {activeTab === "settings" && (

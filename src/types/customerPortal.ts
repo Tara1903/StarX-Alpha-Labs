@@ -211,6 +211,7 @@ export type CustomerPortalTab =
   | "milestones" 
   | "tasks" 
   | "documents" 
+  | "finances"
   | "discussions" 
   | "change-requests" 
   | "support" 

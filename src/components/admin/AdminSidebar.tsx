@@ -27,6 +27,10 @@ import {
   Lock,
   Building,
   CheckCircle2,
+  Banknote,
+  Receipt,
+  FileCheck2,
+  CreditCard,
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -391,6 +395,71 @@ export function AdminSidebar({
 
             {commercialOpen && (
               <div className="space-y-0.5 pl-1">
+                <button
+                  onClick={() => handleTabClick("finance")}
+                  className={navClass("finance")}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Banknote className="w-4 h-4 text-emerald-400" />
+                    <span>Finance Overview</span>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => handleTabClick("quotations")}
+                  className={navClass("quotations")}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <FileText className="w-4 h-4 text-[#087BFF]" />
+                    <span>Quotations Hub</span>
+                  </div>
+                  {counts.quotations > 0 && (
+                    <span className="px-1.5 py-0.2 rounded-full bg-[#087BFF]/20 text-[#087BFF] font-mono text-[10px]">
+                      {counts.quotations}
+                    </span>
+                  )}
+                </button>
+
+                <button
+                  onClick={() => handleTabClick("contracts")}
+                  className={navClass("contracts")}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <FileCheck2 className="w-4 h-4 text-indigo-400" />
+                    <span>Contracts &amp; SLAs</span>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => handleTabClick("invoices")}
+                  className={navClass("invoices")}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Receipt className="w-4 h-4 text-[#00D9FF]" />
+                    <span>Invoices &amp; Ledger</span>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => handleTabClick("payments")}
+                  className={navClass("payments")}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Banknote className="w-4 h-4 text-emerald-400" />
+                    <span>Payments Received</span>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => handleTabClick("expenses")}
+                  className={navClass("expenses")}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <CreditCard className="w-4 h-4 text-rose-400" />
+                    <span>Expenses</span>
+                  </div>
+                </button>
+
                 <button
                   onClick={() => handleTabClick("pricing-packages")}
                   className={navClass("pricing-packages")}

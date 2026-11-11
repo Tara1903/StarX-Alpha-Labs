@@ -17,7 +17,12 @@ export type AdminTabId =
   | "settings"
   | "team"
   | "audit-logs"
-  | "reports";
+  | "reports"
+  | "finance"
+  | "contracts"
+  | "invoices"
+  | "payments"
+  | "expenses";
 
 export interface AdminUser {
   id: string;

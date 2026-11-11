@@ -41,6 +41,7 @@ export function CustomerHeader({
     milestones: { title: "Milestones & 13-Stage Delivery", subtitle: "Sequential delivery roadmap, milestone criteria, and sprint completion dates." },
     tasks: { title: "Action Items & Approvals", subtitle: "Pending client decisions, design signoffs, and feedback requests." },
     documents: { title: "Deliverables & Documents", subtitle: "Secure repository for wireframes, architecture specs, code builds, and assets." },
+    finances: { title: "Invoices, Quotations & Bank Details", subtitle: "Access tax invoices, accept formal proposals, and view bank transfer instructions." },
     discussions: { title: "Project Discussions", subtitle: "Direct channel with your assigned StarX Alpha Labs engineering team." },
     "change-requests": { title: "Scope Change Requests", subtitle: "Submit and review formal scope adjustments, additions, and revisions." },
     support: { title: "Assistance & Help Desk", subtitle: "Submit technical inquiries, report blockers, or request engineering assistance." },

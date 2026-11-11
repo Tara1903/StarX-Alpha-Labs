@@ -21,6 +21,7 @@ import { ProjectsModule } from "./modules/ProjectsModule";
 import { MilestonesModule } from "./modules/MilestonesModule";
 import { TasksModule } from "./modules/TasksModule";
 import { DocumentsModule } from "./modules/DocumentsModule";
+import { FinancesModule } from "./modules/FinancesModule";
 import { DiscussionsModule } from "./modules/DiscussionsModule";
 import { ChangeRequestsModule } from "./modules/ChangeRequestsModule";
 import { SupportModule } from "./modules/SupportModule";
@@ -449,6 +450,10 @@ export function CustomerPortalMaster() {
               documents={documents}
               onUploadDocument={handleUploadDocument}
             />
+          )}
+
+          {activeTab === "finances" && (
+            <FinancesModule onShowToast={showToast} />
           )}
 
           {activeTab === "discussions" && (
