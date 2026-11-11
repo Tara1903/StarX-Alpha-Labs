@@ -7,6 +7,7 @@ import { PORTFOLIO_DATA } from "@/data/portfolio";
 import { BLOG_POSTS } from "@/data/blog";
 import { DEMO_CATEGORIES } from "@/data/categories";
 import { ALL_DEMOS } from "@/data/demos";
+import { VIDEO_ITEMS } from "@/data/videos";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = SITE_CONFIG.url.replace(/\/$/, "");
@@ -14,7 +15,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes = [
     "",
     "/demos",
-    "/customer",
+    "/video-station",
+    "/agency-partnership",
     "/about",
     "/ecosystem",
     "/divisions",
@@ -36,7 +38,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
     changeFrequency: "weekly" as const,
-    priority: route === "" || route === "/demos" ? 1.0 : route.startsWith("/services") || route.startsWith("/divisions") ? 0.8 : 0.6,
+    priority: route === "" || route === "/demos" || route === "/video-station" ? 1.0 : route.startsWith("/services") || route.startsWith("/divisions") ? 0.8 : 0.6,
   }));
 
   const demoCategoryRoutes = DEMO_CATEGORIES.map((cat) => ({
@@ -88,6 +90,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
+  const videoRoutes = VIDEO_ITEMS.map((v) => ({
+    url: `${baseUrl}/video-station/${v.slug}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.8,
+  }));
+
   return [
     ...staticRoutes,
     ...demoCategoryRoutes,
@@ -97,5 +106,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...industryRoutes,
     ...portfolioRoutes,
     ...blogRoutes,
+    ...videoRoutes,
   ];
 }

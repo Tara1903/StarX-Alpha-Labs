@@ -30,16 +30,16 @@ function useDeviceTextures() {
     globeCanvas.height = 1024;
     const gCtx = globeCanvas.getContext("2d")!;
 
-    // Deep Cosmic Ocean Base
-    const oceanGrad = gCtx.createLinearGradient(0, 0, 0, 1024);
-    oceanGrad.addColorStop(0, "#02071A");
+    // Deep Cosmic Ocean Base with glowing sphere feel
+    const oceanGrad = gCtx.createRadialGradient(1024, 512, 100, 1024, 512, 1100);
+    oceanGrad.addColorStop(0, "#081d4a");
     oceanGrad.addColorStop(0.5, "#041138");
     oceanGrad.addColorStop(1, "#02071A");
     gCtx.fillStyle = oceanGrad;
     gCtx.fillRect(0, 0, 2048, 1024);
 
     // Subtle Cyan Coordinate Grid Lines (Equirectangular)
-    gCtx.strokeStyle = "rgba(0, 217, 255, 0.22)";
+    gCtx.strokeStyle = "rgba(0, 217, 255, 0.28)";
     gCtx.lineWidth = 1.5;
     for (let lat = 0; lat <= 1024; lat += 64) {
       gCtx.beginPath();
@@ -54,8 +54,8 @@ function useDeviceTextures() {
       gCtx.stroke();
     }
 
-    // Equator & Prime Meridian Emphasis
-    gCtx.strokeStyle = "rgba(0, 217, 255, 0.5)";
+    // Equator & Tropics Emphasis
+    gCtx.strokeStyle = "rgba(0, 217, 255, 0.6)";
     gCtx.lineWidth = 2.5;
     gCtx.beginPath();
     gCtx.moveTo(0, 512);
@@ -65,15 +65,15 @@ function useDeviceTextures() {
     // Procedural Continents (Accurate Equirectangular Landmass Polygons)
     const drawLandmass = (
       points: [number, number][],
-      fillColor = "rgba(0, 217, 255, 0.45)",
-      strokeColor = "#00E5FF"
+      fillColor = "rgba(0, 217, 255, 0.55)",
+      strokeColor = "#00F0FF"
     ) => {
       if (points.length === 0) return;
       gCtx.fillStyle = fillColor;
       gCtx.strokeStyle = strokeColor;
-      gCtx.lineWidth = 3;
+      gCtx.lineWidth = 3.5;
       gCtx.shadowColor = "#00D9FF";
-      gCtx.shadowBlur = 12;
+      gCtx.shadowBlur = 18;
       gCtx.beginPath();
       gCtx.moveTo(points[0][0], points[0][1]);
       for (let i = 1; i < points.length; i++) {
@@ -446,19 +446,24 @@ function useDeviceTextures() {
     kbCanvas.height = 1024;
     const kCtx = kbCanvas.getContext("2d")!;
 
-    kCtx.fillStyle = "#1e293b";
+    // Aluminum Deck Finish with subtle radial gradient
+    const deckGrad = kCtx.createLinearGradient(0, 0, 0, 1024);
+    deckGrad.addColorStop(0, "#475569");
+    deckGrad.addColorStop(0.5, "#334155");
+    deckGrad.addColorStop(1, "#1e293b");
+    kCtx.fillStyle = deckGrad;
     kCtx.fillRect(0, 0, 2048, 1024);
 
     // Recessed Keyboard Well
-    kCtx.fillStyle = "#0a0f1d";
+    kCtx.fillStyle = "#0c1322";
     kCtx.beginPath();
     kCtx.roundRect(140, 80, 1768, 560, 24);
     kCtx.fill();
-    kCtx.strokeStyle = "#00D9FF33";
-    kCtx.lineWidth = 2;
+    kCtx.strokeStyle = "rgba(0, 217, 255, 0.4)";
+    kCtx.lineWidth = 3;
     kCtx.stroke();
 
-    // Chiclet Key Grid
+    // Chiclet Key Grid with Backlit Glow
     const rows = 5;
     const cols = 14;
     const keyW = 106;
@@ -468,23 +473,31 @@ function useDeviceTextures() {
       for (let c = 0; c < cols; c++) {
         const x = 180 + c * (keyW + keyGap);
         const y = 110 + r * (keyH + keyGap);
-        kCtx.fillStyle = "#182236";
+        
+        // Keycap body
+        kCtx.fillStyle = "#1e2738";
         kCtx.beginPath();
         kCtx.roundRect(x, y, keyW, keyH, 12);
         kCtx.fill();
-        kCtx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+
+        // Keycap rim highlight
+        kCtx.strokeStyle = "rgba(0, 217, 255, 0.35)";
         kCtx.lineWidth = 1.5;
         kCtx.stroke();
+
+        // Keycap glyph dot/line
+        kCtx.fillStyle = "rgba(255, 255, 255, 0.7)";
+        kCtx.fillRect(x + 24, y + 36, 18, 12);
       }
     }
 
     // Glass Trackpad
-    kCtx.fillStyle = "#162033";
+    kCtx.fillStyle = "#2d3a4d";
     kCtx.beginPath();
     kCtx.roundRect(724, 690, 600, 300, 20);
     kCtx.fill();
-    kCtx.strokeStyle = "rgba(0, 217, 255, 0.35)";
-    kCtx.lineWidth = 2;
+    kCtx.strokeStyle = "rgba(0, 217, 255, 0.6)";
+    kCtx.lineWidth = 2.5;
     kCtx.stroke();
 
     const keyboardTexture = new THREE.CanvasTexture(kbCanvas);
@@ -895,19 +908,27 @@ function HardwareRig({
         distance={12}
       />
 
+      {/* Upward Radiant Floor Glow Light (illuminating bottom edges of devices) */}
+      <pointLight position={[0, -1.2, 1.2]} intensity={4.5} color="#00D9FF" distance={6} />
+      <pointLight position={[2.5, -0.8, 1]} intensity={3.5} color="#E52BFF" distance={5} />
+
       {/* Glowing Concentric Neon Rings on Floor */}
       <group position={[0.4, -1.35, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <mesh position={[0, -0.01, 0]}>
+          <circleGeometry args={[1.6, 64]} />
+          <meshBasicMaterial color="#00D9FF" transparent opacity={0.12} />
+        </mesh>
         <mesh>
-          <ringGeometry args={[2.0, 2.04, 64]} />
-          <meshBasicMaterial color="#00D9FF" side={THREE.DoubleSide} transparent opacity={0.65} />
+          <ringGeometry args={[2.0, 2.05, 64]} />
+          <meshBasicMaterial color="#00D9FF" side={THREE.DoubleSide} transparent opacity={0.75} />
         </mesh>
         <mesh>
           <ringGeometry args={[2.7, 2.74, 64]} />
-          <meshBasicMaterial color="#873BFF" side={THREE.DoubleSide} transparent opacity={0.45} />
+          <meshBasicMaterial color="#873BFF" side={THREE.DoubleSide} transparent opacity={0.5} />
         </mesh>
         <mesh>
           <ringGeometry args={[3.4, 3.44, 64]} />
-          <meshBasicMaterial color="#E52BFF" side={THREE.DoubleSide} transparent opacity={0.35} />
+          <meshBasicMaterial color="#E52BFF" side={THREE.DoubleSide} transparent opacity={0.4} />
         </mesh>
       </group>
 
@@ -915,24 +936,24 @@ function HardwareRig({
       {/* 1. REALISTIC 3D PHYSICAL LAPTOP (LEFT)                         */}
       {/* ------------------------------------------------------------- */}
       <group position={[-1.65, -0.65, 0.2]} rotation={[0.06, 0.32, -0.02]}>
-        {/* Metallic Base Chassis (Silver / Dark Titanium) */}
+        {/* Metallic Base Chassis (Sleek Apple Aluminum Finish) */}
         <mesh position={[0, 0, 0]}>
           <boxGeometry args={[3.4, 0.1, 2.3]} />
-          <meshStandardMaterial color="#283548" metalness={0.88} roughness={0.2} />
+          <meshStandardMaterial color="#64748b" metalness={0.92} roughness={0.18} />
         </mesh>
 
         {/* Keyboard Deck Plate with Procedural Keyboard Texture */}
         {keyboardTexture && (
           <mesh position={[0, 0.052, 0]} rotation={[-Math.PI / 2, 0, 0]}>
             <planeGeometry args={[3.36, 2.26]} />
-            <meshStandardMaterial map={keyboardTexture} roughness={0.4} />
+            <meshStandardMaterial map={keyboardTexture} roughness={0.35} />
           </mesh>
         )}
 
         {/* Front Lip Scoop */}
         <mesh position={[0, 0.03, 1.155]}>
           <boxGeometry args={[0.55, 0.04, 0.03]} />
-          <meshStandardMaterial color="#475569" metalness={0.9} />
+          <meshStandardMaterial color="#94a3b8" metalness={0.95} />
         </mesh>
 
         {/* Laptop Screen Lid (Angled backwards ~110°) */}
@@ -940,7 +961,7 @@ function HardwareRig({
           {/* Metallic Back Lid */}
           <mesh position={[0, 1.12, 0]}>
             <boxGeometry args={[3.4, 2.24, 0.06]} />
-            <meshStandardMaterial color="#283548" metalness={0.88} roughness={0.2} />
+            <meshStandardMaterial color="#64748b" metalness={0.92} roughness={0.18} />
           </mesh>
 
           {/* Front Bezel Frame (Slim Obsidian Black) */}
@@ -957,7 +978,7 @@ function HardwareRig({
             </mesh>
           )}
 
-          {/* Subtle Screen Bezel Rim Glow (Soft, not a wireframe box!) */}
+          {/* Subtle Screen Bezel Rim Glow */}
           <mesh position={[0, 1.12, 0.038]}>
             <ringGeometry args={[1.9, 1.91, 4]} />
             <meshBasicMaterial color="#00D9FF" transparent opacity={0.25} />
@@ -972,7 +993,7 @@ function HardwareRig({
         {/* Polished Metallic Perimeter Chassis (Titanium Bezel) */}
         <mesh>
           <boxGeometry args={[1.44, 2.84, 0.14]} />
-          <meshStandardMaterial color="#334155" metalness={0.94} roughness={0.14} />
+          <meshStandardMaterial color="#94a3b8" metalness={0.96} roughness={0.1} />
         </mesh>
 
         {/* Screen Display Face (High-Res iPhone Apps & Widgets) */}
@@ -986,11 +1007,11 @@ function HardwareRig({
         {/* Volume & Power Buttons */}
         <mesh position={[-0.73, 0.5, 0]}>
           <boxGeometry args={[0.03, 0.35, 0.05]} />
-          <meshStandardMaterial color="#64748B" metalness={0.9} />
+          <meshStandardMaterial color="#94a3b8" metalness={0.95} />
         </mesh>
         <mesh position={[0.73, 0.4, 0]}>
           <boxGeometry args={[0.03, 0.35, 0.05]} />
-          <meshStandardMaterial color="#64748B" metalness={0.9} />
+          <meshStandardMaterial color="#94a3b8" metalness={0.95} />
         </mesh>
       </group>
 
@@ -1059,10 +1080,10 @@ export function Hero3DHardwareScene() {
         />
       </Canvas>
 
-      {/* Floating Neon Indicators (Matching Image 3 with pointer lines) */}
+      {/* Floating Neon Indicators (Matching Image 1 with sleek angled pointer arrows) */}
       <div className="absolute inset-0 pointer-events-none z-20">
-        {/* 1. Website Development Badge (Above Laptop) */}
-        <div className="absolute top-2 left-[12%] sm:left-[14%] flex flex-col items-center">
+        {/* 1. Website Development Badge (Above Laptop, angled down-right to screen) */}
+        <div className="absolute top-2 left-[10%] sm:left-[12%] flex flex-col items-start">
           <Link
             href="/website-development"
             className="pointer-events-auto px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wide text-white bg-[#071638]/95 border-2 border-[#00D9FF] shadow-[0_0_25px_rgba(0,217,255,0.7)] backdrop-blur-md flex items-center gap-2 hover:scale-105 transition-transform"
@@ -1071,14 +1092,14 @@ export function Hero3DHardwareScene() {
             <span>Website Development</span>
             <ArrowUpRight className="w-3 h-3 text-[#00D9FF]" />
           </Link>
-          {/* Neon Pointer Arrow Down to Laptop Screen */}
-          <svg className="w-6 h-12 text-[#00D9FF] -mt-0.5 filter drop-shadow-[0_0_8px_#00D9FF]" viewBox="0 0 24 48" fill="none">
-            <line x1="12" y1="0" x2="12" y2="40" stroke="#00D9FF" strokeWidth="2.5" />
-            <polygon points="6,38 12,46 18,38" fill="#00D9FF" />
+          {/* Angled Neon Pointer Arrow Down-Right directly to Laptop Screen */}
+          <svg className="w-16 h-14 text-[#00D9FF] ml-16 -mt-1 filter drop-shadow-[0_0_10px_#00D9FF]" viewBox="0 0 64 56" fill="none">
+            <line x1="12" y1="4" x2="48" y2="44" stroke="#00D9FF" strokeWidth="2.5" strokeLinecap="round" />
+            <polygon points="52,48 38,44 48,34" fill="#00D9FF" />
           </svg>
         </div>
 
-        {/* 2. Mobile App Development Badge (Above Smartphone) */}
+        {/* 2. Mobile App Development Badge (Above Smartphone, angled down-left to screen) */}
         <div className="absolute top-4 left-[56%] sm:left-[58%] flex flex-col items-center">
           <Link
             href="/app-development"
@@ -1088,10 +1109,10 @@ export function Hero3DHardwareScene() {
             <span>Mobile App Development</span>
             <ArrowUpRight className="w-3 h-3 text-[#E52BFF]" />
           </Link>
-          {/* Neon Pointer Arrow Down to Smartphone Screen */}
-          <svg className="w-6 h-12 text-[#E52BFF] -mt-0.5 filter drop-shadow-[0_0_8px_#E52BFF]" viewBox="0 0 24 48" fill="none">
-            <line x1="12" y1="0" x2="12" y2="40" stroke="#E52BFF" strokeWidth="2.5" />
-            <polygon points="6,38 12,46 18,38" fill="#E52BFF" />
+          {/* Angled Neon Pointer Arrow Down-Left directly to Smartphone Screen */}
+          <svg className="w-16 h-14 text-[#E52BFF] -ml-12 -mt-1 filter drop-shadow-[0_0_10px_#E52BFF]" viewBox="0 0 64 56" fill="none">
+            <line x1="52" y1="4" x2="16" y2="44" stroke="#E52BFF" strokeWidth="2.5" strokeLinecap="round" />
+            <polygon points="12,48 26,44 16,34" fill="#E52BFF" />
           </svg>
         </div>
       </div>
