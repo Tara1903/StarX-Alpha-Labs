@@ -9,8 +9,8 @@ const DynamicHardwareScene = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="w-full h-[520px] sm:h-[560px] rounded-3xl bg-radial from-[#071638] to-[#030B24] border border-[#00D9FF]/30 animate-pulse flex items-center justify-center">
-        <span className="text-xs font-mono text-[#00D9FF] tracking-wider">
+      <div className="w-full h-[540px] sm:h-[580px] flex items-center justify-center">
+        <span className="text-xs font-mono text-[#00D9FF] tracking-wider animate-pulse">
           LOADING 3D HARDWARE SCENE...
         </span>
       </div>

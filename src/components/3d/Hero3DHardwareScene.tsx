@@ -632,8 +632,8 @@ export function Hero3DHardwareScene() {
 
   if (!mounted) {
     return (
-      <div className="w-full h-[540px] rounded-3xl bg-radial from-[#071638] to-[#030B24] border border-[#00D9FF]/30 animate-pulse flex items-center justify-center">
-        <span className="text-xs font-mono text-[#00D9FF] tracking-wider">
+      <div className="w-full h-[540px] sm:h-[580px] flex items-center justify-center">
+        <span className="text-xs font-mono text-[#00D9FF] tracking-wider animate-pulse">
           INITIALIZING 3D HARDWARE RIG...
         </span>
       </div>
@@ -641,8 +641,8 @@ export function Hero3DHardwareScene() {
   }
 
   return (
-    <div className="relative w-full h-[520px] sm:h-[560px] rounded-3xl border border-[#00D9FF]/35 shadow-[0_30px_80px_rgba(0,0,0,0.85),inset_0_0_40px_rgba(8,123,255,0.2)] bg-radial from-[#071638] to-[#030B24] overflow-hidden select-none group">
-      {/* WebGL Canvas */}
+    <div className="relative w-full h-[540px] sm:h-[580px] select-none">
+      {/* WebGL Canvas - 100% Transparent, seamlessly integrated into the page background */}
       <Canvas
         camera={{ position: [0, 0.35, 8.2], fov: 36 }}
         dpr={[1, 1.5]}
