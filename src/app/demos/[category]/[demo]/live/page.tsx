@@ -1,8 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ALL_DEMOS, getDemoBySlug } from "@/data/demos";
-import { LiveDemoSimulator } from "@/components/demos/LiveDemoSimulator";
-import { SITE_CONFIG } from "@/lib/constants";
+import { ALL_160_DEMOS, getDemoProductBySlug } from "@/modules/demo-center/registry";
+import { DemoRuntimeDispatcher } from "@/modules/demo-center/runtime/DemoRuntimeDispatcher";
 
 interface LiveDemoPageProps {
   params: Promise<{
@@ -12,7 +11,7 @@ interface LiveDemoPageProps {
 }
 
 export async function generateStaticParams() {
-  return ALL_DEMOS.map((d) => ({
+  return ALL_160_DEMOS.map((d) => ({
     category: d.categorySlug,
     demo: d.slug,
   }));
@@ -20,15 +19,15 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: LiveDemoPageProps): Promise<Metadata> {
   const resolvedParams = await params;
-  const demo = getDemoBySlug(resolvedParams.demo);
+  const product = getDemoProductBySlug(resolvedParams.demo);
 
-  if (!demo) {
+  if (!product) {
     return { title: "Demo Not Found — StarX Alpha Labs" };
   }
 
   return {
-    title: `Live Interactive Demo: ${demo.name} — StarX Alpha Labs`,
-    description: `Experience the interactive sandbox for ${demo.name}. Evaluate multi-role permissions, operational dashboards, and test data in an isolated demo environment.`,
+    title: `Live Interactive Demo: ${product.name} — StarX Alpha Labs`,
+    description: `Experience the interactive production sandbox for ${product.name}. Evaluate multi-role permissions, operational workflows, and real-time state in an isolated demo environment.`,
     robots: {
       index: false,
       follow: false,
@@ -38,11 +37,11 @@ export async function generateMetadata({ params }: LiveDemoPageProps): Promise<M
 
 export default async function LiveDemoPage({ params }: LiveDemoPageProps) {
   const resolvedParams = await params;
-  const demo = getDemoBySlug(resolvedParams.demo);
+  const product = getDemoProductBySlug(resolvedParams.demo);
 
-  if (!demo) {
+  if (!product) {
     notFound();
   }
 
-  return <LiveDemoSimulator demo={demo} />;
+  return <DemoRuntimeDispatcher product={product} />;
 }
