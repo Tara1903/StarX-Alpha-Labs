@@ -847,6 +847,7 @@ export interface Database {
       client_projects: {
         Row: {
           id: string;
+          organization_id: string | null;
           project_code: string;
           client_name: string;
           client_email: string;
@@ -865,6 +866,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
+          organization_id?: string | null;
           project_code: string;
           client_name: string;
           client_email: string;
@@ -883,6 +885,7 @@ export interface Database {
         };
         Update: {
           id?: string;
+          organization_id?: string | null;
           project_code?: string;
           client_name?: string;
           client_email?: string;
@@ -898,6 +901,489 @@ export interface Database {
           milestones?: Json;
           created_at?: string;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      client_organizations: {
+        Row: {
+          id: string;
+          name: string;
+          business_type: string | null;
+          primary_contact_name: string;
+          primary_contact_email: string;
+          phone: string | null;
+          country: string | null;
+          address: string | null;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          business_type?: string | null;
+          primary_contact_name: string;
+          primary_contact_email: string;
+          phone?: string | null;
+          country?: string | null;
+          address?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          business_type?: string | null;
+          primary_contact_name?: string;
+          primary_contact_email?: string;
+          phone?: string | null;
+          country?: string | null;
+          address?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      client_members: {
+        Row: {
+          id: string;
+          organization_id: string;
+          user_id: string;
+          role: string;
+          status: string;
+          full_name: string;
+          email: string;
+          phone: string | null;
+          job_title: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          user_id: string;
+          role?: string;
+          status?: string;
+          full_name: string;
+          email: string;
+          phone?: string | null;
+          job_title?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          organization_id?: string;
+          user_id?: string;
+          role?: string;
+          status?: string;
+          full_name?: string;
+          email?: string;
+          phone?: string | null;
+          job_title?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      client_invitations: {
+        Row: {
+          id: string;
+          organization_id: string;
+          email: string;
+          full_name: string;
+          role: string;
+          token: string;
+          invited_by: string;
+          expires_at: string;
+          accepted_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          email: string;
+          full_name: string;
+          role?: string;
+          token: string;
+          invited_by: string;
+          expires_at: string;
+          accepted_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          organization_id?: string;
+          email?: string;
+          full_name?: string;
+          role?: string;
+          token?: string;
+          invited_by?: string;
+          expires_at?: string;
+          accepted_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      project_milestones: {
+        Row: {
+          id: string;
+          project_id: string;
+          title: string;
+          description: string | null;
+          stage_order: number;
+          status: string;
+          planned_start_date: string | null;
+          target_delivery_date: string | null;
+          actual_completion_date: string | null;
+          deliverable_url: string | null;
+          client_visible: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          title: string;
+          description?: string | null;
+          stage_order?: number;
+          status?: string;
+          planned_start_date?: string | null;
+          target_delivery_date?: string | null;
+          actual_completion_date?: string | null;
+          deliverable_url?: string | null;
+          client_visible?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          title?: string;
+          description?: string | null;
+          stage_order?: number;
+          status?: string;
+          planned_start_date?: string | null;
+          target_delivery_date?: string | null;
+          actual_completion_date?: string | null;
+          deliverable_url?: string | null;
+          client_visible?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      client_tasks: {
+        Row: {
+          id: string;
+          project_id: string;
+          milestone_id: string | null;
+          title: string;
+          description: string | null;
+          client_action: string;
+          status: string;
+          due_date: string | null;
+          client_visible: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          milestone_id?: string | null;
+          title: string;
+          description?: string | null;
+          client_action?: string;
+          status?: string;
+          due_date?: string | null;
+          client_visible?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          milestone_id?: string | null;
+          title?: string;
+          description?: string | null;
+          client_action?: string;
+          status?: string;
+          due_date?: string | null;
+          client_visible?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      client_documents: {
+        Row: {
+          id: string;
+          project_id: string;
+          organization_id: string;
+          file_name: string;
+          file_url: string;
+          file_type: string;
+          file_size_bytes: number | null;
+          document_category: string;
+          version: string | null;
+          uploaded_by_type: string;
+          uploaded_by_user: string | null;
+          client_visible: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          organization_id: string;
+          file_name: string;
+          file_url: string;
+          file_type: string;
+          file_size_bytes?: number | null;
+          document_category?: string;
+          version?: string | null;
+          uploaded_by_type?: string;
+          uploaded_by_user?: string | null;
+          client_visible?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          organization_id?: string;
+          file_name?: string;
+          file_url?: string;
+          file_type?: string;
+          file_size_bytes?: number | null;
+          document_category?: string;
+          version?: string | null;
+          uploaded_by_type?: string;
+          uploaded_by_user?: string | null;
+          client_visible?: boolean;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      project_updates: {
+        Row: {
+          id: string;
+          project_id: string;
+          title: string;
+          summary: string;
+          content: string | null;
+          author_name: string;
+          client_visible: boolean;
+          published_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          title: string;
+          summary: string;
+          content?: string | null;
+          author_name?: string;
+          client_visible?: boolean;
+          published_at?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          title?: string;
+          summary?: string;
+          content?: string | null;
+          author_name?: string;
+          client_visible?: boolean;
+          published_at?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      project_discussions: {
+        Row: {
+          id: string;
+          project_id: string;
+          sender_user_id: string | null;
+          sender_name: string;
+          sender_type: string;
+          message: string;
+          attachments: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          sender_user_id?: string | null;
+          sender_name: string;
+          sender_type?: string;
+          message: string;
+          attachments?: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          sender_user_id?: string | null;
+          sender_name?: string;
+          sender_type?: string;
+          message?: string;
+          attachments?: Json;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      client_approvals: {
+        Row: {
+          id: string;
+          project_id: string;
+          item_type: string;
+          item_id: string;
+          item_title: string;
+          client_user_id: string | null;
+          decision: string;
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          item_type: string;
+          item_id: string;
+          item_title: string;
+          client_user_id?: string | null;
+          decision: string;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          item_type?: string;
+          item_id?: string;
+          item_title?: string;
+          client_user_id?: string | null;
+          decision?: string;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      client_change_requests: {
+        Row: {
+          id: string;
+          project_id: string;
+          organization_id: string;
+          title: string;
+          description: string;
+          justification: string | null;
+          priority: string;
+          status: string;
+          admin_response: string | null;
+          submitted_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          organization_id: string;
+          title: string;
+          description: string;
+          justification?: string | null;
+          priority?: string;
+          status?: string;
+          admin_response?: string | null;
+          submitted_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          organization_id?: string;
+          title?: string;
+          description?: string;
+          justification?: string | null;
+          priority?: string;
+          status?: string;
+          admin_response?: string | null;
+          submitted_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      client_support_requests: {
+        Row: {
+          id: string;
+          ticket_number: string;
+          organization_id: string;
+          project_id: string | null;
+          subject: string;
+          description: string;
+          priority: string;
+          status: string;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          ticket_number: string;
+          organization_id: string;
+          project_id?: string | null;
+          subject: string;
+          description: string;
+          priority?: string;
+          status?: string;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          ticket_number?: string;
+          organization_id?: string;
+          project_id?: string | null;
+          subject?: string;
+          description?: string;
+          priority?: string;
+          status?: string;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      client_notifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          message: string;
+          link: string | null;
+          read: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          title: string;
+          message: string;
+          link?: string | null;
+          read?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          title?: string;
+          message?: string;
+          link?: string | null;
+          read?: boolean;
+          created_at?: string;
         };
         Relationships: [];
       };
@@ -918,6 +1404,14 @@ export interface Database {
       };
       is_full_admin: {
         Args: Record<string, never>;
+        Returns: boolean;
+      };
+      is_client_member_of_org: {
+        Args: { org_id: string };
+        Returns: boolean;
+      };
+      is_client_member_of_project: {
+        Args: { proj_id: string };
         Returns: boolean;
       };
     };
