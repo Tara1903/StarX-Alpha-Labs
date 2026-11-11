@@ -32,11 +32,11 @@ export function HeroSection() {
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[550px] w-[800px] md:h-[650px] md:w-[1100px] rounded-full bg-gradient-to-tr from-[#087BFF]/20 via-[#00D9FF]/12 to-[#873BFF]/20 blur-[160px] pointer-events-none -z-10" />
 
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-14">
-        {/* Main Hero Grid: 6 cols Left (Text), 6 cols Right (3D Device Stage) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        {/* Main Hero Grid: 5 cols Left (Text), 7 cols Right (3D Device Stage) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
           {/* Left Column: Headline, Copy, Dual Buttons, Highlights */}
-          <div className="lg:col-span-6 space-y-6 text-left">
+          <div className="lg:col-span-5 space-y-6 text-left">
             {/* Crown Capability Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#00D9FF]/40 bg-[#071638]/90 backdrop-blur-md shadow-[0_0_20px_rgba(0,217,255,0.25)]">
               <span className="text-amber-400 text-sm">👑</span>
@@ -94,7 +94,7 @@ export function HeroSection() {
           </div>
 
           {/* Right Column: 3D Holographic Globe + 3D Laptop & Smartphone Centerpiece */}
-          <div className="lg:col-span-6">
+          <div className="lg:col-span-7">
             <HeroDeviceStage />
           </div>
 
