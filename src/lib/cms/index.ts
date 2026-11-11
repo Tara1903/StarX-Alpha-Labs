@@ -51,7 +51,7 @@ export async function getServiceBySlug(slug: string): Promise<ServiceItem | null
       .select('*')
       .eq('slug', slug)
       .eq('status', 'published')
-      .single();
+      .maybeSingle();
 
     if (error || !data) {
       return SERVICES_DATA.find((s) => s.slug === slug) || null;
@@ -120,7 +120,7 @@ export async function getDivisionBySlug(slug: string): Promise<DivisionItem | nu
       .select('*')
       .eq('slug', slug)
       .eq('status', 'published')
-      .single();
+      .maybeSingle();
 
     if (error || !data) {
       return DIVISIONS_DATA.find((d) => d.slug === slug) || null;
@@ -184,7 +184,7 @@ export async function getIndustryBySlug(slug: string): Promise<IndustryItem | nu
       .select('*')
       .eq('slug', slug)
       .eq('status', 'published')
-      .single();
+      .maybeSingle();
 
     if (error || !data) {
       return INDUSTRIES_DATA.find((i) => i.slug === slug) || null;
@@ -251,7 +251,7 @@ export async function getPortfolioProjectBySlug(slug: string): Promise<Portfolio
       .select('*')
       .eq('slug', slug)
       .eq('status', 'published')
-      .single();
+      .maybeSingle();
 
     if (error || !data) {
       return PORTFOLIO_DATA.find((p) => p.slug === slug) || null;
@@ -318,7 +318,7 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
       .select('*')
       .eq('slug', slug)
       .eq('status', 'published')
-      .single();
+      .maybeSingle();
 
     if (error || !data) {
       return BLOG_POSTS.find((b) => b.slug === slug) || null;

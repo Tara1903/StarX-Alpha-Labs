@@ -51,7 +51,7 @@ export async function requireClientMember(
     .from('client_members')
     .select('id, organization_id, user_id, role, status, full_name, email')
     .eq('user_id', user.id)
-    .single();
+    .maybeSingle();
 
   if (memberError || !member) {
     throw new ClientAuthError('Access denied. No active client membership associated with this account.', 403);
@@ -70,7 +70,7 @@ export async function requireClientMember(
     .from('client_organizations')
     .select('id, name, status')
     .eq('id', member.organization_id)
-    .single();
+    .maybeSingle();
 
   if (orgError || !org || org.status !== 'active') {
     throw new ClientAuthError('Your organization workspace is currently inactive or suspended.', 403);
@@ -100,14 +100,14 @@ export async function getClientSessionContext(): Promise<CustomerSessionContext 
       .from('client_organizations')
       .select('*')
       .eq('id', verified.organizationId)
-      .single();
+      .maybeSingle();
 
     // Fetch full membership
     const { data: member } = await adminClient
       .from('client_members')
       .select('*')
       .eq('user_id', verified.userId)
-      .single();
+      .maybeSingle();
 
     // Fetch assigned projects for this organization
     const { data: projects } = await adminClient

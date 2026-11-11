@@ -39,7 +39,7 @@ export async function requireAdmin(allowedRoles: AdminRole[] = ['owner', 'admin'
     .from('admin_members')
     .select('id, user_id, email, role, status')
     .eq('user_id', user.id)
-    .single();
+    .maybeSingle();
 
   if (memberError || !member) {
     throw new AuthError('Administrative access denied. Account is not registered in the admin roster.', 403);
