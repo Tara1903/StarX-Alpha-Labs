@@ -18,6 +18,10 @@ import {
   ShieldCheck,
   RefreshCw,
   Copy,
+  QrCode,
+  ArrowUpRight,
+  ExternalLink,
+  CreditCard,
 } from "lucide-react";
 import type { Invoice, Quotation, Contract, PaymentRecord, FinanceSettings } from "@/types/finance";
 
@@ -50,6 +54,62 @@ export function FinancesModule({ onShowToast }: FinancesModuleProps) {
   const [rejectQuoteModal, setRejectQuoteModal] = useState<Quotation | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [actingQuoteId, setActingQuoteId] = useState<string | null>(null);
+
+  // Online UPI Payment modal
+  const [upiModalData, setUpiModalData] = useState<{
+    invoice: Invoice;
+    orderId: string;
+    amount: number;
+    paymentUrl: string;
+    upiIntent: string;
+    expiresAt?: string;
+    environment: string;
+  } | null>(null);
+  const [initiatingUpi, setInitiatingUpi] = useState(false);
+  const [verifyingUpiPayment, setVerifyingUpiPayment] = useState(false);
+
+  const handleInitiateUpiPayment = async (inv: Invoice) => {
+    setInitiatingUpi(true);
+    try {
+      const res = await fetch("/api/customer/payments/initiate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ invoiceId: inv.id }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to initialize UPI session");
+
+      setUpiModalData({
+        invoice: inv,
+        orderId: json.data.orderId,
+        amount: json.data.amount,
+        paymentUrl: json.data.paymentUrl,
+        upiIntent: json.data.upiIntent,
+        expiresAt: json.data.expiresAt,
+        environment: json.data.environment,
+      });
+    } catch (err: any) {
+      alert(err.message || "Failed to start UPI payment session");
+    } finally {
+      setInitiatingUpi(false);
+    }
+  };
+
+  const handleCheckUpiPaymentStatus = async () => {
+    if (!upiModalData) return;
+    setVerifyingUpiPayment(true);
+    await fetchFinanceData();
+    setTimeout(() => {
+      setVerifyingUpiPayment(false);
+      const updatedInv = invoices.find((i) => i.id === upiModalData.invoice.id);
+      if (updatedInv && updatedInv.status === "paid") {
+        if (onShowToast) onShowToast("Payment verified! Your invoice has been settled.");
+        setUpiModalData(null);
+      } else {
+        if (onShowToast) onShowToast("Checking gateway webhook status... Real-time settlement in progress.");
+      }
+    }, 1500);
+  };
 
   const fetchFinanceData = async () => {
     setLoading(true);
@@ -347,21 +407,31 @@ export function FinancesModule({ onShowToast }: FinancesModuleProps) {
                             <Eye className="w-4 h-4" />
                           </button>
                           {inv.outstandingBalance > 0 && (
-                            <button
-                              onClick={() => {
-                                setOfflineNoticeModal(inv);
-                                setNoticeForm({
-                                  amount: inv.outstandingBalance,
-                                  paymentMethod: "bank_transfer",
-                                  referenceNumber: "",
-                                  paymentDate: new Date().toISOString().split("T")[0],
-                                  notes: "",
-                                });
-                              }}
-                              className="px-2.5 py-1 rounded-lg bg-[#00D9FF]/10 hover:bg-[#00D9FF]/20 text-[#00D9FF] border border-[#00D9FF]/30 text-xs font-medium transition-colors"
-                            >
-                              Submit UTR
-                            </button>
+                            <>
+                              <button
+                                onClick={() => handleInitiateUpiPayment(inv)}
+                                disabled={initiatingUpi}
+                                className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gradient-to-r from-[#00D9FF] to-[#087BFF] hover:brightness-110 text-[#040E26] font-bold text-xs shadow-md shadow-[#00D9FF]/20 transition-all cursor-pointer"
+                              >
+                                <QrCode className="w-3.5 h-3.5" />
+                                <span>Pay via UPI</span>
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setOfflineNoticeModal(inv);
+                                  setNoticeForm({
+                                    amount: inv.outstandingBalance,
+                                    paymentMethod: "bank_transfer",
+                                    referenceNumber: "",
+                                    paymentDate: new Date().toISOString().split("T")[0],
+                                    notes: "",
+                                  });
+                                }}
+                                className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 text-xs font-medium transition-colors"
+                              >
+                                Submit UTR
+                              </button>
+                            </>
                           )}
                         </div>
                       </td>
@@ -899,6 +969,89 @@ export function FinancesModule({ onShowToast }: FinancesModuleProps) {
                 className="px-4 py-1.5 rounded-lg bg-rose-500 hover:bg-rose-600 text-white font-bold"
               >
                 {actingQuoteId === rejectQuoteModal.id ? "Sending..." : "Submit Revision Request"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* MODAL 4: DYNAMIC UPI PAYMENT & QR CHECKOUT */}
+      {upiModalData && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="w-full max-w-md rounded-3xl bg-[#071638] border border-[#00D9FF]/30 p-6 sm:p-7 space-y-5 text-white shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 rounded-lg bg-[#00D9FF]/10 text-[#00D9FF] border border-[#00D9FF]/30">
+                  <QrCode className="w-4 h-4" />
+                </span>
+                <div>
+                  <h3 className="text-base font-bold">UPI Instant Payment</h3>
+                  <p className="text-xs text-slate-400 font-mono">Invoice: {upiModalData.invoice.invoiceNumber}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setUpiModalData(null)}
+                className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Total Amount & Gateway badge */}
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] uppercase font-mono text-slate-400 block">Amount Payable</span>
+                <span className="text-2xl font-black font-mono text-white">
+                  ₹{upiModalData.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+              <span className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase font-bold bg-[#00D9FF]/10 text-[#00D9FF] border border-[#00D9FF]/30">
+                {upiModalData.environment}
+              </span>
+            </div>
+
+            {/* Dynamic QR Code display */}
+            <div className="flex flex-col items-center justify-center p-5 rounded-2xl bg-white text-slate-900 space-y-3">
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiModalData.upiIntent)}`}
+                alt="UPI Payment QR Code"
+                className="w-48 h-48 rounded-xl object-contain"
+              />
+              <p className="text-[11px] font-sans font-medium text-slate-600 text-center">
+                Scan with any UPI app: Google Pay, PhonePe, Paytm, CRED, or BHIM
+              </p>
+            </div>
+
+            {/* Mobile Intent deep link */}
+            <div className="space-y-2">
+              <a
+                href={upiModalData.upiIntent}
+                className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-[#030B24] font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 hover:brightness-110 shadow-lg shadow-[#00D9FF]/20 transition-all"
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span>Open in UPI Mobile App</span>
+              </a>
+
+              <a
+                href={upiModalData.paymentUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full py-2 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-mono flex items-center justify-center gap-1.5 border border-white/10 transition-colors"
+              >
+                <span>Hosted Gateway Checkout</span>
+                <ArrowUpRight className="w-3.5 h-3.5 text-[#00D9FF]" />
+              </a>
+            </div>
+
+            {/* Status checking & close */}
+            <div className="pt-2 border-t border-white/10 flex items-center justify-between text-xs font-mono">
+              <span className="text-slate-400">Order: {upiModalData.orderId}</span>
+              <button
+                onClick={handleCheckUpiPaymentStatus}
+                disabled={verifyingUpiPayment}
+                className="flex items-center gap-1.5 text-[#00D9FF] hover:underline cursor-pointer"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${verifyingUpiPayment ? "animate-spin" : ""}`} />
+                <span>{verifyingUpiPayment ? "Verifying..." : "I have paid"}</span>
               </button>
             </div>
           </div>

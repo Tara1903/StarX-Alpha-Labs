@@ -27,6 +27,8 @@ import {
   Eye,
   FileSpreadsheet,
   Settings,
+  QrCode,
+  Radio,
 } from "lucide-react";
 import type {
   Invoice,
@@ -41,7 +43,7 @@ import type {
 
 export function FinanceModule({ defaultSubTab = "overview" }: { defaultSubTab?: string }) {
   const [subTab, setSubTab] = useState<
-    "overview" | "quotations" | "contracts" | "invoices" | "payments" | "expenses" | "reports" | "settings"
+    "overview" | "quotations" | "contracts" | "invoices" | "payments" | "gateway" | "expenses" | "reports" | "settings"
   >(defaultSubTab as any);
 
   const [loading, setLoading] = useState(true);
@@ -53,6 +55,15 @@ export function FinanceModule({ defaultSubTab = "overview" }: { defaultSubTab?: 
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [settings, setSettings] = useState<FinanceSettings | null>(null);
+
+  // Gateway data state
+  const [gatewayData, setGatewayData] = useState<{
+    config: any;
+    stats: any;
+    transactions: any[];
+    webhooks: any[];
+  } | null>(null);
+  const [probingGateway, setProbingGateway] = useState(false);
 
   // Modals
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
@@ -116,10 +127,40 @@ export function FinanceModule({ defaultSubTab = "overview" }: { defaultSubTab?: 
         const json = await settsRes.json();
         setSettings(json.settings);
       }
+      loadGatewayData();
     } catch {
       // Fallback
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadGatewayData = async () => {
+    try {
+      const res = await fetch("/api/admin/gateway");
+      if (res.ok) {
+        const json = await res.json();
+        setGatewayData(json.data);
+      }
+    } catch {}
+  };
+
+  const runDiagnosticProbe = async () => {
+    setProbingGateway(true);
+    try {
+      const res = await fetch("/api/admin/gateway", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "diagnostic_ping" }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Probe failed");
+      showToast("Gateway diagnostic probe successful! Standalone order generated & acknowledged.");
+      loadGatewayData();
+    } catch (err: any) {
+      alert(err.message || "Diagnostic probe failed");
+    } finally {
+      setProbingGateway(false);
     }
   };
 
@@ -192,6 +233,7 @@ export function FinanceModule({ defaultSubTab = "overview" }: { defaultSubTab?: 
             { id: "contracts", label: `Contracts (${contracts.length})`, icon: FileCheck2 },
             { id: "invoices", label: `Invoices (${invoices.length})`, icon: Receipt },
             { id: "payments", label: `Payments (${payments.length})`, icon: Banknote },
+            { id: "gateway", label: `UPI Gateway (${gatewayData?.stats?.totalTransactions || 0})`, icon: QrCode },
             { id: "expenses", label: `Expenses (${expenses.length})`, icon: CreditCard },
             { id: "reports", label: "Reports & CSV", icon: FileSpreadsheet },
             { id: "settings", label: "Finance Settings", icon: Settings },
@@ -566,6 +608,204 @@ export function FinanceModule({ defaultSubTab = "overview" }: { defaultSubTab?: 
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* SUB-TAB: UPI PAYMENT GATEWAY (PHASE 11) */}
+      {subTab === "gateway" && (
+        <div className="space-y-6">
+          {/* Header & Status Card */}
+          <div className="p-6 rounded-3xl bg-gradient-to-r from-[#071638] via-[#0B2154] to-[#071638] border border-[#00D9FF]/20 space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="p-2 rounded-xl bg-[#00D9FF]/10 text-[#00D9FF] border border-[#00D9FF]/30">
+                    <QrCode className="w-5 h-5" />
+                  </span>
+                  <div>
+                    <h3 className="text-base font-bold text-white tracking-wide">
+                      Mayank Singh UPI Gateway Integration
+                    </h3>
+                    <p className="text-xs text-slate-300 font-mono mt-0.5">
+                      Target: {gatewayData?.config?.gatewayUrl || "https://payments.starx-alpha-labs.com"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <span className={`px-3 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-wider border ${
+                  gatewayData?.config?.environment === "live"
+                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                    : "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                }`}>
+                  ● {gatewayData?.config?.environment || "sandbox"} mode
+                </span>
+
+                <button
+                  onClick={runDiagnosticProbe}
+                  disabled={probingGateway}
+                  className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-mono text-xs flex items-center gap-1.5 transition-all cursor-pointer border border-white/10"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${probingGateway ? "animate-spin text-[#00D9FF]" : ""}`} />
+                  <span>{probingGateway ? "Probing..." : "Test Connectivity"}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Metrics */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
+              <div className="p-3.5 rounded-xl bg-white/5 border border-white/5">
+                <span className="text-[10px] font-mono uppercase text-slate-400 block">Total Volume</span>
+                <span className="text-lg font-bold font-mono text-white">₹{(gatewayData?.stats?.totalVolumeInr || 0).toLocaleString("en-IN")}</span>
+              </div>
+              <div className="p-3.5 rounded-xl bg-white/5 border border-white/5">
+                <span className="text-[10px] font-mono uppercase text-slate-400 block">Successful Paid</span>
+                <span className="text-lg font-bold font-mono text-emerald-400">{gatewayData?.stats?.successfulPayments || 0}</span>
+              </div>
+              <div className="p-3.5 rounded-xl bg-white/5 border border-white/5">
+                <span className="text-[10px] font-mono uppercase text-slate-400 block">In-flight Pending</span>
+                <span className="text-lg font-bold font-mono text-amber-400">{gatewayData?.stats?.pendingPayments || 0}</span>
+              </div>
+              <div className="p-3.5 rounded-xl bg-white/5 border border-white/5">
+                <span className="text-[10px] font-mono uppercase text-slate-400 block">Signed Webhooks</span>
+                <span className="text-lg font-bold font-mono text-[#00D9FF]">{gatewayData?.stats?.recentWebhooksCount || 0}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Transactions Table */}
+          <div className="p-6 rounded-3xl bg-[#071638] border border-white/10 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="text-sm font-bold text-white">Gateway Transactions Ledger</h4>
+                <p className="text-xs text-slate-400">Order sessions generated for client invoice payments</p>
+              </div>
+              <button
+                onClick={loadGatewayData}
+                className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {(gatewayData?.transactions || []).length === 0 ? (
+              <div className="p-8 text-center text-slate-500 font-mono text-xs">
+                No gateway transactions recorded yet. Transactions are initialized when clients click &quot;Pay via UPI&quot; on invoices.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs font-mono">
+                  <thead>
+                    <tr className="border-b border-white/10 text-slate-400 text-[11px]">
+                      <th className="py-2.5 px-3">Gateway Order #</th>
+                      <th className="py-2.5 px-3">Invoice #</th>
+                      <th className="py-2.5 px-3">Client Organization</th>
+                      <th className="py-2.5 px-3">Amount</th>
+                      <th className="py-2.5 px-3">Status</th>
+                      <th className="py-2.5 px-3">UTR Reference</th>
+                      <th className="py-2.5 px-3">Date</th>
+                      <th className="py-2.5 px-3 text-right">Hosted Link</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {gatewayData?.transactions.map((tx: any) => (
+                      <tr key={tx.id} className="hover:bg-white/[0.02]">
+                        <td className="py-3 px-3 font-bold text-white">{tx.gateway_order_no}</td>
+                        <td className="py-3 px-3 text-[#00D9FF]">{tx.invoiceNumber || tx.client_order_id}</td>
+                        <td className="py-3 px-3 text-slate-300">{tx.organizationName || "Client"}</td>
+                        <td className="py-3 px-3 font-bold text-white">₹{Number(tx.amount).toLocaleString("en-IN")}</td>
+                        <td className="py-3 px-3">
+                          <span className={`px-2 py-0.5 rounded-full text-[9px] uppercase font-bold ${
+                            tx.status === "paid"
+                              ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                              : tx.status === "pending"
+                              ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                              : "bg-slate-500/20 text-slate-400 border border-slate-500/30"
+                          }`}>
+                            {tx.status}
+                          </span>
+                        </td>
+                        <td className="py-3 px-3 text-cyan-300">{tx.utr || "—"}</td>
+                        <td className="py-3 px-3 text-slate-400">{new Date(tx.created_at).toLocaleDateString("en-IN")}</td>
+                        <td className="py-3 px-3 text-right">
+                          {tx.payment_url ? (
+                            <a
+                              href={tx.payment_url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 text-[11px] text-[#00D9FF] hover:underline"
+                            >
+                              <span>Checkout</span>
+                              <ArrowUpRight className="w-3 h-3" />
+                            </a>
+                          ) : (
+                            <span className="text-slate-600">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* Webhooks Stream */}
+          <div className="p-6 rounded-3xl bg-[#071638] border border-white/10 space-y-4">
+            <div>
+              <h4 className="text-sm font-bold text-white">Signed Webhooks Audit Stream</h4>
+              <p className="text-xs text-slate-400">Cryptographically verified HMAC-SHA256 delivery events from the gateway outbox</p>
+            </div>
+
+            {(gatewayData?.webhooks || []).length === 0 ? (
+              <div className="p-8 text-center text-slate-500 font-mono text-xs">
+                No webhooks logged yet. As payments transition to PAID on the gateway, signed events stream here.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs font-mono">
+                  <thead>
+                    <tr className="border-b border-white/10 text-slate-400 text-[11px]">
+                      <th className="py-2.5 px-3">Event ID</th>
+                      <th className="py-2.5 px-3">Type</th>
+                      <th className="py-2.5 px-3">Signature Verification</th>
+                      <th className="py-2.5 px-3">Order Number</th>
+                      <th className="py-2.5 px-3">Received At</th>
+                      <th className="py-2.5 px-3 text-right">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {gatewayData?.webhooks.map((wh: any) => (
+                      <tr key={wh.id} className="hover:bg-white/[0.02]">
+                        <td className="py-3 px-3 font-medium text-slate-300 truncate max-w-[140px]">{wh.event_id}</td>
+                        <td className="py-3 px-3 font-bold text-white uppercase">{wh.event_type}</td>
+                        <td className="py-3 px-3">
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] uppercase font-bold ${
+                            wh.signature_valid
+                              ? "bg-emerald-500/20 text-emerald-300"
+                              : "bg-rose-500/20 text-rose-300"
+                          }`}>
+                            <ShieldCheck className="w-3 h-3" />
+                            {wh.signature_valid ? "HMAC-SHA256 Valid" : "Invalid Signature"}
+                          </span>
+                        </td>
+                        <td className="py-3 px-3 text-[#00D9FF]">{wh.gateway_order_no || "—"}</td>
+                        <td className="py-3 px-3 text-slate-400">{new Date(wh.received_at).toLocaleTimeString("en-IN")}</td>
+                        <td className="py-3 px-3 text-right">
+                          <span className={`px-2 py-0.5 rounded-full text-[9px] uppercase font-bold ${
+                            wh.processed ? "bg-emerald-500/20 text-emerald-300" : "bg-amber-500/20 text-amber-300"
+                          }`}>
+                            {wh.processed ? "Processed" : "Pending"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       )}
