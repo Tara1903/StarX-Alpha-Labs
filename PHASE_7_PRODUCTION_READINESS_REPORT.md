@@ -55,7 +55,7 @@ All 426 application routes compile and render cleanly with Next.js 16 (Turbopack
   - **Commercial Payment Architecture**: Clarified that StarX Alpha Labs operates on contract-based milestone invoices (e.g. 50/30/20) and direct bank settlement; online credit card checkout is not required on the marketing site.
 
 #### Pillar 4: Ecosystem Decoupling (STARX FLOW)
-- **Architectural Isolation**: Absolute boundary maintained between StarX Alpha Labs and STARX FLOW (`https://flow.starx.io`).
+- **Architectural Isolation**: Absolute boundary maintained between StarX Alpha Labs and STARX FLOW (`https://starx-flow.runs-on.dev/`).
 - **Zero Shared Dependencies**: Zero shared databases, zero shared auth/JWT sessions, zero shared admin schemas, zero shared private APIs.
 - **Contextual Referral**: All links to STARX FLOW are public, transparent, and non-sensitive.
 - **Preserved Codebase**: The independent STARX FLOW repository (`C:\Web Apps\starx-flow`) remains completely untouched.

@@ -144,7 +144,7 @@ export function StarxFlowSection() {
 
               <span className="text-xs font-mono text-slate-400 flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-[#00C98B]" />
-                <span>flow.starx.io</span>
+                <span>starx-flow.runs-on.dev</span>
               </span>
             </div>
 
@@ -174,7 +174,7 @@ export function StarxFlowSection() {
                   <span className="w-3 h-3 rounded-full bg-[#27C93F] inline-block" />
                   <span className="ml-3 text-[11px] font-mono text-slate-400 flex items-center gap-1.5">
                     <Lock className="w-3 h-3 text-[#00C98B]" />
-                    <span className="text-slate-300">flow.starx.io/app/workspace</span>
+                    <span className="text-slate-300">starx-flow.runs-on.dev/app/workspace</span>
                   </span>
                 </div>
                 

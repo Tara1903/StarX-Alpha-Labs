@@ -95,7 +95,7 @@ export const ECOSYSTEM_PRODUCTS: EcosystemProduct[] = [
     architectureSeparation: {
       database: "Dedicated isolated PostgreSQL / Supabase instance separate from StarX Alpha Labs.",
       auth: "Independent user accounts, sessions, and JWT secrets. No SSO or shared login.",
-      infrastructure: "Decoupled cloud deployment and domain (flow.starx.io).",
+      infrastructure: "Decoupled cloud deployment and domain (starx-flow.runs-on.dev).",
       dataPolicy: "Zero customer PII or transaction data synchronized between platforms.",
     },
   },

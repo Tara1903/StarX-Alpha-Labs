@@ -148,7 +148,7 @@ export default function EcosystemPage() {
                     </li>
                     <li className="flex items-center gap-2 text-[#00C98B]">
                       <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                      <span>Autonomous flow.starx.io Cloud Deployment</span>
+                      <span>Autonomous starx-flow.runs-on.dev Cloud Deployment</span>
                     </li>
                   </ul>
                 </div>
@@ -226,7 +226,7 @@ export default function EcosystemPage() {
                     </a>
 
                     <span className="text-xs font-mono text-slate-400">
-                      Direct destination: <strong className="text-slate-200">flow.starx.io</strong>
+                      Direct destination: <strong className="text-slate-200">starx-flow.runs-on.dev</strong>
                     </span>
                   </div>
                 </div>

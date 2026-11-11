@@ -11,7 +11,7 @@ export const SITE_CONFIG = {
     designation: "Founder & Tech Lead",
   },
   ecosystem: {
-    starxFlowUrl: process.env.NEXT_PUBLIC_STARX_FLOW_URL || "https://flow.starx.io",
+    starxFlowUrl: process.env.NEXT_PUBLIC_STARX_FLOW_URL || "https://starx-flow.runs-on.dev/",
     starxFlowLabel: "STARX FLOW — Business Automation & AI",
   },
   contact: {

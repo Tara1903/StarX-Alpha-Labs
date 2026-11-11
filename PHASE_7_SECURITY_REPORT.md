@@ -103,7 +103,7 @@ The platform leverages Supabase for customer and administrative workflows:
 ---
 
 ### 6. STARX FLOW Ecosystem Decoupling Verification
-The audit confirmed absolute separation between StarX Alpha Labs and STARX FLOW (`https://flow.starx.io`):
+The audit confirmed absolute separation between StarX Alpha Labs and STARX FLOW (`https://starx-flow.runs-on.dev/`):
 - **Zero Shared Databases**: Labs uses its dedicated Supabase project; FLOW uses its independent infrastructure.
 - **Zero Shared Auth / Sessions**: No SSO, shared JWT secrets, cookies, or localStorage synchronization exist.
 - **Zero Shared Private APIs**: Labs and FLOW communicate solely through public links. Contextual referrals append transparent tracking parameters (`utm_source=starx_labs&ref_feature=...`).
