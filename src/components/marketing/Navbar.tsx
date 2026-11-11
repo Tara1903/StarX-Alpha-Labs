@@ -5,9 +5,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LinkButton } from "@/components/ui/LinkButton";
 import { BrandLogo } from "@/components/ui/BrandLogo";
-import { Menu, X, ArrowUpRight, Sparkles, Globe, Calculator } from "lucide-react";
+import { Menu, X, ArrowUpRight, Sparkles, Globe, Calculator, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/context/LanguageContext";
+import { getStarxFlowDestinationUrl } from "@/lib/ecosystem";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
@@ -38,6 +39,7 @@ export function Navbar() {
     { label: "Demo Center", href: "/demos", badge: "160+" },
     { label: "Pricing", href: "/pricing" },
     { label: "Industries ▾", href: "/industries" },
+    { label: "Ecosystem", href: "/ecosystem" },
     { label: "Company ▾", href: "/about" },
   ];
 
@@ -167,6 +169,16 @@ export function Navbar() {
                 </Link>
               );
             })}
+            <a
+              href={getStarxFlowDestinationUrl({ source: "starx_alpha_labs", campaign: "mobile_drawer" })}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold text-[#00D9FF] bg-[#071638] border border-[#00D9FF]/30 hover:bg-[#0A1940] transition-colors"
+            >
+              <span>STARX FLOW (AI OS)</span>
+              <ArrowUpRight className="w-4 h-4 text-[#00D9FF]" />
+            </a>
           </nav>
 
           <div className="pt-3 border-t border-white/10 flex flex-col gap-3">

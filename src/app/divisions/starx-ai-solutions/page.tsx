@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/Badge";
 import { LinkButton } from "@/components/ui/LinkButton";
 import { DIVISIONS_DATA } from "@/data/divisions";
 import { SERVICES_DATA } from "@/data/services";
-import { ArrowRight, CheckCircle2, Cpu } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CheckCircle2, Cpu, Sparkles, Bot } from "lucide-react";
+import { getStarxFlowDestinationUrl } from "@/lib/ecosystem";
 
 export const metadata: Metadata = {
   title: "STARX AI SOLUTIONS — Custom AI & Intelligent Application Features",
@@ -79,6 +80,44 @@ export default function StarxAiSolutionsPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </Container>
+        </section>
+
+        {/* Contextual Referral: STARX FLOW Commercial Alternative */}
+        <section className="py-16 bg-[#071638] border-b border-[rgba(130,180,220,0.18)]">
+          <Container>
+            <div className="p-8 sm:p-10 rounded-2xl bg-[#0A1940] border border-[#00D9FF]/30 flex flex-col md:flex-row items-center justify-between gap-8">
+              <div className="space-y-3 max-w-2xl text-left">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00D9FF]/10 border border-[#00D9FF]/30 text-xs font-mono text-[#00D9FF]">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Looking for Off-the-Shelf Business AI?</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                  Need an Out-of-the-Box AI Receptionist? Meet STARX FLOW.
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-light">
+                  If your company does not require bespoke model engineering and instead needs an immediate AI receptionist to answer customer calls, manage WhatsApp, and capture inbound leads, explore our independent platform <strong className="text-white font-medium">STARX FLOW</strong>.
+                </p>
+              </div>
+
+              <div className="shrink-0 flex flex-col sm:flex-row items-center gap-3">
+                <a
+                  href={getStarxFlowDestinationUrl({ source: "starx_alpha_labs", campaign: "ai_solutions_page", feature: "ai_receptionist" })}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-white hover:brightness-110 shadow-lg shadow-[#087BFF]/30 flex items-center gap-2 transition-all whitespace-nowrap"
+                >
+                  <span>Explore STARX FLOW</span>
+                  <ArrowUpRight className="w-4 h-4" />
+                </a>
+                <Link
+                  href="/ecosystem"
+                  className="text-xs text-slate-400 hover:text-white px-3 py-2"
+                >
+                  View Ecosystem &rarr;
+                </Link>
+              </div>
             </div>
           </Container>
         </section>

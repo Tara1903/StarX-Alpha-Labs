@@ -5,6 +5,7 @@
  * - StarX Alpha Labs and STARX FLOW are 100% independent platforms.
  * - Zero shared databases, zero shared auth sessions, zero shared tokens or credentials.
  * - Only non-sensitive referral/campaign query parameters are permitted.
+ * - Links must remain fully operational even if all tracking parameters are removed.
  */
 
 import { SITE_CONFIG } from "./constants";
@@ -36,3 +37,18 @@ export function getStarxFlowDestinationUrl(params: ReferralParams = {}): string 
 
   return url.toString();
 }
+
+/**
+ * Helper to generate reciprocal recommendation attribution from FLOW to StarX Alpha Labs
+ * for users seeking bespoke software engineering or custom development.
+ */
+export function getStarxLabsReciprocalUrl(campaign = "flow_referral"): string {
+  const baseUrl = SITE_CONFIG.url.replace(/\/$/, "");
+  const url = new URL(baseUrl);
+  url.searchParams.set("utm_source", "starx_flow");
+  url.searchParams.set("utm_medium", "reciprocal_ecosystem");
+  url.searchParams.set("utm_campaign", campaign);
+  return url.toString();
+}
+
+export * from "@/data/ecosystem";

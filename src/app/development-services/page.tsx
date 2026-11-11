@@ -10,6 +10,7 @@ import {
   Smartphone, 
   Layers, 
   ArrowRight, 
+  ArrowUpRight,
   CheckCircle2, 
   Sparkles, 
   Calculator, 
@@ -19,6 +20,7 @@ import {
   Cpu,
   Clock
 } from "lucide-react";
+import { getStarxFlowDestinationUrl } from "@/lib/ecosystem";
 import { 
   WEBSITE_PACKAGES, 
   APP_PACKAGES, 
@@ -246,6 +248,40 @@ export default function DevelopmentServicesPage() {
                   </div>
                 );
               })}
+            </div>
+          </Container>
+        </section>
+
+        {/* Contextual Referral to STARX FLOW Independent Product */}
+        <section className="py-12 bg-[#030B24] border-t border-[#0A1940]">
+          <Container>
+            <div className="p-6 sm:p-8 rounded-2xl bg-[#0A1940]/90 border border-[#00D9FF]/30 flex flex-col sm:flex-row items-center justify-between gap-6">
+              <div className="space-y-1 text-center sm:text-left">
+                <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#00D9FF]">
+                  Independent Commercial Product
+                </span>
+                <h4 className="text-lg font-bold text-white">
+                  Looking for Ready-Made AI Business Automation Instead of Custom Coding?
+                </h4>
+                <p className="text-xs text-slate-300 max-w-xl">
+                  Explore <strong className="text-white">STARX FLOW</strong> for autonomous AI receptionists, 24/7 call answering, and WhatsApp pipelines ready to deploy.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 shrink-0">
+                <a
+                  href={getStarxFlowDestinationUrl({ source: "starx_alpha_labs", campaign: "development_services_banner", feature: "general" })}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-white hover:brightness-110 shadow-lg flex items-center gap-1.5 transition-all whitespace-nowrap"
+                >
+                  <span>Explore STARX FLOW</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </a>
+                <Link href="/ecosystem" className="text-xs text-slate-400 hover:text-white px-2 py-1">
+                  Ecosystem &rarr;
+                </Link>
+              </div>
             </div>
           </Container>
         </section>

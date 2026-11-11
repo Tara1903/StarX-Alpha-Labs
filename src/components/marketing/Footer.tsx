@@ -83,9 +83,9 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Quick Links */}
+          {/* Solutions & Ecosystem */}
           <div className="space-y-3">
-            <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-white">Solutions &amp; Demos</h4>
+            <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-white">Solutions &amp; Ecosystem</h4>
             <ul className="space-y-2 text-xs">
               <li>
                 <Link href="/demos" className="hover:text-[#00D9FF] transition-colors">
@@ -103,13 +103,26 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/portfolio" className="hover:text-[#00D9FF] transition-colors">
-                  Selected Work &amp; Blueprints
+                <Link href="/ecosystem" className="hover:text-[#00D9FF] transition-colors text-slate-300 font-semibold flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-[#00D9FF]" />
+                  <span>STARX Ecosystem</span>
                 </Link>
               </li>
               <li>
-                <Link href="/services" className="hover:text-[#00D9FF] transition-colors">
-                  Services Catalog
+                <a
+                  href={getStarxFlowDestinationUrl({ source: "starx_alpha_labs", campaign: "footer_solutions" })}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#00D9FF] hover:underline flex items-center gap-1 font-mono font-bold"
+                  title="STARX FLOW — Independent AI Business Operating System"
+                >
+                  <span>STARX FLOW (AI OS)</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </a>
+              </li>
+              <li>
+                <Link href="/portfolio" className="hover:text-[#00D9FF] transition-colors text-slate-400">
+                  Selected Work &amp; Blueprints
                 </Link>
               </li>
             </ul>
@@ -149,10 +162,15 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-          <p className="text-slate-500">
-            &copy; {currentYear} {SITE_CONFIG.legalName}. All rights reserved. Build Smarter. Lead Tomorrow.
-          </p>
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs border-t border-white/5 mt-4">
+          <div className="space-y-1 text-center sm:text-left">
+            <p className="text-slate-400">
+              &copy; {currentYear} {SITE_CONFIG.legalName}. All rights reserved. Build Smarter. Lead Tomorrow.
+            </p>
+            <p className="text-[10px] text-slate-500 font-mono">
+              Ecosystem Policy: STARX FLOW is an independent product operated on decoupled cloud infrastructure.
+            </p>
+          </div>
           <div className="flex items-center gap-4 text-[11px] text-slate-500 font-mono">
             <span>Currency: INR (₹)</span>
             <span>&bull;</span>
