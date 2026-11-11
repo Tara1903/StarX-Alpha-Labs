@@ -2,19 +2,26 @@ export const SITE_CONFIG = {
   name: "StarX Alpha Labs",
   shortName: "StarX Alpha",
   legalName: "StarX Alpha Labs",
-  tagline: "Technology & Software Engineering Company",
+  tagline: "Build Smarter. Lead Tomorrow.",
   description:
     "StarX Alpha Labs is a technology and software engineering company building modern digital products, intelligent applications and custom technology solutions for businesses.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://starxlabs.io",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://starx-alpha-labs.vercel.app",
+  founder: {
+    name: "Hari Singh",
+    designation: "Founder & Tech Lead",
+  },
   ecosystem: {
     starxFlowUrl: process.env.NEXT_PUBLIC_STARX_FLOW_URL || "https://flow.starx.io",
     starxFlowLabel: "STARX FLOW — Business Automation & AI",
   },
   contact: {
-    email: "contact@starxalphalabs.io",
-    sales: "solutions@starxalphalabs.io",
-    phone: "+1 (800) 555-STARX",
-    address: "One World Trade Center, Floor 72, New York, NY 10007",
+    phone: "+91 9660937033",
+    whatsapp: "+91 9660937033",
+    whatsappUrl: "https://wa.me/919660937033",
+    address: "Shop No. 6, Giriraj Villa, Near Tapti Parisar, Indore, Madhya Pradesh, India",
+    // Public company email is NOT PROVIDED YET. Omitted completely per specification.
+    email: null,
+    sales: null,
   },
 };
 

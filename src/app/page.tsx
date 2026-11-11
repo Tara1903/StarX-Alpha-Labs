@@ -5,6 +5,7 @@ import { IndustriesSection } from "@/components/marketing/IndustriesSection";
 import { DemoShowcaseSection } from "@/components/marketing/DemoShowcaseSection";
 import { WhyChooseUsSection } from "@/components/marketing/WhyChooseUsSection";
 import { StarxFlowSection } from "@/components/marketing/StarxFlowSection";
+import { PersonalizedDemoSection } from "@/components/marketing/PersonalizedDemoSection";
 import { FinalCTA } from "@/components/marketing/FinalCTA";
 import { Footer } from "@/components/marketing/Footer";
 
@@ -48,7 +49,10 @@ export default function HomePage() {
         {/* 6. STARX FLOW — Flagship Independent AI Business Operating System */}
         <StarxFlowSection />
 
-        {/* 7. Have a Project in Mind? (Final Project CTA) */}
+        {/* 7. Get a Free Personalized Demo For Your Business (12-Field Validated Conversion Engine) */}
+        <PersonalizedDemoSection />
+
+        {/* 8. Have a Project in Mind? (Final Project CTA) */}
         <FinalCTA />
       </main>
 

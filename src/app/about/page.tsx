@@ -107,6 +107,33 @@ export default function AboutPage() {
           </Container>
         </section>
 
+        {/* Leadership & Engineering Headquarters */}
+        <section className="py-20 bg-[#07111F] border-b border-[rgba(130,180,220,0.18)]">
+          <Container>
+            <div className="max-w-4xl mx-auto p-8 sm:p-12 rounded-3xl bg-[#0B192B]/90 border border-[rgba(130,180,220,0.18)] flex flex-col md:flex-row items-center gap-8">
+              <div className="w-24 h-24 rounded-3xl bg-gradient-to-tr from-[#087BFF] to-[#00D9FF] flex items-center justify-center text-3xl font-black text-white shrink-0 shadow-[0_0_30px_rgba(0,217,255,0.4)]">
+                HS
+              </div>
+              <div className="space-y-3 text-center md:text-left grow">
+                <div className="space-y-1">
+                  <span className="text-xs font-mono font-bold text-[#00D9FF] tracking-wider uppercase">
+                    Founder &amp; Tech Lead
+                  </span>
+                  <h3 className="text-2xl font-extrabold text-white">Hari Singh</h3>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  Directing software architecture, real-time visual computing, and decoupled cloud ecosystems from our engineering headquarters in Indore, Madhya Pradesh, India. Focused on delivering high-performance digital platforms with measurable business outcomes.
+                </p>
+                <div className="pt-2 flex flex-wrap items-center justify-center md:justify-start gap-4 text-xs font-mono text-slate-400">
+                  <span>📍 Shop No. 6, Giriraj Villa, Near Tapti Parisar, Indore</span>
+                  <span>•</span>
+                  <span>📞 +91 9660937033</span>
+                </div>
+              </div>
+            </div>
+          </Container>
+        </section>
+
         {/* Call to Action */}
         <section className="py-20 bg-[#07111F] text-center">
           <Container className="max-w-3xl space-y-6">

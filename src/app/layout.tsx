@@ -73,11 +73,22 @@ const jsonLd = {
       alternateName: SITE_CONFIG.shortName,
       url: SITE_CONFIG.url,
       description: SITE_CONFIG.description,
+      founder: {
+        "@type": "Person",
+        name: SITE_CONFIG.founder.name,
+        jobTitle: SITE_CONFIG.founder.designation,
+      },
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "Shop No. 6, Giriraj Villa, Near Tapti Parisar",
+        addressLocality: "Indore",
+        addressRegion: "Madhya Pradesh",
+        addressCountry: "IN",
+      },
       contactPoint: {
         "@type": "ContactPoint",
         telephone: SITE_CONFIG.contact.phone,
-        contactType: "sales",
-        email: SITE_CONFIG.contact.email,
+        contactType: "customer service",
       },
     },
     {

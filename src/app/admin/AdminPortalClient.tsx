@@ -46,12 +46,15 @@ import {
   Globe,
   Smartphone,
   Tag,
-  ArrowRight
+  ArrowRight,
+  Tv,
+  MessageSquare
 } from "lucide-react";
+import { VIDEO_ITEMS, VideoItem } from "@/data/videos";
 
 export function AdminPortalClient() {
   const [activeTab, setActiveTab] = useState<
-    "overview" | "divisions" | "estimates" | "quotations" | "projects" | "crm" | "demos"
+    "overview" | "divisions" | "estimates" | "quotations" | "projects" | "crm" | "demos" | "demo-requests" | "video-station"
   >("overview");
 
   const { activeThemeId } = useTheme();
@@ -84,6 +87,43 @@ export function AdminPortalClient() {
 
   // Selected Division in Package view
   const [adminDivisionTab, setAdminDivisionTab] = useState<DivisionType>("website");
+
+  // Video Station & Demo Requests state
+  const [videoList, setVideoList] = useState<VideoItem[]>(VIDEO_ITEMS);
+  const [demoRequests, setDemoRequests] = useState<any[]>([
+    {
+      id: "req-1",
+      requestCode: "DEMO-73921",
+      fullName: "Vikram Malhotra",
+      businessName: "Malhotra Ortho & Dental Care",
+      phone: "+91 98260 12345",
+      email: "vikram@malhotracare.com",
+      city: "Indore",
+      industry: "Medical & Dental Clinics",
+      solutionType: "Website + App Combo",
+      primaryGoal: "Accept Online Appointments & Digital Intake",
+      estimatedBudget: "₹50,000 – ₹1,00,000",
+      targetTimeline: "Immediately (1-2 Weeks)",
+      status: "pending",
+      createdAt: "2026-11-11T09:30:00Z",
+    },
+    {
+      id: "req-2",
+      requestCode: "DEMO-84192",
+      fullName: "Ananya Deshmukh",
+      businessName: "Spice Symphony Bistro",
+      phone: "+91 97555 88990",
+      email: "ananya@spicesymphony.in",
+      city: "Bhopal",
+      industry: "Restaurants & Cafes",
+      solutionType: "Professional Business Website",
+      primaryGoal: "Commission-Free Food Ordering & Table QR",
+      estimatedBudget: "₹25,000 – ₹50,000",
+      targetTimeline: "Within 1 Month",
+      status: "in_review",
+      createdAt: "2026-11-10T14:15:00Z",
+    }
+  ]);
 
   // Modals & Forms
   const [editDemoModal, setEditDemoModal] = useState<DemoModel | null>(null);
@@ -299,6 +339,8 @@ export function AdminPortalClient() {
         <div className="flex items-center gap-2 border-b border-white/10 pb-2 overflow-x-auto">
           {[
             { id: "overview", label: "Executive Analytics", icon: BarChart3 },
+            { id: "demo-requests", label: `Personalized Demos (${demoRequests.length})`, icon: Sparkles },
+            { id: "video-station", label: `Video Station (${videoList.length})`, icon: Tv },
             { id: "divisions", label: "Divisions & Pricing", icon: Layers },
             { id: "estimates", label: `Calculator Estimates (${estimates.length})`, icon: Calculator },
             { id: "quotations", label: `Quotations Hub (${quotations.length})`, icon: FileText },
@@ -845,6 +887,122 @@ export function AdminPortalClient() {
                   </tbody>
                 </table>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 8: PERSONALIZED DEMO REQUESTS */}
+        {activeTab === "demo-requests" && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold text-white">Personalized Demo Requests ({demoRequests.length})</h2>
+                <p className="text-xs text-slate-400">Incoming requests from the 12-field homepage conversion funnel.</p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-white/5 bg-[#0A1940] overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#071638] text-slate-400 font-mono uppercase text-[10px] border-b border-white/5">
+                    <tr>
+                      <th className="p-3">Req Code</th>
+                      <th className="p-3">Client & Business</th>
+                      <th className="p-3">Industry</th>
+                      <th className="p-3">Solution Type</th>
+                      <th className="p-3">Budget</th>
+                      <th className="p-3">Status</th>
+                      <th className="p-3">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {demoRequests.map((req) => (
+                      <tr key={req.id} className="hover:bg-white/5 transition-colors">
+                        <td className="p-3 font-mono font-bold text-[#00D9FF]">{req.requestCode}</td>
+                        <td className="p-3">
+                          <div className="font-bold text-white">{req.fullName}</div>
+                          <div className="text-[11px] text-slate-400">{req.businessName} • {req.city}</div>
+                          <div className="text-[10px] text-slate-500 font-mono">{req.phone} • {req.email}</div>
+                        </td>
+                        <td className="p-3 text-slate-300">{req.industry}</td>
+                        <td className="p-3 text-slate-300">{req.solutionType}</td>
+                        <td className="p-3 font-mono text-[#00C98B] font-semibold">{req.estimatedBudget}</td>
+                        <td className="p-3">
+                          <span className={`px-2 py-0.5 rounded-full font-mono text-[10px] ${
+                            req.status === "pending"
+                              ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                              : "bg-[#00C98B]/20 text-[#00C98B] border border-[#00C98B]/30"
+                          }`}>
+                            {req.status.toUpperCase()}
+                          </span>
+                        </td>
+                        <td className="p-3">
+                          <div className="flex items-center gap-2">
+                            <a
+                              href={`https://wa.me/${req.phone.replace(/[^0-9]/g, '')}?text=Hello%20${encodeURIComponent(req.fullName)}!%20This%20is%20Hari%20Singh%20from%20StarX%20Alpha%20Labs%20regarding%20your%20demo%20request%20${req.requestCode}.`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-2.5 py-1 rounded-lg bg-[#00DF89]/20 hover:bg-[#00DF89] text-[#00DF89] hover:text-[#030B24] font-bold text-[11px] flex items-center gap-1 transition-all"
+                            >
+                              <MessageSquare className="w-3 h-3" />
+                              <span>WhatsApp</span>
+                            </a>
+                            <a
+                              href={`tel:${req.phone}`}
+                              className="p-1 rounded-lg bg-[#071638] text-slate-300 hover:text-white"
+                              title="Call Client"
+                            >
+                              <PhoneCall className="w-3.5 h-3.5" />
+                            </a>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 9: VIDEO STATION MANAGEMENT */}
+        {activeTab === "video-station" && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold text-white">Video Station Catalog ({videoList.length})</h2>
+                <p className="text-xs text-slate-400">Manage published walkthroughs, video embeds, and demo links.</p>
+              </div>
+              <Link
+                href="/video-station"
+                className="px-4 py-2 rounded-xl bg-[#071638] text-[#00D9FF] text-xs font-bold border border-[#00D9FF]/30 hover:bg-[#0A1940] flex items-center gap-1.5"
+              >
+                <span>View Public Video Station</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {videoList.map((vid) => (
+                <div key={vid.id} className="p-4 rounded-2xl bg-[#0A1940] border border-white/5 space-y-3">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-[#00D9FF] font-mono text-[10px] font-bold uppercase">{vid.categoryTitle}</span>
+                    <span className="text-slate-400 font-mono text-[10px]">{vid.durationText}</span>
+                  </div>
+                  <h3 className="text-sm font-bold text-white line-clamp-1">{vid.title}</h3>
+                  <p className="text-xs text-slate-400 line-clamp-2">{vid.description}</p>
+                  <div className="pt-2 flex items-center justify-between border-t border-white/5 text-[11px]">
+                    <span className="text-slate-400 font-mono">{vid.viewCount} Views</span>
+                    <Link
+                      href={`/video-station/${vid.slug}`}
+                      className="text-[#00D9FF] hover:underline font-semibold flex items-center gap-1"
+                    >
+                      <span>Preview</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}

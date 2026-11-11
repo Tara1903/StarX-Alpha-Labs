@@ -74,10 +74,12 @@ export default function PrivacyPage() {
             <section className="space-y-2">
               <h2 className="text-lg font-bold text-white">5. Contact Information</h2>
               <p>
-                Inquiries regarding data protection should be addressed to:{" "}
-                <a href={`mailto:${SITE_CONFIG.contact.email}`} className="text-[#32A9E8] hover:underline font-semibold">
-                  {SITE_CONFIG.contact.email}
-                </a>.
+                Inquiries regarding data protection, privacy requests, or algorithmic security should be addressed in writing to:{" "}
+                <span className="font-semibold text-white">{SITE_CONFIG.contact.address}</span>, or submitted directly via our{" "}
+                <a href="/contact" className="text-[#32A9E8] hover:underline font-semibold">
+                  Secure Enterprise Contact Desk
+                </a>{" "}
+                or phone at <span className="font-semibold text-white">{SITE_CONFIG.contact.phone}</span>.
               </p>
             </section>
           </div>

@@ -93,6 +93,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/video-station" className="hover:text-[#00D9FF] transition-colors font-medium text-slate-300">
+                  Video Station (Watch Demos)
+                </Link>
+              </li>
+              <li>
                 <Link href="/industries" className="hover:text-[#00D9FF] transition-colors">
                   12 Industry Categories
                 </Link>
@@ -145,6 +150,11 @@ export function Footer() {
               <li>
                 <Link href="/admin/settings/appearance" className="hover:text-[#00D9FF] transition-colors text-slate-400">
                   Theme Studio
+                </Link>
+              </li>
+              <li>
+                <Link href="/agency-partnership" className="hover:text-[#00D9FF] transition-colors text-[#00D9FF] font-semibold">
+                  Agency &amp; White-Label Partner
                 </Link>
               </li>
               <li>

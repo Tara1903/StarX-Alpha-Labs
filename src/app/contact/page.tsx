@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Select } from "@/components/ui/Select";
 import { FormField } from "@/components/ui/FormField";
 import { SITE_CONFIG } from "@/lib/constants";
-import { ArrowRight, Mail, Phone, MapPin, ShieldAlert, CheckCircle2, AlertCircle, Info } from "lucide-react";
+import { ArrowRight, Phone, MapPin, ShieldAlert, CheckCircle2, AlertCircle, Info, MessageSquare, ExternalLink, User } from "lucide-react";
 
 export default function ContactPage() {
   const [fullName, setFullName] = React.useState("");
@@ -236,29 +236,51 @@ export default function ContactPage() {
                 <div className="p-8 rounded-3xl bg-[#0B192B]/80 border border-[rgba(130,180,220,0.18)] space-y-6">
                   <h3 className="text-lg font-bold text-white">Direct Enterprise Contacts</h3>
 
-                  <div className="space-y-4 text-xs">
+                  <div className="space-y-5 text-xs">
+                    {/* Leadership & Founder */}
                     <div className="flex items-start gap-3">
-                      <Mail className="w-4 h-4 text-[#32A9E8] shrink-0 mt-0.5" />
+                      <User className="w-4 h-4 text-[#00D9FF] shrink-0 mt-0.5" />
                       <div>
-                        <span className="text-slate-400 block font-mono">Solutions & Architecture:</span>
-                        <a href={`mailto:${SITE_CONFIG.contact.sales}`} className="font-semibold text-white hover:text-[#32A9E8]">
-                          {SITE_CONFIG.contact.sales}
+                        <span className="text-slate-400 block font-mono">Engineering Leadership:</span>
+                        <span className="font-semibold text-white">
+                          {SITE_CONFIG.founder.name} — {SITE_CONFIG.founder.designation}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Direct Telephone */}
+                    <div className="flex items-start gap-3">
+                      <Phone className="w-4 h-4 text-[#00D9FF] shrink-0 mt-0.5" />
+                      <div>
+                        <span className="text-slate-400 block font-mono">Direct Telephone:</span>
+                        <a href={`tel:${SITE_CONFIG.contact.phone.replace(/\s+/g, '')}`} className="font-semibold text-white hover:text-[#00D9FF]">
+                          {SITE_CONFIG.contact.phone}
                         </a>
                       </div>
                     </div>
 
+                    {/* WhatsApp Enterprise Channel */}
                     <div className="flex items-start gap-3">
-                      <Phone className="w-4 h-4 text-[#32A9E8] shrink-0 mt-0.5" />
+                      <MessageSquare className="w-4 h-4 text-[#00DF89] shrink-0 mt-0.5" />
                       <div>
-                        <span className="text-slate-400 block font-mono">Direct Telephone:</span>
-                        <span className="font-semibold text-white">{SITE_CONFIG.contact.phone}</span>
+                        <span className="text-slate-400 block font-mono">WhatsApp Priority Channel:</span>
+                        <a
+                          href={SITE_CONFIG.contact.whatsappUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-semibold text-[#00DF89] hover:underline inline-flex items-center gap-1.5"
+                        >
+                          <span>Connect on WhatsApp ({SITE_CONFIG.contact.whatsapp})</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
                       </div>
                     </div>
 
+                    {/* Physical Headquarters */}
                     <div className="flex items-start gap-3">
-                      <MapPin className="w-4 h-4 text-[#32A9E8] shrink-0 mt-0.5" />
+                      <MapPin className="w-4 h-4 text-[#00D9FF] shrink-0 mt-0.5" />
                       <div>
-                        <span className="text-slate-400 block font-mono">Headquarters:</span>
+                        <span className="text-slate-400 block font-mono">Engineering Headquarters:</span>
                         <span className="font-semibold text-white leading-relaxed">
                           {SITE_CONFIG.contact.address}
                         </span>
