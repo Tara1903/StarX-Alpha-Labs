@@ -350,54 +350,52 @@ function GlobeAssembly() {
   const particlesRef = useRef<THREE.Points>(null);
 
   const particlePos = useMemo(() => {
-    const count = 300;
+    const count = 420;
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      const rad = 3.0 + Math.random() * 0.9;
-      const theta = Math.random() * Math.PI * 2;
-      const phi = (Math.random() - 0.5) * Math.PI;
-      pos[i * 3] = rad * Math.cos(theta) * Math.cos(phi);
-      pos[i * 3 + 1] = rad * Math.sin(phi);
-      pos[i * 3 + 2] = rad * Math.sin(theta) * Math.cos(phi);
+      // Data constellation particles span across the full background
+      pos[i * 3] = (Math.random() - 0.4) * 14;     // X spans from -5.6 to +8.4
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 8;  // Y spans vertically
+      pos[i * 3 + 2] = -2.0 - Math.random() * 4.0; // Z depth
     }
     return pos;
   }, []);
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
-    if (globeRef.current) globeRef.current.rotation.y = t * 0.08;
-    if (ring1Ref.current) ring1Ref.current.rotation.z = t * 0.12;
-    if (ring2Ref.current) ring2Ref.current.rotation.z = -t * 0.09;
-    if (particlesRef.current) particlesRef.current.rotation.y = -t * 0.05;
+    if (globeRef.current) globeRef.current.rotation.y = t * 0.07;
+    if (ring1Ref.current) ring1Ref.current.rotation.z = t * 0.1;
+    if (ring2Ref.current) ring2Ref.current.rotation.z = -t * 0.08;
+    if (particlesRef.current) particlesRef.current.rotation.y = -t * 0.03;
   });
 
   return (
-    <group position={[0.3, 1.2, -3.4]}>
-      {/* Outer Cyan Wireframe */}
+    <group position={[0.6, 1.1, -3.8]}>
+      {/* Outer Cyan Wireframe Globe (Expansive, sweeps across hero background) */}
       <mesh ref={globeRef}>
-        <sphereGeometry args={[2.9, 36, 28]} />
+        <sphereGeometry args={[3.2, 36, 28]} />
         <meshBasicMaterial color="#00D9FF" wireframe transparent opacity={0.22} />
       </mesh>
 
       {/* Inner Blue Wireframe */}
       <mesh>
-        <sphereGeometry args={[2.8, 24, 20]} />
+        <sphereGeometry args={[3.1, 24, 20]} />
         <meshBasicMaterial color="#087BFF" wireframe transparent opacity={0.12} />
       </mesh>
 
-      {/* Orbital Ring 1 */}
-      <mesh ref={ring1Ref} rotation={[Math.PI / 3, 0.2, 0]}>
-        <ringGeometry args={[3.35, 3.38, 64]} />
-        <meshBasicMaterial color="#00D9FF" side={THREE.DoubleSide} transparent opacity={0.45} />
+      {/* Orbital Ring 1 - Sweeping arc */}
+      <mesh ref={ring1Ref} rotation={[Math.PI / 3, 0.25, 0]}>
+        <ringGeometry args={[3.75, 3.79, 80]} />
+        <meshBasicMaterial color="#00D9FF" side={THREE.DoubleSide} transparent opacity={0.42} />
       </mesh>
 
-      {/* Orbital Ring 2 */}
-      <mesh ref={ring2Ref} rotation={[-Math.PI / 3.2, 0.4, 0]}>
-        <ringGeometry args={[3.55, 3.58, 64]} />
-        <meshBasicMaterial color="#E52BFF" side={THREE.DoubleSide} transparent opacity={0.35} />
+      {/* Orbital Ring 2 - Opposite tilt */}
+      <mesh ref={ring2Ref} rotation={[-Math.PI / 3.4, 0.35, 0]}>
+        <ringGeometry args={[4.0, 4.04, 80]} />
+        <meshBasicMaterial color="#E52BFF" side={THREE.DoubleSide} transparent opacity={0.32} />
       </mesh>
 
-      {/* Constellation Particle Points */}
+      {/* Full Hero Constellation Particle Points */}
       <points ref={particlesRef}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[particlePos, 3]} />
@@ -464,17 +462,17 @@ function HardwareRig({
       <pointLight ref={cursorLightRef} position={[0, 2, 4.5]} intensity={3.5} color="#00D9FF" distance={12} />
 
       {/* Concentric Neon Floor Rings */}
-      <group position={[0, -1.35, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <group position={[0.4, -1.35, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <mesh>
-          <ringGeometry args={[1.9, 1.93, 64]} />
+          <ringGeometry args={[2.0, 2.03, 64]} />
           <meshBasicMaterial color="#00D9FF" side={THREE.DoubleSide} transparent opacity={0.55} />
         </mesh>
         <mesh>
-          <ringGeometry args={[2.5, 2.53, 64]} />
+          <ringGeometry args={[2.7, 2.73, 64]} />
           <meshBasicMaterial color="#873BFF" side={THREE.DoubleSide} transparent opacity={0.45} />
         </mesh>
         <mesh>
-          <ringGeometry args={[3.1, 3.13, 64]} />
+          <ringGeometry args={[3.4, 3.43, 64]} />
           <meshBasicMaterial color="#E52BFF" side={THREE.DoubleSide} transparent opacity={0.35} />
         </mesh>
       </group>
@@ -482,7 +480,7 @@ function HardwareRig({
       {/* ------------------------------------------------------------- */}
       {/* UNIT 1: REAL 3D PHYSICAL LAPTOP (LEFT)                        */}
       {/* ------------------------------------------------------------- */}
-      <group position={[-1.8, -0.65, 0.2]} rotation={[0.06, 0.35, -0.02]}>
+      <group position={[-1.6, -0.65, 0.2]} rotation={[0.06, 0.35, -0.02]}>
         {/* Base Chassis */}
         <mesh>
           <boxGeometry args={[3.3, 0.12, 2.3]} />
@@ -558,7 +556,7 @@ function HardwareRig({
       {/* ------------------------------------------------------------- */}
       {/* UNIT 2: REAL 3D PHYSICAL SMARTPHONE (CENTER, STANDING)        */}
       {/* ------------------------------------------------------------- */}
-      <group ref={phoneRef} position={[0.65, -0.32, 0.45]} rotation={[-0.04, -0.22, 0.04]}>
+      <group ref={phoneRef} position={[0.75, -0.32, 0.45]} rotation={[-0.04, -0.22, 0.04]}>
         {/* Titanium Chassis */}
         <mesh>
           <boxGeometry args={[1.4, 2.8, 0.14]} />
@@ -599,7 +597,7 @@ function HardwareRig({
       {/* ------------------------------------------------------------- */}
       {/* UNIT 3: REAL 3D PHYSICAL STANDALONE COMBO CARD (RIGHT)        */}
       {/* ------------------------------------------------------------- */}
-      <group ref={comboRef} position={[2.45, 0.05, 0.2]} rotation={[-0.04, -0.38, 0.02]}>
+      <group ref={comboRef} position={[2.55, 0.05, 0.2]} rotation={[-0.04, -0.38, 0.02]}>
         {/* Glassmorphic Slab Face */}
         {comboTexture && (
           <mesh>

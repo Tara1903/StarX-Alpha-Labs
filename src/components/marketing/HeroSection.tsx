@@ -27,18 +27,25 @@ export function HeroSection() {
   ];
 
   return (
-    <section className="relative min-h-screen pt-32 sm:pt-36 pb-16 overflow-hidden flex flex-col justify-center bg-[#030B24]">
-      {/* Background Soft Atmospheric Glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[550px] w-[800px] md:h-[650px] md:w-[1100px] rounded-full bg-gradient-to-tr from-[#087BFF]/20 via-[#00D9FF]/12 to-[#873BFF]/20 blur-[160px] pointer-events-none -z-10" />
+    <section className="relative min-h-[920px] lg:min-h-screen pt-36 sm:pt-40 lg:pt-44 pb-20 overflow-hidden flex flex-col justify-start bg-[#030B24]">
+      {/* 1. Continuous Cinematic Atmosphere Lighting (Spans Entire Hero Section) */}
+      <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden" aria-hidden="true">
+        {/* Top-Right Cyan Planetary Glow */}
+        <div className="absolute top-6 right-1/4 w-[800px] h-[600px] rounded-full bg-gradient-to-b from-[#00D9FF]/18 via-[#087BFF]/12 to-transparent blur-[140px]" />
+        {/* Left Electric Blue & Purple Glow behind headline */}
+        <div className="absolute top-1/4 -left-10 w-[700px] h-[550px] rounded-full bg-gradient-to-r from-[#087BFF]/22 via-[#873BFF]/15 to-transparent blur-[160px]" />
+        {/* Center Spatial Bridging Glow */}
+        <div className="absolute top-1/3 left-1/3 w-[650px] h-[500px] rounded-full bg-[#E52BFF]/10 blur-[150px]" />
+      </div>
 
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-14">
-        {/* Main Hero Grid: 5 cols Left (Text), 7 cols Right (3D Device Stage) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
+        {/* Main Hero Row: Left Text + Right 3D Hardware Rig in One Shared Environment */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 items-center min-h-[560px]">
           
           {/* Left Column: Headline, Copy, Dual Buttons, Highlights */}
-          <div className="lg:col-span-5 space-y-6 text-left">
-            {/* Crown Capability Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#00D9FF]/40 bg-[#071638]/90 backdrop-blur-md shadow-[0_0_20px_rgba(0,217,255,0.25)]">
+          <div className="lg:col-span-5 space-y-6 text-left relative z-20">
+            {/* Crown Capability Badge (Fully visible with 36px+ navbar clearance) */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#00D9FF]/45 bg-[#071638]/90 backdrop-blur-md shadow-[0_0_25px_rgba(0,217,255,0.25)]">
               <span className="text-amber-400 text-sm">👑</span>
               <span className="text-[11px] font-mono font-bold tracking-wider text-slate-200 uppercase">
                 IT | AI | Software | Web | Mobile | Cloud | Enterprise
@@ -63,7 +70,7 @@ export function HeroSection() {
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <Link
                 href="/demos"
-                className="px-8 py-3.5 rounded-full font-extrabold text-sm text-white bg-gradient-to-r from-[#FF941F] via-[#FF35B8] to-[#E52BFF] shadow-[0_0_30px_rgba(255,148,31,0.4)] hover:brightness-110 transition-all flex items-center gap-2"
+                className="px-8 py-3.5 rounded-full font-extrabold text-sm text-white bg-gradient-to-r from-[#FF941F] via-[#FF35B8] to-[#E52BFF] shadow-[0_0_30px_rgba(255,148,31,0.45)] hover:brightness-110 transition-all flex items-center gap-2"
               >
                 <span>Explore 160+ Demos</span>
                 <ArrowRight className="w-4 h-4" />
@@ -93,15 +100,15 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Right Column: 3D Holographic Globe + 3D Laptop & Smartphone Centerpiece */}
-          <div className="lg:col-span-7">
+          {/* Right Column: Seamless 3D Stage (Zero box border, sharing single background) */}
+          <div className="lg:col-span-7 relative">
             <HeroDeviceStage />
           </div>
 
         </div>
 
         {/* Horizontal Statistics Bar (Matching Graphic) */}
-        <div className="p-6 rounded-3xl bg-[#0A1940]/90 border border-white/10 shadow-[0_15px_50px_rgba(0,0,0,0.6)] backdrop-blur-xl">
+        <div className="p-6 rounded-3xl bg-[#0A1940]/90 border border-white/10 shadow-[0_15px_50px_rgba(0,0,0,0.6)] backdrop-blur-xl relative z-20">
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-6 text-center">
             {stats.map((s, idx) => (
               <div
