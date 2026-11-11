@@ -102,11 +102,11 @@ export function Navbar() {
           <button
             type="button"
             onClick={() => setLanguage(language === "en" ? "hi" : "en")}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-mono font-semibold text-slate-300 hover:text-white bg-[#071638] hover:bg-[#0A1940] border border-white/10 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-mono font-semibold text-slate-300 hover:text-white bg-[#071638] hover:bg-[#0A1940] border border-[#087BFF]/30 transition-all cursor-pointer"
             title="Toggle Language (English / Hindi)"
           >
             <Globe className="w-3.5 h-3.5 text-[#00D9FF]" />
-            <span>{language.toUpperCase()}</span>
+            <span>{language.toUpperCase()} ▾</span>
           </button>
 
           {/* Client Portal Link */}

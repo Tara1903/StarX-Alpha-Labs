@@ -1,25 +1,15 @@
-import { Immersive3DEnvironment } from "@/components/3d/Immersive3DEnvironment";
 import { Navbar } from "@/components/marketing/Navbar";
 import { HeroSection } from "@/components/marketing/HeroSection";
-import { CompanyIntro } from "@/components/marketing/CompanyIntro";
 import { DivisionsSection } from "@/components/marketing/DivisionsSection";
-import { CapabilitiesSection } from "@/components/marketing/CapabilitiesSection";
-import { ServicesSection } from "@/components/marketing/ServicesSection";
-import { DemoShowcaseSection } from "@/components/marketing/DemoShowcaseSection";
-import { EngineeringSection } from "@/components/marketing/EngineeringSection";
-import { SelectedWorkSection } from "@/components/marketing/SelectedWorkSection";
 import { IndustriesSection } from "@/components/marketing/IndustriesSection";
+import { DemoShowcaseSection } from "@/components/marketing/DemoShowcaseSection";
 import { WhyChooseUsSection } from "@/components/marketing/WhyChooseUsSection";
-import { EcosystemSection } from "@/components/marketing/EcosystemSection";
 import { FinalCTA } from "@/components/marketing/FinalCTA";
 import { Footer } from "@/components/marketing/Footer";
 
 export default function HomePage() {
   return (
     <div className="relative min-h-screen flex flex-col bg-[#030B24] text-[#FFFFFF] selection:bg-[#087BFF] selection:text-white overflow-x-hidden">
-      {/* Full-Screen Transparent 3D Neural Environment */}
-      <Immersive3DEnvironment />
-
       {/* Lightweight Digital Engineering Atmosphere Overlay */}
       <div
         aria-hidden="true"
@@ -39,40 +29,22 @@ export default function HomePage() {
       <Navbar />
 
       <main className="grow relative z-10">
-        {/* Section 1: Dynamic Engineering Hero & Dual Mockup Cockpit */}
+        {/* 1. Hero & 3D Interactive Device Stage & Horizontal Stats Bar */}
         <HeroSection />
 
-        {/* Section 2: Technology Statement & Overview */}
-        <CompanyIntro />
-
-        {/* Section 3: Operating Divisions (Website, Mobile App, Combo) */}
+        {/* 2. Our Core Solutions (Website, Mobile App, Combo) with 3D Tilt Cards */}
         <DivisionsSection />
 
-        {/* Section 4: 160+ Enterprise Demo Models Showcase */}
-        <DemoShowcaseSection />
-
-        {/* Section 5: Comprehensive Services Catalog */}
-        <ServicesSection />
-
-        {/* Section 6: Engineering Process & Methodology */}
-        <EngineeringSection />
-
-        {/* Section 7: Full Capability Matrix */}
-        <CapabilitiesSection />
-
-        {/* Section 8: Selected Work & Architecture Case Studies */}
-        <SelectedWorkSection />
-
-        {/* Section 9: 12 High-Growth Industry Sector Blueprints */}
+        {/* 3. Explore Our 12 Industry Solutions Grid */}
         <IndustriesSection />
 
-        {/* Section 10: Why Choose StarX Alpha Labs (6 Key Pillars) */}
+        {/* 4. 160+ Enterprise Demo Models Showcase */}
+        <DemoShowcaseSection />
+
+        {/* 5. Why Choose STARX ALPHA LABS? (6 Strategic Pillars) */}
         <WhyChooseUsSection />
 
-        {/* Section 11: STARX FLOW Ecosystem Bridge */}
-        <EcosystemSection />
-
-        {/* Section 12: Final Engagement CTA */}
+        {/* 6. Have a Project in Mind? (Final Project CTA) */}
         <FinalCTA />
       </main>
 
