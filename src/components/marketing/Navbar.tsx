@@ -37,6 +37,7 @@ export function Navbar() {
     { label: "Home", href: "/" },
     { label: "Solutions ▾", href: "/development-services" },
     { label: "Demo Center", href: "/demos", badge: "160+" },
+    { label: "STARX FLOW", href: "/#flow", badge: "AI OS" },
     { label: "Video Station", href: "/video-station", badge: "Live" },
     { label: "Pricing", href: "/pricing" },
     { label: "Industries ▾", href: "/industries" },
