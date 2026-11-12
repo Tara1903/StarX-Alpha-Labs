@@ -7,7 +7,7 @@ import { applyPublishedStates } from "@/lib/forge/demoMerge";
 import { CategoryClient } from "./CategoryClient";
 import { SITE_CONFIG } from "@/lib/constants";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 interface CategoryPageProps {
   params: Promise<{

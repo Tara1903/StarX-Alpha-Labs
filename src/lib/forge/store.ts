@@ -30,6 +30,8 @@ const DATA_FILE = path.join(DATA_DIR, "store.json");
 
 // Ephemeral in-memory cache (helps in read-only serverless runtime if DB not migrated yet)
 let memoryFallback: LocalForgeState | null = null;
+let schemaReadyCache = false;
+let catalogSeededCache = false;
 
 function createDefaultSettings(): ForgeSettings {
   return {
@@ -124,10 +126,15 @@ async function writeLocalState(state: LocalForgeState): Promise<void> {
 }
 
 async function isForgeSchemaReady(): Promise<boolean> {
+  if (schemaReadyCache) return true;
   try {
     const admin = createAdminClient();
     const { error } = await (admin as any).from("forge_demos").select("id").limit(1);
-    return !error;
+    if (!error) {
+      schemaReadyCache = true;
+      return true;
+    }
+    return false;
   } catch {
     return false;
   }
@@ -216,12 +223,17 @@ export async function getStorageMode(): Promise<"postgres" | "local-store"> {
 }
 
 export async function ensureForgeCatalogSeeded(): Promise<void> {
+  if (catalogSeededCache) return;
   if (await isForgeSchemaReady()) {
     const admin = createAdminClient() as any;
     const { count } = await admin
       .from("forge_demos")
       .select("id", { count: "exact", head: true })
       .not("catalog_id", "is", null);
+    if (count && count >= ALL_160_DEMOS.length) {
+      catalogSeededCache = true;
+      return;
+    }
     if (!count || count < ALL_160_DEMOS.length) {
       const seeds = buildSeedCatalogDemos().map((d) => ({
         catalog_id: d.catalogId,
@@ -250,10 +262,66 @@ export async function ensureForgeCatalogSeeded(): Promise<void> {
           .from("forge_demos")
           .upsert(seeds.slice(i, i + 40), { onConflict: "slug", ignoreDuplicates: true });
       }
+      catalogSeededCache = true;
     }
     return;
   }
   await readLocalState();
+}
+
+/**
+ * Lightweight single-query lookup returning only published catalog slugs for public showcase pages.
+ */
+export async function getPublishedCatalogSlugsFast(): Promise<string[]> {
+  try {
+    const admin = createAdminClient() as any;
+    const { data, error } = await admin
+      .from("forge_demos")
+      .select("slug")
+      .not("catalog_id", "is", null)
+      .eq("publishing_status", "published");
+    if (!error && Array.isArray(data)) {
+      schemaReadyCache = true;
+      return data.map((row: { slug: string }) => row.slug);
+    }
+  } catch {
+    // Fallback below if Postgres table not available yet
+  }
+  const state = await readLocalState();
+  return state.demos
+    .filter((d) => d.catalogId !== null && d.publishingStatus === "published")
+    .map((d) => d.slug);
+}
+
+/**
+ * Lightweight single-row lookup for a published live demo route without scanning all 160 rows or jobs.
+ */
+export async function getPublishedForgeDemoFast(
+  categorySlug: string,
+  slug: string
+): Promise<ForgeDemoRecord | null> {
+  try {
+    const admin = createAdminClient() as any;
+    const { data, error } = await admin
+      .from("forge_demos")
+      .select("*")
+      .eq("slug", slug)
+      .eq("category_slug", categorySlug)
+      .eq("publishing_status", "published")
+      .maybeSingle();
+    if (!error) {
+      schemaReadyCache = true;
+      return data ? mapDbDemo(data) : null;
+    }
+  } catch {
+    // Fallback below if Postgres table not available yet
+  }
+  const state = await readLocalState();
+  return (
+    state.demos.find(
+      (d) => d.slug === slug && d.categorySlug === categorySlug && d.publishingStatus === "published"
+    ) || null
+  );
 }
 
 export async function listForgeDemos(): Promise<ForgeDemoRecord[]> {

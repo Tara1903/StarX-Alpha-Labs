@@ -1,6 +1,7 @@
 import "server-only";
 
 import crypto from "node:crypto";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { buildDesignBriefAndStitchPayload, invokeStitchDesignGeneration } from "./stitchAdapter";
 import { runAutomatedDemoQa } from "./qaEngine";
 import {
@@ -33,6 +34,18 @@ function makeLog(level: ForgeLogEntry["level"], stage: string, message: string):
     stage,
     message,
   };
+}
+
+function revalidatePublicDemoCaches(categorySlug: string, slug: string): void {
+  try {
+    revalidateTag("forge-published", "max");
+    revalidatePath("/demos");
+    revalidatePath(`/demos/${categorySlug}`);
+    revalidatePath(`/demos/${categorySlug}/${slug}`);
+    revalidatePath(`/demos/${categorySlug}/${slug}/live`);
+  } catch {
+    // Ignore when invoked outside a Next.js request context
+  }
 }
 
 export async function createGenerationJob(params: {
@@ -502,6 +515,7 @@ export async function transitionDemoApproval(params: {
       targetId: demo.slug,
       details: { version: nextVer },
     });
+    revalidatePublicDemoCaches(published.categorySlug, published.slug);
     return published;
   }
 
@@ -560,6 +574,7 @@ export async function transitionDemoApproval(params: {
       targetId: demo.slug,
       details: {},
     });
+    revalidatePublicDemoCaches(archived.categorySlug, archived.slug);
     return archived;
   }
 
@@ -595,6 +610,7 @@ export async function transitionDemoApproval(params: {
     details: { restoredVersion: targetVer.versionNumber },
   });
 
+  revalidatePublicDemoCaches(rolledBack.categorySlug, rolledBack.slug);
   return rolledBack;
 }
 

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { DemoRuntimeDispatcher } from "@/modules/demo-center/runtime/DemoRuntimeDispatcher";
 import { resolvePublishedForgeProduct } from "@/lib/forge/runtimeResolver";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 interface LiveDemoPageProps {
   params: Promise<{

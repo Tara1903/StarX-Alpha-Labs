@@ -48,10 +48,13 @@ const ICON_MAP: Record<string, any> = {
   Smartphone
 };
 
+const INITIAL_BATCH_SIZE = 24;
+
 export function DemosClient({ publishedSlugs = [] }: { publishedSlugs?: string[] }) {
   const { t, language, setLanguage } = useLanguage();
   const [activeVideoDemo, setActiveVideoDemo] = useState<DemoModel | null>(null);
   const [activeCustomizationDemo, setActiveCustomizationDemo] = useState<DemoModel | null>(null);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_BATCH_SIZE);
 
   const allDemos = useMemo(
     () => applyPublishedStates(ALL_DEMOS, publishedSlugs),
@@ -153,6 +156,16 @@ export function DemosClient({ publishedSlugs = [] }: { publishedSlugs?: string[]
 
     return list;
   }, [allDemos, filters]);
+
+  const handleFiltersChange = (next: DemoFilterState) => {
+    setFilters(next);
+    setVisibleCount(INITIAL_BATCH_SIZE);
+  };
+
+  const visibleDemos = useMemo(
+    () => filteredDemos.slice(0, visibleCount),
+    [filteredDemos, visibleCount]
+  );
 
   const exportCatalogueCSV = () => {
     const headers = ["ID", "Name", "Category", "Dev Type", "Platform", "Starting Price", "Est. Time", "Status", "AI Enabled", "E-commerce"];
@@ -304,7 +317,7 @@ export function DemosClient({ publishedSlugs = [] }: { publishedSlugs?: string[]
                   <div className="pt-3 border-t border-[#143054] flex items-center justify-between text-xs">
                     <button
                       type="button"
-                      onClick={() => setFilters({ ...filters, selectedCategory: isSelected ? "all" : cat.slug })}
+                      onClick={() => handleFiltersChange({ ...filters, selectedCategory: isSelected ? "all" : cat.slug })}
                       className="text-[#32A9E8] hover:text-[#73D8FF] font-medium"
                     >
                       {isSelected ? "Clear Filter" : "Filter Here"}
@@ -327,7 +340,7 @@ export function DemosClient({ publishedSlugs = [] }: { publishedSlugs?: string[]
         <section id="catalogue" className="space-y-6 pt-6">
           <DemoFilterBar
             filters={filters}
-            onChange={setFilters}
+            onChange={handleFiltersChange}
             totalFiltered={filteredDemos.length}
             totalCount={allDemos.length}
           />
@@ -342,7 +355,7 @@ export function DemosClient({ publishedSlugs = [] }: { publishedSlugs?: string[]
               </p>
               <button
                 onClick={() =>
-                  setFilters({
+                  handleFiltersChange({
                     searchQuery: "",
                     selectedCategory: "all",
                     selectedDevType: "all",
@@ -361,15 +374,35 @@ export function DemosClient({ publishedSlugs = [] }: { publishedSlugs?: string[]
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredDemos.map((demo) => (
-                <DemoCard
-                  key={demo.id}
-                  demo={demo}
-                  onOpenVideo={setActiveVideoDemo}
-                  onOpenCustomization={setActiveCustomizationDemo}
-                />
-              ))}
+            <div className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {visibleDemos.map((demo) => (
+                  <DemoCard
+                    key={demo.id}
+                    demo={demo}
+                    onOpenVideo={setActiveVideoDemo}
+                    onOpenCustomization={setActiveCustomizationDemo}
+                  />
+                ))}
+              </div>
+              {filteredDemos.length > visibleCount && (
+                <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setVisibleCount((prev) => prev + 24)}
+                    className="px-6 py-2.5 rounded-xl bg-[#1769AA] hover:bg-[#1F7ECB] text-white text-xs font-semibold transition-colors"
+                  >
+                    Load 24 More ({visibleDemos.length} of {filteredDemos.length} shown)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setVisibleCount(filteredDemos.length)}
+                    className="px-5 py-2.5 rounded-xl bg-[#0B1E3D] hover:bg-[#122D58] border border-[#1E4B8A] text-slate-200 text-xs font-semibold transition-colors"
+                  >
+                    Show All {filteredDemos.length} Demos
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </section>

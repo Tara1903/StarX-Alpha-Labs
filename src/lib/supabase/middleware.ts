@@ -14,6 +14,11 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse;
   }
 
+  const hasSupabaseCookie = request.cookies.getAll().some((c) => c.name.startsWith('sb-'));
+  if (!hasSupabaseCookie) {
+    return supabaseResponse;
+  }
+
   const supabase = createServerClient<Database>(
     supabaseUrl,
     supabaseAnonKey,

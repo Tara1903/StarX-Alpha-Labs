@@ -3,7 +3,7 @@ import { DemosClient } from "./DemosClient";
 import { SITE_CONFIG } from "@/lib/constants";
 import { getPublishedCatalogSlugSet } from "@/lib/forge/runtimeResolver";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "160 Enterprise Demo Models — StarX Alpha Labs",

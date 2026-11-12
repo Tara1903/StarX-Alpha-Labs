@@ -1,6 +1,8 @@
 import "server-only";
 
-import { getForgeDemoById, listForgeDemos } from "./store";
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
+import { getPublishedCatalogSlugsFast, getPublishedForgeDemoFast } from "./store";
 import type { ForgeDemoRecord } from "./types";
 import type { DemoArchetype, DemoProductDefinition } from "@/modules/demo-center/types";
 import { DEMO_CATEGORIES } from "@/modules/demo-center/registry";
@@ -53,36 +55,43 @@ export function forgeDemoToProductDefinition(
   };
 }
 
+const getCachedPublishedForgeDemo = unstable_cache(
+  async (categorySlug: string, slug: string) => getPublishedForgeDemoFast(categorySlug, slug),
+  ["forge-published-demo-by-slug"],
+  { revalidate: 60, tags: ["forge-published"] }
+);
+
 /**
  * Resolves a Forge demo for public /live routes ONLY when it has been
  * explicitly published through the QA-gated approval workflow.
  */
-export async function resolvePublishedForgeProduct(
-  categorySlug: string,
-  slug: string
-): Promise<DemoProductDefinition | null> {
-  const demo = await getForgeDemoById(slug);
-  if (!demo) return null;
-  if (demo.publishingStatus !== "published") return null;
-  if (demo.categorySlug !== categorySlug) return null;
-  return forgeDemoToProductDefinition(demo);
-}
+export const resolvePublishedForgeProduct = cache(
+  async (categorySlug: string, slug: string): Promise<DemoProductDefinition | null> => {
+    const demo = await getCachedPublishedForgeDemo(categorySlug, slug);
+    if (!demo) return null;
+    if (demo.publishingStatus !== "published") return null;
+    if (demo.categorySlug !== categorySlug) return null;
+    return forgeDemoToProductDefinition(demo);
+  }
+);
+
+const getCachedPublishedCatalogSlugs = unstable_cache(
+  async () => getPublishedCatalogSlugsFast(),
+  ["forge-published-catalog-slugs"],
+  { revalidate: 60, tags: ["forge-published"] }
+);
 
 /**
  * Returns the set of canonical catalogue slugs (catalogId !== null) that have
  * completed StarX Forge generation, passed QA, and reached "published" state.
  * Internal custom pilots (catalogId === null) are excluded from the 160-demo catalogue.
  */
-export async function getPublishedCatalogSlugSet(): Promise<Set<string>> {
+export const getPublishedCatalogSlugSet = cache(async (): Promise<Set<string>> => {
   try {
-    const demos = await listForgeDemos();
-    return new Set(
-      demos
-        .filter((d) => d.catalogId !== null && d.publishingStatus === "published")
-        .map((d) => d.slug)
-    );
+    const slugs = await getCachedPublishedCatalogSlugs();
+    return new Set(slugs);
   } catch (err) {
     console.warn("[Forge] Failed to read published catalog states:", err);
     return new Set();
   }
-}
+});

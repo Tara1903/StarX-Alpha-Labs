@@ -2,23 +2,81 @@
 
 import React from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { DemoProductDefinition } from "../types";
-import { RestaurantManagementPilotApp } from "../pilots/RestaurantManagementPilotApp";
-import { RestaurantManagementOsApp } from "../demos/cat01/RestaurantManagementOsApp";
-import { RestaurantPosBillingApp } from "../demos/cat01/RestaurantPosBillingApp";
-import { CloudKitchenHubApp } from "../demos/cat01/CloudKitchenHubApp";
-import { CafeEspressoOsApp } from "../demos/cat01/CafeEspressoOsApp";
-import { LeLevainBakehouseApp } from "../demos/cat01/LeLevainBakehouseApp";
-import { FoodDeliveryDispatchApp } from "../demos/cat01/FoodDeliveryDispatchApp";
-import { VelvetHostReservationsApp } from "../demos/cat01/VelvetHostReservationsApp";
-import { AureliaGrandPmsApp } from "../demos/cat01/AureliaGrandPmsApp";
-import { BanquetFlowCateringApp } from "../demos/cat01/BanquetFlowCateringApp";
-import { StreetRollFoodTruckApp } from "../demos/cat01/StreetRollFoodTruckApp";
-import { CopperStillBarPubApp } from "../demos/cat01/CopperStillBarPubApp";
-import { SnapServeQsrApp } from "../demos/cat01/SnapServeQsrApp";
-import { HarvestCartGroceryApp } from "../demos/cat01/HarvestCartGroceryApp";
-import { PantryLedgerWmsApp } from "../demos/cat01/PantryLedgerWmsApp";
 import { ArrowLeft, CheckCircle2, Clock, Layers, ShieldCheck, Sparkles, Wrench } from "lucide-react";
+
+function ForgeRuntimeLoading() {
+  return (
+    <div className="min-h-screen bg-[#07111F] text-slate-200 flex items-center justify-center px-4">
+      <div className="flex flex-col items-center gap-3 text-center">
+        <div className="w-9 h-9 rounded-full border-2 border-[#32A9E8]/30 border-t-[#32A9E8] animate-spin" />
+        <p className="text-xs font-mono text-slate-400">Loading interactive demo runtime...</p>
+      </div>
+    </div>
+  );
+}
+
+const RestaurantManagementPilotApp = dynamic(
+  () => import("../pilots/RestaurantManagementPilotApp").then((m) => m.RestaurantManagementPilotApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const RestaurantManagementOsApp = dynamic(
+  () => import("../demos/cat01/RestaurantManagementOsApp").then((m) => m.RestaurantManagementOsApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const RestaurantPosBillingApp = dynamic(
+  () => import("../demos/cat01/RestaurantPosBillingApp").then((m) => m.RestaurantPosBillingApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const CloudKitchenHubApp = dynamic(
+  () => import("../demos/cat01/CloudKitchenHubApp").then((m) => m.CloudKitchenHubApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const CafeEspressoOsApp = dynamic(
+  () => import("../demos/cat01/CafeEspressoOsApp").then((m) => m.CafeEspressoOsApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const LeLevainBakehouseApp = dynamic(
+  () => import("../demos/cat01/LeLevainBakehouseApp").then((m) => m.LeLevainBakehouseApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const FoodDeliveryDispatchApp = dynamic(
+  () => import("../demos/cat01/FoodDeliveryDispatchApp").then((m) => m.FoodDeliveryDispatchApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const VelvetHostReservationsApp = dynamic(
+  () => import("../demos/cat01/VelvetHostReservationsApp").then((m) => m.VelvetHostReservationsApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const AureliaGrandPmsApp = dynamic(
+  () => import("../demos/cat01/AureliaGrandPmsApp").then((m) => m.AureliaGrandPmsApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const BanquetFlowCateringApp = dynamic(
+  () => import("../demos/cat01/BanquetFlowCateringApp").then((m) => m.BanquetFlowCateringApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const StreetRollFoodTruckApp = dynamic(
+  () => import("../demos/cat01/StreetRollFoodTruckApp").then((m) => m.StreetRollFoodTruckApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const CopperStillBarPubApp = dynamic(
+  () => import("../demos/cat01/CopperStillBarPubApp").then((m) => m.CopperStillBarPubApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const SnapServeQsrApp = dynamic(
+  () => import("../demos/cat01/SnapServeQsrApp").then((m) => m.SnapServeQsrApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const HarvestCartGroceryApp = dynamic(
+  () => import("../demos/cat01/HarvestCartGroceryApp").then((m) => m.HarvestCartGroceryApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const PantryLedgerWmsApp = dynamic(
+  () => import("../demos/cat01/PantryLedgerWmsApp").then((m) => m.PantryLedgerWmsApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
 
 interface DemoRuntimeDispatcherProps {
   product: DemoProductDefinition;
