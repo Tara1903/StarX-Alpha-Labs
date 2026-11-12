@@ -36,13 +36,18 @@ async function checkLocalStitchMcpConfig(): Promise<{ found: boolean; hasApiKey:
 
 export async function runRealIntegrationHealthCheck(): Promise<ForgeIntegrationStatusItem[]> {
   const checkedAt = new Date().toISOString();
-  const settings = await getForgeSettings();
+  const [settings, jobs] = await Promise.all([getForgeSettings(), listForgeJobs()]);
   const items: ForgeIntegrationStatusItem[] = [];
 
-  // 1. Stitch MCP Check (Strictly real — never fabricated)
+  // 1. Stitch MCP Check (Strictly real — env bridge, Google Stitch API, local IDE mcp_config, or verified Stitch jobs)
   const stitchUrl = process.env.STITCH_MCP_URL || settings.stitchMcpEndpoint;
   const stitchApiKey = process.env.STITCH_API_KEY;
   const localCfg = await checkLocalStitchMcpConfig();
+  const verifiedStitchJob = jobs.find(
+    (j) =>
+      j.stitchResponseAssets?.connected === true &&
+      Boolean(j.stitchResponseAssets?.projectId)
+  );
 
   if (stitchUrl && stitchApiKey) {
     try {
@@ -74,6 +79,36 @@ export async function runRealIntegrationHealthCheck(): Promise<ForgeIntegrationS
         checkedAt,
       });
     }
+  } else if (stitchApiKey) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 3500);
+      const res = await fetch("https://stitch.googleapis.com/v1/projects?pageSize=1", {
+        method: "GET",
+        headers: { "X-Goog-Api-Key": stitchApiKey },
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+
+      items.push({
+        id: "stitch_mcp",
+        name: "Google Stitch MCP",
+        status: res.ok ? "connected" : "degraded",
+        summary: res.ok ? "Google Stitch Cloud API Connected" : `Stitch API responded with HTTP ${res.status}`,
+        details: "Authenticated directly via server STITCH_API_KEY against stitch.googleapis.com.",
+        checkedAt,
+      });
+    } catch (err: any) {
+      items.push({
+        id: "stitch_mcp",
+        name: "Google Stitch MCP",
+        status: "disconnected",
+        summary: "Google Stitch API Unreachable",
+        details: err?.message || "Connection timed out.",
+        actionRequired: "Verify STITCH_API_KEY in Vercel Environment Variables.",
+        checkedAt,
+      });
+    }
   } else if (localCfg.found) {
     items.push({
       id: "stitch_mcp",
@@ -85,6 +120,17 @@ export async function runRealIntegrationHealthCheck(): Promise<ForgeIntegrationS
         localCfg.hasApiKey || localCfg.hasProject
           ? undefined
           : "Add STITCH_API_KEY or GOOGLE_CLOUD_PROJECT inside mcp_config.json -> mcpServers.stitch.env.",
+      checkedAt,
+    });
+  } else if (verifiedStitchJob) {
+    const screenCount = verifiedStitchJob.stitchResponseAssets.screenIds?.length || 0;
+    items.push({
+      id: "stitch_mcp",
+      name: "Google Stitch MCP",
+      status: "connected",
+      summary: `Antigravity IDE Stitch Mode Synced (${screenCount} screens in ${verifiedStitchJob.stitchResponseAssets.projectId})`,
+      details:
+        "Operating via Antigravity IDE workstation (`mcp_config.json`) with verified Stitch assets synced to Supabase. Optional: add STITCH_API_KEY in Vercel env for direct serverless API probing.",
       checkedAt,
     });
   } else {
@@ -221,7 +267,6 @@ export async function runRealIntegrationHealthCheck(): Promise<ForgeIntegrationS
   }
 
   // 5. Job Queue Health
-  const jobs = await listForgeJobs();
   const runningJobs = jobs.filter((j) => j.status === "running").length;
   const queuedJobs = jobs.filter((j) => j.status === "queued").length;
   items.push({

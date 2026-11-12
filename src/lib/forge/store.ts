@@ -217,8 +217,11 @@ export async function getStorageMode(): Promise<"postgres" | "local-store"> {
 export async function ensureForgeCatalogSeeded(): Promise<void> {
   if (await isForgeSchemaReady()) {
     const admin = createAdminClient() as any;
-    const { count } = await admin.from("forge_demos").select("id", { count: "exact", head: true });
-    if (!count || count === 0) {
+    const { count } = await admin
+      .from("forge_demos")
+      .select("id", { count: "exact", head: true })
+      .not("catalog_id", "is", null);
+    if (!count || count < ALL_160_DEMOS.length) {
       const seeds = buildSeedCatalogDemos().map((d) => ({
         catalog_id: d.catalogId,
         slug: d.slug,
@@ -240,9 +243,11 @@ export async function ensureForgeCatalogSeeded(): Promise<void> {
         created_by: "catalog-registry",
         updated_by: "catalog-registry",
       }));
-      // Insert in chunks of 40
+      // Insert missing catalog entries in chunks of 40 without overwriting existing demos
       for (let i = 0; i < seeds.length; i += 40) {
-        await admin.from("forge_demos").upsert(seeds.slice(i, i + 40), { onConflict: "slug" });
+        await admin
+          .from("forge_demos")
+          .upsert(seeds.slice(i, i + 40), { onConflict: "slug", ignoreDuplicates: true });
       }
     }
     return;
@@ -254,12 +259,30 @@ export async function listForgeDemos(): Promise<ForgeDemoRecord[]> {
   await ensureForgeCatalogSeeded();
   if (await isForgeSchemaReady()) {
     const admin = createAdminClient() as any;
-    const { data } = await admin
-      .from("forge_demos")
-      .select("*")
-      .order("catalog_id", { ascending: true, nullsFirst: false })
-      .order("created_at", { ascending: false });
-    return (data || []).map(mapDbDemo);
+    const [{ data }, { data: jobs }] = await Promise.all([
+      admin
+        .from("forge_demos")
+        .select("*")
+        .order("catalog_id", { ascending: true, nullsFirst: false })
+        .order("created_at", { ascending: false }),
+      admin
+        .from("forge_jobs")
+        .select("demo_id, qa_results, created_at")
+        .order("created_at", { ascending: false })
+        .limit(100),
+    ]);
+
+    const latestQaByDemoId = new Map<string, any>();
+    for (const j of jobs || []) {
+      if (j.demo_id && j.qa_results && Object.keys(j.qa_results).length > 0 && !latestQaByDemoId.has(j.demo_id)) {
+        latestQaByDemoId.set(j.demo_id, j.qa_results);
+      }
+    }
+
+    return (data || []).map((row: any) => ({
+      ...mapDbDemo(row),
+      lastQaReport: latestQaByDemoId.get(row.id) || null,
+    }));
   }
   const state = await readLocalState();
   return [...state.demos].sort((a, b) => (a.catalogId ?? 9999) - (b.catalogId ?? 9999));
