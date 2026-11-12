@@ -1,6 +1,8 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ALL_DEMOS, getDemoBySlug, getRelatedDemos } from "@/data/demos";
+import { toDemoModel } from "@/modules/demo-center/registry";
+import { resolvePublishedForgeProduct } from "@/lib/forge/runtimeResolver";
 import { DemoDetailClient } from "./DemoDetailClient";
 import { SITE_CONFIG } from "@/lib/constants";
 
@@ -20,7 +22,13 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: DemoDetailPageProps): Promise<Metadata> {
   const resolvedParams = await params;
-  const demo = getDemoBySlug(resolvedParams.demo);
+  let demo = getDemoBySlug(resolvedParams.demo);
+  if (!demo) {
+    const forgeProduct = await resolvePublishedForgeProduct(resolvedParams.category, resolvedParams.demo);
+    if (forgeProduct) {
+      demo = toDemoModel(forgeProduct);
+    }
+  }
 
   if (!demo) {
     return { title: "Demo Not Found — StarX Alpha Labs" };
@@ -40,7 +48,13 @@ export async function generateMetadata({ params }: DemoDetailPageProps): Promise
 
 export default async function DemoDetailPage({ params }: DemoDetailPageProps) {
   const resolvedParams = await params;
-  const demo = getDemoBySlug(resolvedParams.demo);
+  let demo = getDemoBySlug(resolvedParams.demo);
+  if (!demo) {
+    const forgeProduct = await resolvePublishedForgeProduct(resolvedParams.category, resolvedParams.demo);
+    if (forgeProduct) {
+      demo = toDemoModel(forgeProduct);
+    }
+  }
 
   if (!demo) {
     notFound();

@@ -6,6 +6,7 @@ import { DemoProductDefinition } from "../types";
 import { toDemoModel } from "../registry";
 import { useDemoState } from "../state/useDemoState";
 import { CustomizationModal } from "@/components/demos/CustomizationModal";
+import { RestaurantManagementPilotApp } from "../pilots/RestaurantManagementPilotApp";
 import {
   ArrowLeft,
   RotateCcw,
@@ -50,6 +51,14 @@ interface DemoRuntimeDispatcherProps {
 }
 
 export function DemoRuntimeDispatcher({ product }: DemoRuntimeDispatcherProps) {
+  if (product.slug === "restaurant-management-pilot") {
+    return <RestaurantManagementPilotApp product={product} />;
+  }
+
+  return <StandardArchetypeRuntimeDispatcher product={product} />;
+}
+
+function StandardArchetypeRuntimeDispatcher({ product }: DemoRuntimeDispatcherProps) {
   const { state, setState, resetState, hasReset } = useDemoState(
     product.slug,
     product.initialData

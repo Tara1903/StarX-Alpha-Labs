@@ -87,11 +87,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Business name must be at least 2 characters." }, { status: 400 });
     }
 
+    const requestedSlug = typeof body.slug === "string"
+      ? body.slug
+          .toLowerCase()
+          .replace(/[^a-z0-9-]+/g, "-")
+          .replace(/^-|-$/g, "")
+      : "";
     const baseSlug = businessName
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "");
-    const slug = `${baseSlug}-${Math.floor(100 + Math.random() * 900)}`;
+    const slug = requestedSlug || `${baseSlug}-${Math.floor(100 + Math.random() * 900)}`;
+
+    if (requestedSlug) {
+      const existing = await getForgeDemoById(requestedSlug);
+      if (existing) {
+        return NextResponse.json({ error: `A demo with slug "${requestedSlug}" already exists.` }, { status: 409 });
+      }
+    }
 
     const created = await upsertForgeDemo({
       id: crypto.randomUUID(),
