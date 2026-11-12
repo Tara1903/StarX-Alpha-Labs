@@ -1,12 +1,21 @@
 import type { DemoModel } from "@/types/demo";
 
 /**
- * Combines base catalog demos with published custom Forge demos,
- * preserving all existing catalog entries while deduplicating by slug.
+ * Hydrates public showcase DemoModels with actual publication status from StarX Forge.
+ * Only demos explicitly present in publishedSlugs become "Live Demo"; all others stay "Under Development".
  */
-export function mergeUniqueDemos(baseDemos: DemoModel[], extraDemos: DemoModel[]): DemoModel[] {
-  if (!extraDemos.length) return baseDemos;
-  const seen = new Set(baseDemos.map((d) => d.slug));
-  const uniqueExtra = extraDemos.filter((d) => !seen.has(d.slug));
-  return uniqueExtra.length ? [...baseDemos, ...uniqueExtra] : baseDemos;
+export function applyPublishedStates(demos: DemoModel[], publishedSlugs: Iterable<string>): DemoModel[] {
+  const publishedSet = publishedSlugs instanceof Set ? publishedSlugs : new Set(publishedSlugs);
+  if (publishedSet.size === 0) return demos;
+  return demos.map((d) => {
+    const isLive = publishedSet.has(d.slug);
+    if (!isLive) return d;
+    return {
+      ...d,
+      availabilityStatus: "Live Demo",
+      isFreeDemoAvailable: true,
+      offlineReady: true,
+      publishingStatus: "published",
+    };
+  });
 }

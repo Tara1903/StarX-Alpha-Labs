@@ -34,6 +34,7 @@ let memoryFallback: LocalForgeState | null = null;
 function createDefaultSettings(): ForgeSettings {
   return {
     id: "default",
+    generationEnabled: false,
     maxConcurrentJobs: 2,
     retryLimit: 2,
     jobTimeoutSeconds: 300,
@@ -539,6 +540,9 @@ export async function getForgeSettings(): Promise<ForgeSettings> {
     if (data) {
       return {
         id: data.id,
+        generationEnabled: Boolean(
+          data.generation_enabled ?? data.default_qa_requirements?.generationEnabled ?? false
+        ),
         maxConcurrentJobs: data.max_concurrent_jobs,
         retryLimit: data.retry_limit,
         jobTimeoutSeconds: data.job_timeout_seconds,
@@ -567,21 +571,29 @@ export async function saveForgeSettings(partial: Partial<ForgeSettings>, actorEm
 
   if (await isForgeSchemaReady()) {
     const admin = createAdminClient() as any;
-    await admin.from("forge_settings").upsert(
-      {
-        id: "default",
-        max_concurrent_jobs: updated.maxConcurrentJobs,
-        retry_limit: updated.retryLimit,
-        job_timeout_seconds: updated.jobTimeoutSeconds,
-        default_generation_instructions: updated.defaultGenerationInstructions,
-        default_qa_requirements: updated.defaultQaRequirements,
-        stitch_mcp_endpoint: updated.stitchMcpEndpoint,
-        antigravity_worker_mode: updated.antigravityWorkerMode,
-        updated_by: actorEmail,
-        updated_at: updated.updatedAt,
+    const baseRow = {
+      id: "default",
+      max_concurrent_jobs: updated.maxConcurrentJobs,
+      retry_limit: updated.retryLimit,
+      job_timeout_seconds: updated.jobTimeoutSeconds,
+      default_generation_instructions: updated.defaultGenerationInstructions,
+      default_qa_requirements: {
+        ...updated.defaultQaRequirements,
+        generationEnabled: updated.generationEnabled,
       },
-      { onConflict: "id" }
-    );
+      stitch_mcp_endpoint: updated.stitchMcpEndpoint,
+      antigravity_worker_mode: updated.antigravityWorkerMode,
+      updated_by: actorEmail,
+      updated_at: updated.updatedAt,
+    };
+
+    const { error } = await admin
+      .from("forge_settings")
+      .upsert({ ...baseRow, generation_enabled: updated.generationEnabled }, { onConflict: "id" });
+
+    if (error && /generation_enabled/i.test(error.message)) {
+      await admin.from("forge_settings").upsert(baseRow, { onConflict: "id" });
+    }
     return updated;
   }
 

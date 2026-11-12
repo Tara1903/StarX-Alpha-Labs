@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ALL_160_DEMOS, getDemoProductBySlug } from "@/modules/demo-center/registry";
 import { DemoRuntimeDispatcher } from "@/modules/demo-center/runtime/DemoRuntimeDispatcher";
 import { resolvePublishedForgeProduct } from "@/lib/forge/runtimeResolver";
 
@@ -13,21 +12,12 @@ interface LiveDemoPageProps {
   }>;
 }
 
-export async function generateStaticParams() {
-  return ALL_160_DEMOS.map((d) => ({
-    category: d.categorySlug,
-    demo: d.slug,
-  }));
-}
-
 export async function generateMetadata({ params }: LiveDemoPageProps): Promise<Metadata> {
   const resolvedParams = await params;
-  const product =
-    getDemoProductBySlug(resolvedParams.demo) ||
-    (await resolvePublishedForgeProduct(resolvedParams.category, resolvedParams.demo));
+  const product = await resolvePublishedForgeProduct(resolvedParams.category, resolvedParams.demo);
 
   if (!product) {
-    return { title: "Demo Not Found — StarX Alpha Labs" };
+    return { title: "Demo Under Development — StarX Alpha Labs" };
   }
 
   return {
@@ -42,9 +32,7 @@ export async function generateMetadata({ params }: LiveDemoPageProps): Promise<M
 
 export default async function LiveDemoPage({ params }: LiveDemoPageProps) {
   const resolvedParams = await params;
-  const product =
-    getDemoProductBySlug(resolvedParams.demo) ||
-    (await resolvePublishedForgeProduct(resolvedParams.category, resolvedParams.demo));
+  const product = await resolvePublishedForgeProduct(resolvedParams.category, resolvedParams.demo);
 
   if (!product) {
     notFound();

@@ -1,32 +1,32 @@
 import { Metadata } from "next";
 import { DemosClient } from "./DemosClient";
 import { SITE_CONFIG } from "@/lib/constants";
-import { listPublishedCustomForgeDemoModels } from "@/lib/forge/runtimeResolver";
+import { getPublishedCatalogSlugSet } from "@/lib/forge/runtimeResolver";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "160 Enterprise Demo Models — StarX Alpha Labs",
   description:
-    "Explore 160 interactive enterprise demo models across 12 main industries: Restaurant, E-Commerce, Education, Healthcare, Business CRM, Real Estate, Manufacturing, AI Automation, Mobile Apps, and more.",
+    "Explore the canonical catalogue of 160 enterprise software solutions across 12 industries: Food & Hospitality, Retail & Ecommerce, Healthcare, Real Estate, Education, Automotive, Beauty & Wellness, Logistics, Professional Services, Manufacturing, Travel & Events, and Technology & SaaS.",
   keywords: [
-    "enterprise software demos",
+    "enterprise software catalogue",
     "160 demo models",
-    "restaurant software demo",
-    "ecommerce marketplace demo",
-    "cloud erp demo",
-    "ai automation demos",
-    "mobile app demos",
-    "starx alpha labs"
+    "restaurant management system",
+    "ecommerce storefront",
+    "hospital management system",
+    "manufacturing erp",
+    "saas subscription management",
+    "starx alpha labs",
   ],
   openGraph: {
-    title: "160 Enterprise Demo Models Showcase — StarX Alpha Labs",
-    description: "Explore 160 live interactive software systems across 12 industries.",
+    title: "160 Enterprise Demo Models Catalogue — StarX Alpha Labs",
+    description: "Explore 160 industry-specific business software blueprints across 12 sectors.",
     url: `${SITE_CONFIG.url}/demos`,
-  }
+  },
 };
 
 export default async function DemosPage() {
-  const publishedCustomDemos = await listPublishedCustomForgeDemoModels();
-  return <DemosClient publishedCustomDemos={publishedCustomDemos} />;
+  const publishedSlugs = Array.from(await getPublishedCatalogSlugSet());
+  return <DemosClient publishedSlugs={publishedSlugs} />;
 }

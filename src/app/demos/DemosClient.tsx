@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ALL_DEMOS } from "@/data/demos";
 import { DEMO_CATEGORIES } from "@/data/categories";
 import { DemoModel } from "@/types/demo";
-import { mergeUniqueDemos } from "@/lib/forge/demoMerge";
+import { applyPublishedStates } from "@/lib/forge/demoMerge";
 import { DemoCard } from "@/components/demos/DemoCard";
 import { DemoFilterBar, DemoFilterState } from "@/components/demos/DemoFilterBar";
 import { CustomizationModal } from "@/components/demos/CustomizationModal";
@@ -48,14 +48,19 @@ const ICON_MAP: Record<string, any> = {
   Smartphone
 };
 
-export function DemosClient({ publishedCustomDemos = [] }: { publishedCustomDemos?: DemoModel[] }) {
+export function DemosClient({ publishedSlugs = [] }: { publishedSlugs?: string[] }) {
   const { t, language, setLanguage } = useLanguage();
   const [activeVideoDemo, setActiveVideoDemo] = useState<DemoModel | null>(null);
   const [activeCustomizationDemo, setActiveCustomizationDemo] = useState<DemoModel | null>(null);
 
   const allDemos = useMemo(
-    () => mergeUniqueDemos(ALL_DEMOS, publishedCustomDemos),
-    [publishedCustomDemos]
+    () => applyPublishedStates(ALL_DEMOS, publishedSlugs),
+    [publishedSlugs]
+  );
+
+  const liveCount = useMemo(
+    () => allDemos.filter((d) => d.availabilityStatus === "Live Demo").length,
+    [allDemos]
   );
 
   const [filters, setFilters] = useState<DemoFilterState>({
@@ -128,6 +133,8 @@ export function DemosClient({ publishedCustomDemos = [] }: { publishedCustomDemo
           d.categoryName.toLowerCase().includes(q) ||
           d.shortDescription.toLowerCase().includes(q) ||
           d.suitableFor.toLowerCase().includes(q) ||
+          (d.productType?.toLowerCase().includes(q) ?? false) ||
+          (d.searchKeywords?.some((k) => k.toLowerCase().includes(q)) ?? false) ||
           d.techStack.some((t) => t.toLowerCase().includes(q)) ||
           d.mainFeatures.some((f) => f.toLowerCase().includes(q))
       );
@@ -182,8 +189,8 @@ export function DemosClient({ publishedCustomDemos = [] }: { publishedCustomDemo
         <div className="flex items-center justify-between flex-wrap gap-4 border-b border-[#143054] pb-6">
           <div className="flex items-center gap-2">
             <span className="px-3 py-1 rounded-full bg-[#102D50] text-[#73D8FF] text-xs font-mono border border-[#1769AA]/50 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#32A9E8] animate-ping" />
-              {allDemos.length} Production Models Online
+              <span className="w-2 h-2 rounded-full bg-[#32A9E8]" />
+              {allDemos.length} Canonical Solution Blueprints ({liveCount} Live &bull; {allDemos.length - liveCount} Under Development)
             </span>
           </div>
 
@@ -266,7 +273,6 @@ export function DemosClient({ publishedCustomDemos = [] }: { publishedCustomDemo
             {DEMO_CATEGORIES.map((cat) => {
               const Icon = ICON_MAP[cat.iconName] || Layers;
               const isSelected = filters.selectedCategory === cat.slug;
-              const extraCount = publishedCustomDemos.filter((d) => d.categorySlug === cat.slug).length;
 
               return (
                 <div
@@ -283,7 +289,7 @@ export function DemosClient({ publishedCustomDemos = [] }: { publishedCustomDemo
                         <Icon className="w-5 h-5" />
                       </div>
                       <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#050D1A] text-slate-300 border border-[#143054]">
-                        {cat.count + extraCount} Models
+                        {cat.count} Models
                       </span>
                     </div>
 

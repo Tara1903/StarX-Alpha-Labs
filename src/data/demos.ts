@@ -1,8 +1,7 @@
-// STARX ALPHA LABS — CENTRAL DEMO CATALOGUE (AUTHORITATIVE 160 DEMOS)
-// Replaced generic placeholder strings with the 160 production-grade business demo engine models.
+// STARX ALPHA LABS — CENTRAL DEMO CATALOGUE (CANONICAL 160 DEMOS)
+// Phase 3A authoritative business software catalogue across 12 industry sectors.
 
 import {
-  ALL_160_DEMOS,
   ALL_DEMOS_COMPAT,
   getDemoProductBySlug,
   getDemoProductById,
@@ -12,19 +11,16 @@ import { DemoModel } from "@/types/demo";
 
 export const ALL_DEMOS: DemoModel[] = ALL_DEMOS_COMPAT;
 
+/**
+ * Exact canonical slug lookup. Removed legacy placeholder slugs intentionally
+ * resolve to undefined (HTTP 404) instead of fuzzy-matching unrelated demos.
+ */
 export function getDemoBySlug(slug: string): DemoModel | undefined {
-  const prod = getDemoProductBySlug(slug);
-  if (prod) return toDemoModel(prod);
+  const exact = getDemoProductBySlug(slug);
+  if (exact) return toDemoModel(exact);
 
-  // Normalization & fallback matching for hyphen variants
-  const normalized = slug.toLowerCase().replace(/[^a-z0-9]/g, "");
-  return ALL_DEMOS_COMPAT.find(
-    (d) =>
-      d.slug === slug ||
-      d.slug.toLowerCase().replace(/[^a-z0-9]/g, "") === normalized ||
-      d.slug.includes(slug) ||
-      slug.includes(d.slug)
-  );
+  const lower = slug.trim().toLowerCase();
+  return ALL_DEMOS_COMPAT.find((d) => d.slug === lower);
 }
 
 export function getDemoById(id: number): DemoModel | undefined {
@@ -56,4 +52,3 @@ export function getRelatedDemos(currentDemo: DemoModel, limit: number = 4): Demo
   );
   return [...sameCategory, ...others].slice(0, limit);
 }
-

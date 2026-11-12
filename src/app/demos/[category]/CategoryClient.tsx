@@ -62,6 +62,8 @@ export function CategoryClient({ category, demos }: CategoryClientProps) {
     return (
       d.name.toLowerCase().includes(q) ||
       d.shortDescription.toLowerCase().includes(q) ||
+      (d.productType?.toLowerCase().includes(q) ?? false) ||
+      (d.searchKeywords?.some((k) => k.toLowerCase().includes(q)) ?? false) ||
       d.techStack.some((t) => t.toLowerCase().includes(q)) ||
       d.mainFeatures.some((f) => f.toLowerCase().includes(q))
     );

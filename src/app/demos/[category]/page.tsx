@@ -2,8 +2,8 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { DEMO_CATEGORIES } from "@/data/categories";
 import { getDemosByCategory } from "@/data/demos";
-import { listPublishedCustomForgeDemoModels } from "@/lib/forge/runtimeResolver";
-import { mergeUniqueDemos } from "@/lib/forge/demoMerge";
+import { getPublishedCatalogSlugSet } from "@/lib/forge/runtimeResolver";
+import { applyPublishedStates } from "@/lib/forge/demoMerge";
 import { CategoryClient } from "./CategoryClient";
 import { SITE_CONFIG } from "@/lib/constants";
 
@@ -48,8 +48,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   }
 
   const baseDemos = getDemosByCategory(category.slug);
-  const customDemos = await listPublishedCustomForgeDemoModels(category.slug);
-  const demos = mergeUniqueDemos(baseDemos, customDemos);
+  const publishedSlugs = await getPublishedCatalogSlugSet();
+  const demos = applyPublishedStates(baseDemos, publishedSlugs);
 
   return <CategoryClient category={category} demos={demos} />;
 }

@@ -201,6 +201,7 @@ export interface ForgeBatch {
 
 export interface ForgeSettings {
   id: string;
+  generationEnabled: boolean;
   maxConcurrentJobs: number;
   retryLimit: number;
   jobTimeoutSeconds: number;

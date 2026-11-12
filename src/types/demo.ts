@@ -1,4 +1,4 @@
-export type DemoAvailabilityStatus = "Live Demo" | "Offline Ready" | "Under Development" | "Planned";
+export type DemoAvailabilityStatus = "Live Demo" | "Coming Soon" | "Under Development" | "Planned" | "Offline Ready";
 export type DemoPlatform = "Website" | "Web App" | "Mobile App";
 export type DemoDevType = "Web App" | "Mobile App" | "Website" | "Cloud ERP" | "AI Microservice" | "SaaS Platform";
 
@@ -49,6 +49,14 @@ export interface DemoModel {
   screenshots: string[];
   videoThumbnail: string;
   videoDuration: string;
+  productType?: string;
+  searchKeywords?: string[];
+  thumbnail?: string;
+  generationStatus?: string;
+  qaStatus?: string;
+  publishingStatus?: string;
+  previewRoute?: string;
+  publicRoute?: string;
   seo: {
     title: string;
     description: string;

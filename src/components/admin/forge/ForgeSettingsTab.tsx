@@ -30,6 +30,7 @@ export function ForgeSettingsTab({
   onSaveSettings,
   onRefreshHealth,
 }: ForgeSettingsTabProps) {
+  const [generationEnabled, setGenerationEnabled] = useState(settings.generationEnabled ?? false);
   const [maxConcurrentJobs, setMaxConcurrentJobs] = useState(settings.maxConcurrentJobs);
   const [retryLimit, setRetryLimit] = useState(settings.retryLimit);
   const [jobTimeoutSeconds, setJobTimeoutSeconds] = useState(settings.jobTimeoutSeconds);
@@ -50,6 +51,7 @@ export function ForgeSettingsTab({
     setSaving(true);
     try {
       await onSaveSettings({
+        generationEnabled,
         maxConcurrentJobs,
         retryLimit,
         jobTimeoutSeconds,
@@ -254,6 +256,18 @@ export function ForgeSettingsTab({
             className="w-full px-3.5 py-2.5 rounded-xl bg-[#05112A] border border-white/15 text-xs text-white"
           />
         </div>
+
+        <label className="flex items-center gap-2.5 text-xs text-slate-200 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={generationEnabled}
+            onChange={(e) => setGenerationEnabled(e.target.checked)}
+            className="accent-[#00D9FF]"
+          />
+          <span>
+            Enable StarX Forge Batch &amp; Single Generation (keep unchecked in Phase 3A staging until Phase 3B approval)
+          </span>
+        </label>
 
         <label className="flex items-center gap-2.5 text-xs text-slate-200 cursor-pointer">
           <input

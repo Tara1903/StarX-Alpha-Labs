@@ -33,21 +33,21 @@ export function DemoShowcaseSection() {
           {/* Right: Copy & CTA */}
           <div className="w-full lg:w-7/12 space-y-4 text-left">
             <h3 className="text-3xl sm:text-4xl font-extrabold text-white">
-              160+ Enterprise Demo Models
+              160 Enterprise Solution Blueprints
             </h3>
             <p className="text-sm text-[#C8D5EF]">
-              Explore, Test &amp; Choose the Right Solution for Your Business with real interactive databases.
+              Explore 160 specialized business architectures across 12 industries—inspect full specifications, workflows, and request custom builds.
             </p>
 
             <div className="grid grid-cols-2 gap-2 text-xs text-slate-300 font-medium pt-1">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#00C98B]" /> <span>Live Demo Access</span>
+                <CheckCircle2 className="w-4 h-4 text-[#00C98B]" /> <span>12 Industry Sectors</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#00C98B]" /> <span>Feature Details</span>
+                <CheckCircle2 className="w-4 h-4 text-[#00C98B]" /> <span>Feature Blueprints</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#00C98B]" /> <span>Use Case Videos</span>
+                <CheckCircle2 className="w-4 h-4 text-[#00C98B]" /> <span>StarX Forge Pipeline</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[#00C98B]" /> <span>Custom Quotation</span>

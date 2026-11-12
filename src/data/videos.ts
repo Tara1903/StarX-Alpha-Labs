@@ -135,7 +135,7 @@ export const VIDEO_ITEMS: VideoItem[] = [
     published: true,
     viewCount: 1420,
     relatedDemoId: "demo-local-business",
-    relatedDemoSlug: "ecommerce-retail/retail-store",
+    relatedDemoSlug: "retail-ecommerce/retail-store-management",
     relatedDemoName: "Local Business Hub & Storefront",
     features: [
       "Direct WhatsApp Lead Dispatch",
@@ -187,7 +187,7 @@ export const VIDEO_ITEMS: VideoItem[] = [
     published: true,
     viewCount: 1840,
     relatedDemoId: "demo-medical-clinic",
-    relatedDemoSlug: "healthcare-wellness/clinic-patient-portal",
+    relatedDemoSlug: "healthcare/patient-management-portal",
     relatedDemoName: "Medical Clinic Patient Portal",
     features: [
       "Online Slot Booking with Advance Token",
@@ -216,7 +216,7 @@ export const VIDEO_ITEMS: VideoItem[] = [
     published: true,
     viewCount: 2630,
     relatedDemoId: "demo-online-ordering",
-    relatedDemoSlug: "restaurant-food/online-food-ordering",
+    relatedDemoSlug: "food-hospitality/food-delivery-management",
     relatedDemoName: "Online Food Ordering & KDS",
     features: [
       "Dynamic Menu with Modifiers & Add-ons",
@@ -245,7 +245,7 @@ export const VIDEO_ITEMS: VideoItem[] = [
     published: true,
     viewCount: 1910,
     relatedDemoId: "demo-real-estate",
-    relatedDemoSlug: "real-estate-construction/property-developer-portal",
+    relatedDemoSlug: "real-estate/real-estate-property-management",
     relatedDemoName: "Property Developer Showcase",
     features: [
       "Interactive 2D/3D Floor Plan Unit Selector",
@@ -324,7 +324,7 @@ export const VIDEO_ITEMS: VideoItem[] = [
     published: true,
     viewCount: 3100,
     relatedDemoId: "demo-headless-store",
-    relatedDemoSlug: "ecommerce-retail/fashion-boutique",
+    relatedDemoSlug: "retail-ecommerce/online-fashion-boutique",
     relatedDemoName: "Headless Fashion Storefront",
     features: [
       "Instantaneous Faceted Product Filtering",
@@ -453,7 +453,7 @@ export const VIDEO_ITEMS: VideoItem[] = [
     published: true,
     viewCount: 3890,
     relatedDemoId: "demo-saas-cockpit",
-    relatedDemoSlug: "cloud-devops/cloud-resource-monitor",
+    relatedDemoSlug: "technology-saas/api-management-dashboard",
     relatedDemoName: "Cloud Infrastructure Console",
     features: [
       "Multi-Tenant Isolation with Zero-Trust RLS",

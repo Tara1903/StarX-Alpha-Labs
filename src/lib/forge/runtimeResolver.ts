@@ -3,8 +3,7 @@ import "server-only";
 import { getForgeDemoById, listForgeDemos } from "./store";
 import type { ForgeDemoRecord } from "./types";
 import type { DemoArchetype, DemoProductDefinition } from "@/modules/demo-center/types";
-import { DEMO_CATEGORIES, toDemoModel } from "@/modules/demo-center/registry";
-import type { DemoModel } from "@/types/demo";
+import { DEMO_CATEGORIES } from "@/modules/demo-center/registry";
 
 /**
  * Converts a Forge demo record into a DemoProductDefinition compatible
@@ -23,10 +22,16 @@ export function forgeDemoToProductDefinition(
     categoryName: category?.name || demo.industry,
     categorySlug: demo.categorySlug,
     archetype: (demo.archetype || "analytics-canvas") as DemoArchetype,
+    productType: demo.catalogId ? "Enterprise Web App" : "Pilot Reference Application",
     tagline: demo.designDirection || demo.industry,
     shortDescription: demo.description,
     fullDescription: demo.description,
     suitableFor: demo.targetAudience,
+    generationStatus: demo.generationStatus,
+    qaStatus: demo.qaStatus,
+    publishingStatus: demo.publishingStatus,
+    previewRoute: `/admin/forge/preview/${demo.slug}`,
+    publicRoute: `/demos/${demo.categorySlug}/${demo.slug}`,
     brand: {
       primary: demo.brandConfig?.primary || "#087BFF",
       secondary: demo.brandConfig?.secondary || "#0A1940",
@@ -41,16 +46,16 @@ export function forgeDemoToProductDefinition(
     workflows: demo.workflows,
     features: demo.featureRequirements,
     techStack: ["Next.js 16", "React 19", "Supabase Sandbox", "Tailwind CSS v4"],
-    indicativePrice: "₹24,999",
-    indicativePriceUsd: "$299",
-    estimatedTime: "7–14 Days",
+    indicativePrice: "₹95,000",
+    indicativePriceUsd: "$1,150",
+    estimatedTime: "3-4 weeks",
     initialData: demo.seedData,
   };
 }
 
 /**
- * Resolves a custom Forge demo for public routes ONLY when it has been
- * explicitly published through the approval & QA workflow.
+ * Resolves a Forge demo for public /live routes ONLY when it has been
+ * explicitly published through the QA-gated approval workflow.
  */
 export async function resolvePublishedForgeProduct(
   categorySlug: string,
@@ -64,22 +69,20 @@ export async function resolvePublishedForgeProduct(
 }
 
 /**
- * Lists published custom Forge demos (non-catalog entries) as DemoModels
- * so public showcase hubs display newly published Forge pilots cleanly.
+ * Returns the set of canonical catalogue slugs (catalogId !== null) that have
+ * completed StarX Forge generation, passed QA, and reached "published" state.
+ * Internal custom pilots (catalogId === null) are excluded from the 160-demo catalogue.
  */
-export async function listPublishedCustomForgeDemoModels(categorySlug?: string): Promise<DemoModel[]> {
+export async function getPublishedCatalogSlugSet(): Promise<Set<string>> {
   try {
     const demos = await listForgeDemos();
-    return demos
-      .filter(
-        (d) =>
-          d.catalogId === null &&
-          d.publishingStatus === "published" &&
-          (!categorySlug || d.categorySlug === categorySlug)
-      )
-      .map((d, index) => toDemoModel(forgeDemoToProductDefinition(d, 9000 + index)));
+    return new Set(
+      demos
+        .filter((d) => d.catalogId !== null && d.publishingStatus === "published")
+        .map((d) => d.slug)
+    );
   } catch (err) {
-    console.warn("[Forge] Failed to load published custom demos for showcase:", err);
-    return [];
+    console.warn("[Forge] Failed to read published catalog states:", err);
+    return new Set();
   }
 }

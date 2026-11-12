@@ -57,15 +57,17 @@ export function VideoModal({ demo, isOpen, onClose }: VideoModalProps) {
               </p>
             </div>
 
-            <div className="flex items-center justify-center gap-3 pt-2">
-              <a
-                href={`/demos/${demo.categorySlug}/${demo.slug}/live`}
-                className="px-5 py-2 rounded-xl bg-[#1769AA] text-white text-xs font-semibold hover:bg-[#1E7ECA] flex items-center gap-1.5 shadow-md shadow-[#1769AA]/40"
-              >
-                <span>Launch Interactive Sandbox Instead</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-            </div>
+            {demo.availabilityStatus === "Live Demo" && (
+              <div className="flex items-center justify-center gap-3 pt-2">
+                <a
+                  href={`/demos/${demo.categorySlug}/${demo.slug}/live`}
+                  className="px-5 py-2 rounded-xl bg-[#1769AA] text-white text-xs font-semibold hover:bg-[#1E7ECA] flex items-center gap-1.5 shadow-md shadow-[#1769AA]/40"
+                >
+                  <span>Launch Interactive Sandbox Instead</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            )}
           </div>
 
           <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-[11px] text-slate-400 font-mono border-t border-[#132B4C] pt-2">

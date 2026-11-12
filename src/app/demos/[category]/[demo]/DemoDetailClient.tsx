@@ -121,8 +121,18 @@ export function DemoDetailClient({ demo, relatedDemos }: DemoDetailClientProps) 
                 <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-[#102D50] text-[#73D8FF] border border-[#1769AA]/50">
                   Model #{demo.id}
                 </span>
-                <span className="text-xs font-medium px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span
+                  className={`text-xs font-medium px-3 py-1 rounded-full border flex items-center gap-1.5 ${
+                    demo.availabilityStatus === "Live Demo"
+                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                      : "bg-amber-500/10 text-amber-300 border-amber-500/30"
+                  }`}
+                >
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      demo.availabilityStatus === "Live Demo" ? "bg-emerald-400 animate-pulse" : "bg-amber-400"
+                    }`}
+                  />
                   {demo.availabilityStatus}
                 </span>
                 <span className="text-xs font-medium px-3 py-1 rounded-full bg-[#0F243E] text-slate-300 border border-[#1A3D68]">
@@ -149,14 +159,24 @@ export function DemoDetailClient({ demo, relatedDemos }: DemoDetailClientProps) 
 
               {/* Action Buttons Group */}
               <div className="pt-2 flex flex-wrap gap-3">
-                {/* 1. View Live Demo */}
-                <Link
-                  href={`/demos/${demo.categorySlug}/${demo.slug}/live`}
-                  className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#1769AA] to-[#1F7ECB] hover:from-[#1E7ECA] hover:to-[#32A9E8] text-white font-bold text-sm shadow-xl shadow-[#1769AA]/40 flex items-center gap-2 border border-[#32A9E8]/50 transition-all"
-                >
-                  <ExternalLink className="w-4 h-4 text-[#73D8FF]" />
-                  <span>Launch Live Demo Environment</span>
-                </Link>
+                {/* 1. View Live Demo or Under Development notice */}
+                {demo.availabilityStatus === "Live Demo" ? (
+                  <Link
+                    href={`/demos/${demo.categorySlug}/${demo.slug}/live`}
+                    className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#1769AA] to-[#1F7ECB] hover:from-[#1E7ECA] hover:to-[#32A9E8] text-white font-bold text-sm shadow-xl shadow-[#1769AA]/40 flex items-center gap-2 border border-[#32A9E8]/50 transition-all"
+                  >
+                    <ExternalLink className="w-4 h-4 text-[#73D8FF]" />
+                    <span>Launch Live Demo Environment</span>
+                  </Link>
+                ) : (
+                  <span
+                    aria-disabled="true"
+                    className="px-6 py-3.5 rounded-xl bg-[#0B192E] text-amber-300 font-semibold text-sm border border-amber-500/30 flex items-center gap-2 cursor-not-allowed select-none"
+                  >
+                    <Clock className="w-4 h-4 text-amber-400" />
+                    <span>Interactive Sandbox Under Development</span>
+                  </span>
+                )}
 
                 {/* 2. Watch Demo Video */}
                 <button
@@ -218,7 +238,9 @@ export function DemoDetailClient({ demo, relatedDemos }: DemoDetailClientProps) 
                 </div>
                 <div className="flex items-center justify-between py-1.5 border-b border-[#143054]">
                   <span className="text-slate-400">Offline Ready:</span>
-                  <span className="font-semibold text-cyan-400">Yes &bull; Local SQLite Sync</span>
+                  <span className="font-semibold text-cyan-400">
+                    {demo.offlineReady ? "Yes • Local SQLite Sync" : "Cloud-First Architecture"}
+                  </span>
                 </div>
               </div>
 
@@ -307,13 +329,20 @@ export function DemoDetailClient({ demo, relatedDemos }: DemoDetailClientProps) 
                 Test how the application adapts for different user types. In the Live Sandbox, you can switch personas with one click.
               </p>
             </div>
-            <Link
-              href={`/demos/${demo.categorySlug}/${demo.slug}/live`}
-              className="px-4 py-2 rounded-xl bg-[#1769AA] text-white text-xs font-semibold hover:bg-[#1E7ECA] flex items-center gap-1.5"
-            >
-              <span>Test Roles in Live Sandbox</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </Link>
+            {demo.availabilityStatus === "Live Demo" ? (
+              <Link
+                href={`/demos/${demo.categorySlug}/${demo.slug}/live`}
+                className="px-4 py-2 rounded-xl bg-[#1769AA] text-white text-xs font-semibold hover:bg-[#1E7ECA] flex items-center gap-1.5"
+              >
+                <span>Test Roles in Live Sandbox</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </Link>
+            ) : (
+              <span className="px-4 py-2 rounded-xl bg-[#0B192E] text-amber-300 text-xs font-semibold border border-amber-500/30 flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-amber-400" />
+                <span>Sandbox Coming Soon</span>
+              </span>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

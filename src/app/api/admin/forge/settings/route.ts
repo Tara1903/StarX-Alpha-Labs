@@ -26,6 +26,7 @@ export async function PUT(request: NextRequest) {
 
     const updated = await saveForgeSettings(
       {
+        generationEnabled: typeof body.generationEnabled === "boolean" ? body.generationEnabled : undefined,
         maxConcurrentJobs,
         retryLimit,
         jobTimeoutSeconds,
@@ -45,7 +46,7 @@ export async function PUT(request: NextRequest) {
       action: "FORGE_SETTINGS_UPDATED",
       targetType: "forge_settings",
       targetId: "default",
-      details: { maxConcurrentJobs, retryLimit, jobTimeoutSeconds },
+      details: { generationEnabled: updated.generationEnabled, maxConcurrentJobs, retryLimit, jobTimeoutSeconds },
     });
 
     return NextResponse.json({ success: true, settings: updated });

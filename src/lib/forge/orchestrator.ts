@@ -47,6 +47,11 @@ export async function createGenerationJob(params: {
   }
 
   const settings = await getForgeSettings();
+  if (!settings.generationEnabled) {
+    throw new Error(
+      "StarX Forge batch/single generation is locked (Phase 3A catalogue staging mode). Enable Generation Lock release in Forge Settings after Phase 3B approval."
+    );
+  }
   const activeJobs = (await listForgeJobs()).filter((j) => j.status === "running");
 
   const now = new Date().toISOString();
@@ -663,6 +668,13 @@ export async function controlForgeBatch(params: {
     batch.completedAt = new Date().toISOString();
     const saved = await saveForgeBatch(batch);
     return { batch: saved, spawnedJobs };
+  }
+
+  const settings = await getForgeSettings();
+  if (!settings.generationEnabled) {
+    throw new Error(
+      "StarX Forge generation is locked (Phase 3A preparation mode). Staged batches remain in draft until Phase 3B is approved."
+    );
   }
 
   // Start or Resume: respect maxConcurrency

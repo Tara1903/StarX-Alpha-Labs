@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ALL_DEMOS, getDemoBySlug, getRelatedDemos } from "@/data/demos";
-import { toDemoModel } from "@/modules/demo-center/registry";
-import { resolvePublishedForgeProduct } from "@/lib/forge/runtimeResolver";
+import { getPublishedCatalogSlugSet } from "@/lib/forge/runtimeResolver";
+import { applyPublishedStates } from "@/lib/forge/demoMerge";
 import { DemoDetailClient } from "./DemoDetailClient";
 import { SITE_CONFIG } from "@/lib/constants";
 
@@ -24,17 +24,12 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: DemoDetailPageProps): Promise<Metadata> {
   const resolvedParams = await params;
-  let demo = getDemoBySlug(resolvedParams.demo);
-  if (!demo) {
-    const forgeProduct = await resolvePublishedForgeProduct(resolvedParams.category, resolvedParams.demo);
-    if (forgeProduct) {
-      demo = toDemoModel(forgeProduct);
-    }
-  }
-
-  if (!demo) {
+  const rawDemo = getDemoBySlug(resolvedParams.demo);
+  if (!rawDemo || rawDemo.categorySlug !== resolvedParams.category) {
     return { title: "Demo Not Found — StarX Alpha Labs" };
   }
+  const publishedSlugs = await getPublishedCatalogSlugSet();
+  const [demo] = applyPublishedStates([rawDemo], publishedSlugs);
 
   return {
     title: `${demo.name} (#${demo.id}) — StarX Alpha Labs Demo Showcase`,
@@ -50,19 +45,14 @@ export async function generateMetadata({ params }: DemoDetailPageProps): Promise
 
 export default async function DemoDetailPage({ params }: DemoDetailPageProps) {
   const resolvedParams = await params;
-  let demo = getDemoBySlug(resolvedParams.demo);
-  if (!demo) {
-    const forgeProduct = await resolvePublishedForgeProduct(resolvedParams.category, resolvedParams.demo);
-    if (forgeProduct) {
-      demo = toDemoModel(forgeProduct);
-    }
-  }
-
-  if (!demo) {
+  const rawDemo = getDemoBySlug(resolvedParams.demo);
+  if (!rawDemo || rawDemo.categorySlug !== resolvedParams.category) {
     notFound();
   }
 
-  const related = getRelatedDemos(demo, 4);
+  const publishedSlugs = await getPublishedCatalogSlugSet();
+  const [demo] = applyPublishedStates([rawDemo], publishedSlugs);
+  const related = applyPublishedStates(getRelatedDemos(demo, 4), publishedSlugs);
 
   return <DemoDetailClient demo={demo} relatedDemos={related} />;
 }

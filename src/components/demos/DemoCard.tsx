@@ -33,6 +33,8 @@ export function DemoCard({ demo, onOpenVideo, onOpenCustomization }: DemoCardPro
   const { t } = useLanguage();
   const [showFullFeatures, setShowFullFeatures] = useState(false);
 
+  const isLive = demo.availabilityStatus === "Live Demo";
+
   const getStatusBadge = (status: DemoModel["availabilityStatus"]) => {
     switch (status) {
       case "Live Demo":
@@ -40,6 +42,7 @@ export function DemoCard({ demo, onOpenVideo, onOpenCustomization }: DemoCardPro
       case "Offline Ready":
         return "bg-cyan-500/10 text-cyan-400 border-cyan-500/30";
       case "Under Development":
+      case "Coming Soon":
         return "bg-amber-500/10 text-amber-400 border-amber-500/30";
       case "Planned":
         return "bg-purple-500/10 text-purple-400 border-purple-500/30";
@@ -156,24 +159,34 @@ export function DemoCard({ demo, onOpenVideo, onOpenCustomization }: DemoCardPro
       <div className="p-4 pt-2 bg-[#060F1D]/80 border-t border-[#132B4C] flex flex-col gap-2">
         {/* Row 1: Primary Demo Actions */}
         <div className="grid grid-cols-2 gap-2">
-          {/* Button 1: View Live Demo */}
-          <Link
-            href={`/demos/${demo.categorySlug}/${demo.slug}/live`}
-            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-[#1769AA] hover:bg-[#1E7ECA] text-white shadow-md shadow-[#1769AA]/30 transition-all border border-[#32A9E8]/40"
-          >
-            <ExternalLink className="w-3.5 h-3.5 text-[#73D8FF]" />
-            <span>{t("btn.viewLiveDemo")}</span>
-          </Link>
+          {/* Button 1: View Live Demo (only active when published & live) */}
+          {isLive ? (
+            <Link
+              href={`/demos/${demo.categorySlug}/${demo.slug}/live`}
+              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-[#1769AA] hover:bg-[#1E7ECA] text-white shadow-md shadow-[#1769AA]/30 transition-all border border-[#32A9E8]/40"
+            >
+              <ExternalLink className="w-3.5 h-3.5 text-[#73D8FF]" />
+              <span>{t("btn.viewLiveDemo")}</span>
+            </Link>
+          ) : (
+            <span
+              aria-disabled="true"
+              title="This StarX Forge solution blueprint is currently under development and will open once published."
+              className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-[#0B192E] text-amber-300/90 border border-amber-500/30 cursor-not-allowed select-none"
+            >
+              <Clock className="w-3.5 h-3.5 text-amber-400" />
+              <span>Coming Soon</span>
+            </span>
+          )}
 
-          {/* Button 2: Watch Demo Video */}
-          <button
-            type="button"
-            onClick={() => onOpenVideo ? onOpenVideo(demo) : window.open(`https://www.youtube.com/results?search_query=StarX+Alpha+Labs+${encodeURIComponent(demo.name)}`, '_blank')}
+          {/* Button 2: Watch Demo Video or Inspect Blueprint */}
+          <Link
+            href={`/demos/${demo.categorySlug}/${demo.slug}`}
             className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-[#10243E] hover:bg-[#18365D] text-slate-200 border border-[#1D406E] transition-all"
           >
-            <Video className="w-3.5 h-3.5 text-rose-400" />
-            <span>{t("btn.watchVideo")}</span>
-          </button>
+            <Layers className="w-3.5 h-3.5 text-[#32A9E8]" />
+            <span>View Blueprint</span>
+          </Link>
         </div>
 
         {/* Row 2: Secondary Specification & Enquiry Actions */}
