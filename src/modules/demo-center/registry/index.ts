@@ -16,6 +16,7 @@ import { CAT11_TRAVEL_EVENTS } from "./catalogue/cat11_travel_events";
 import { CAT12_TECHNOLOGY_SAAS } from "./catalogue/cat12_technology_saas";
 
 export { DEMO_CATEGORIES, validateMasterCatalogue };
+export type DemoItem = DemoProductDefinition;
 
 // CANONICAL MASTER 160 BUSINESS DEMOS CATALOGUE (PHASE 3A)
 export const ALL_160_DEMOS: DemoProductDefinition[] = [

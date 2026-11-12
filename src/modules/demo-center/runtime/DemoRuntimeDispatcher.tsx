@@ -77,6 +77,62 @@ const PantryLedgerWmsApp = dynamic(
   () => import("../demos/cat01/PantryLedgerWmsApp").then((m) => m.PantryLedgerWmsApp),
   { loading: () => <ForgeRuntimeLoading /> }
 );
+const MeridianRetailStoreApp = dynamic(
+  () => import("../demos/cat02/MeridianRetailStoreApp").then((m) => m.MeridianRetailStoreApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const PulseTillMultiStorePosApp = dynamic(
+  () => import("../demos/cat02/PulseTillMultiStorePosApp").then((m) => m.PulseTillMultiStorePosApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const AtelierModeFashionApp = dynamic(
+  () => import("../demos/cat02/AtelierModeFashionApp").then((m) => m.AtelierModeFashionApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const VoltrixElectronicsApp = dynamic(
+  () => import("../demos/cat02/VoltrixElectronicsApp").then((m) => m.VoltrixElectronicsApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const HarvestMartGroceryApp = dynamic(
+  () => import("../demos/cat02/HarvestMartGroceryApp").then((m) => m.HarvestMartGroceryApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const NordicLivingFurnitureApp = dynamic(
+  () => import("../demos/cat02/NordicLivingFurnitureApp").then((m) => m.NordicLivingFurnitureApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const AurumJewelleryApp = dynamic(
+  () => import("../demos/cat02/AurumJewelleryApp").then((m) => m.AurumJewelleryApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const MedVancePharmacyApp = dynamic(
+  () => import("../demos/cat02/MedVancePharmacyApp").then((m) => m.MedVancePharmacyApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const AuraDirectEcommerceApp = dynamic(
+  () => import("../demos/cat02/AuraDirectEcommerceApp").then((m) => m.AuraDirectEcommerceApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const NexusMarketplaceApp = dynamic(
+  () => import("../demos/cat02/NexusMarketplaceApp").then((m) => m.NexusMarketplaceApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const MaisonEpureBoutiqueApp = dynamic(
+  () => import("../demos/cat02/MaisonEpureBoutiqueApp").then((m) => m.MaisonEpureBoutiqueApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const VanguardWholesaleApp = dynamic(
+  () => import("../demos/cat02/VanguardWholesaleApp").then((m) => m.VanguardWholesaleApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const OmniVaultInventoryApp = dynamic(
+  () => import("../demos/cat02/OmniVaultInventoryApp").then((m) => m.OmniVaultInventoryApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const ResolvrReturnsApp = dynamic(
+  () => import("../demos/cat02/ResolvrReturnsApp").then((m) => m.ResolvrReturnsApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
 
 interface DemoRuntimeDispatcherProps {
   product: DemoProductDefinition;
@@ -146,6 +202,62 @@ export function DemoRuntimeDispatcher({ product }: DemoRuntimeDispatcherProps) {
 
   if (product.slug === "food-inventory-supply-management") {
     return <PantryLedgerWmsApp product={product} />;
+  }
+
+  if (product.slug === "retail-store-management") {
+    return <MeridianRetailStoreApp product={product} />;
+  }
+
+  if (product.slug === "multi-store-pos-system") {
+    return <PulseTillMultiStorePosApp product={product} />;
+  }
+
+  if (product.slug === "fashion-apparel-store") {
+    return <AtelierModeFashionApp product={product} />;
+  }
+
+  if (product.slug === "electronics-store-management") {
+    return <VoltrixElectronicsApp product={product} />;
+  }
+
+  if (product.slug === "grocery-store-management") {
+    return <HarvestMartGroceryApp product={product} />;
+  }
+
+  if (product.slug === "furniture-store-management") {
+    return <NordicLivingFurnitureApp product={product} />;
+  }
+
+  if (product.slug === "jewellery-store-management") {
+    return <AurumJewelleryApp product={product} />;
+  }
+
+  if (product.slug === "pharmacy-retail-management") {
+    return <MedVancePharmacyApp product={product} />;
+  }
+
+  if (product.slug === "ecommerce-storefront") {
+    return <AuraDirectEcommerceApp product={product} />;
+  }
+
+  if (product.slug === "multi-vendor-marketplace") {
+    return <NexusMarketplaceApp product={product} />;
+  }
+
+  if (product.slug === "online-fashion-boutique") {
+    return <MaisonEpureBoutiqueApp product={product} />;
+  }
+
+  if (product.slug === "wholesale-distribution-management") {
+    return <VanguardWholesaleApp product={product} />;
+  }
+
+  if (product.slug === "inventory-stock-management") {
+    return <OmniVaultInventoryApp product={product} />;
+  }
+
+  if (product.slug === "order-returns-management") {
+    return <ResolvrReturnsApp product={product} />;
   }
 
   return <ForgePendingImplementationView product={product} />;
