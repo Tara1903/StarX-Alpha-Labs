@@ -1,5 +1,6 @@
 export type AdminTabId =
   | "overview"
+  | "forge"
   | "crm"
   | "demo-requests"
   | "agency-enquiries"

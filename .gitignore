@@ -13,6 +13,7 @@
 
 # production
 /build
+/.forge-data/
 
 # misc
 .DS_Store

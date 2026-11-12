@@ -282,6 +282,19 @@ export function AdminSidebar({
             {productsOpen && (
               <div className="space-y-0.5 pl-1">
                 <button
+                  onClick={() => handleTabClick("forge")}
+                  className={navClass("forge")}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Sparkles className="w-4 h-4 text-[#00D9FF]" />
+                    <span>StarX Forge Studio</span>
+                  </div>
+                  <span className="px-1.5 py-0.2 rounded-full bg-[#00D9FF]/20 text-[#00D9FF] font-mono text-[9px] uppercase">
+                    AI
+                  </span>
+                </button>
+
+                <button
                   onClick={() => handleTabClick("demos")}
                   className={navClass("demos")}
                 >

@@ -62,6 +62,10 @@ const TAB_TITLES: Record<AdminTabId, { title: string; subtitle: string }> = {
     title: "160+ Demo Catalog Management",
     subtitle: "Interactive prototype directory across 12 verified industry verticals.",
   },
+  forge: {
+    title: "StarX Forge — AI Demo Studio",
+    subtitle: "Design. Build. Test. Launch. Stitch MCP + Antigravity orchestration platform.",
+  },
   "video-station": {
     title: "Video Station Showcase CMS",
     subtitle: "Responsive 16:9 walkthroughs, architecture breakdowns, and tech demos.",
