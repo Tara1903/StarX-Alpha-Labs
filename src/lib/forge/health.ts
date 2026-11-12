@@ -172,14 +172,24 @@ export async function runRealIntegrationHealthCheck(): Promise<ForgeIntegrationS
       });
     }
   } else {
+    const hasIdeExecution = jobs.some(
+      (j) =>
+        j.status === "completed" &&
+        Array.isArray(j.outputReferences?.implementedFiles) &&
+        j.outputReferences.implementedFiles.length > 0
+    );
     items.push({
       id: "antigravity",
       name: "Antigravity Execution Engine",
-      status: "degraded",
-      summary: "Active in Interactive IDE Mode (No Remote Daemon URL Set)",
+      status: hasIdeExecution ? "connected" : "degraded",
+      summary: hasIdeExecution
+        ? "Active in Interactive Antigravity IDE Mode"
+        : "Active in Interactive IDE Mode (No Remote Daemon URL Set)",
       details:
-        "Stage briefs & implementation payloads are prepared server-side for Antigravity execution inside your local workspace. Set ANTIGRAVITY_BRIDGE_URL to enable headless background execution from Vercel.",
-      actionRequired: "Optional for remote Vercel automation: configure ANTIGRAVITY_BRIDGE_URL.",
+        "Stage briefs & implementation payloads are prepared server-side for Antigravity execution inside your local workspace. Optional: set ANTIGRAVITY_BRIDGE_URL to enable headless background execution from Vercel.",
+      actionRequired: hasIdeExecution
+        ? undefined
+        : "Optional for remote Vercel automation: configure ANTIGRAVITY_BRIDGE_URL.",
       checkedAt,
     });
   }
