@@ -48,7 +48,7 @@ export function IndustriesSection() {
           {DEMO_CATEGORIES.map((cat) => {
             const meta = industriesMeta[cat.number] || industriesMeta[5];
             return (
-              <Link key={cat.slug} href={`/demos?category=${cat.slug}`}>
+              <Link key={cat.slug} href={`/demos/${cat.slug}`}>
                 <Card3DTilt
                   glowColor={meta.glow}
                   maxTilt={10}
