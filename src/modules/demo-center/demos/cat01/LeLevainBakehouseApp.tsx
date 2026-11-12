@@ -113,15 +113,10 @@ const LE_LEVAIN_SEED: BakeryState = {
 };
 
 export function LeLevainBakehouseApp({ product }: { product: DemoProductDefinition }) {
-  const initialSeed = useMemo<BakeryState>(() => {
-    const raw = product.initialData as Partial<BakeryState> | undefined;
-    if (raw && Array.isArray(raw.batches) && Array.isArray(raw.cakes)) {
-      return raw as BakeryState;
-    }
-    return LE_LEVAIN_SEED;
-  }, [product.initialData]);
-
-  const { state, setState, resetState } = useDemoState<BakeryState>(product.slug, initialSeed);
+  const { state, setState, resetState } = useDemoState<BakeryState>(
+    product.slug,
+    LE_LEVAIN_SEED
+  );
 
   const [tab, setTab] = useState<"ovens" | "cakes" | "scaler" | "counter">("ovens");
   const [scaleMultiplier, setScaleMultiplier] = useState<1 | 2 | 5>(1);

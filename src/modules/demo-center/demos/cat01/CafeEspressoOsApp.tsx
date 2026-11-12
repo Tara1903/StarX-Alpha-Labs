@@ -143,15 +143,10 @@ const ROASTCRAFT_SEED: CafeOsState = {
 };
 
 export function CafeEspressoOsApp({ product }: { product: DemoProductDefinition }) {
-  const initialSeed = useMemo<CafeOsState>(() => {
-    const raw = product.initialData as Partial<CafeOsState> | undefined;
-    if (raw && Array.isArray(raw.catalog) && Array.isArray(raw.cupQueue)) {
-      return raw as CafeOsState;
-    }
-    return ROASTCRAFT_SEED;
-  }, [product.initialData]);
-
-  const { state, setState, resetState } = useDemoState<CafeOsState>(product.slug, initialSeed);
+  const { state, setState, resetState } = useDemoState<CafeOsState>(
+    product.slug,
+    ROASTCRAFT_SEED
+  );
 
   const [tab, setTab] = useState<"pos" | "queue" | "loyalty" | "beans">("pos");
   const [catFilter, setCatFilter] = useState<"All" | CafeDrink["category"]>("All");

@@ -34,15 +34,10 @@ import {
 type PosScreenMode = "register" | "holds" | "xz-report";
 
 export function RestaurantPosBillingApp({ product }: { product: DemoProductDefinition }) {
-  const initialSeed = useMemo<RestaurantPosState>(() => {
-    const raw = product.initialData as Partial<RestaurantPosState> | undefined;
-    if (raw && Array.isArray(raw.menu) && Array.isArray(raw.openChecks)) {
-      return raw as RestaurantPosState;
-    }
-    return KWICKBILL_POS_SEED;
-  }, [product.initialData]);
-
-  const { state, setState, resetState } = useDemoState<RestaurantPosState>(product.slug, initialSeed);
+  const { state, setState, resetState } = useDemoState<RestaurantPosState>(
+    product.slug,
+    KWICKBILL_POS_SEED
+  );
 
   const [mode, setMode] = useState<PosScreenMode>("register");
   const [catFilter, setCatFilter] = useState<"All" | PosMenuTile["category"]>("All");

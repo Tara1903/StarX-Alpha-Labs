@@ -160,15 +160,10 @@ const BRANDS: VirtualBrand[] = [
 ];
 
 export function CloudKitchenHubApp({ product }: { product: DemoProductDefinition }) {
-  const initialSeed = useMemo<CloudKitchenState>(() => {
-    const raw = product.initialData as Partial<CloudKitchenState> | undefined;
-    if (raw && Array.isArray(raw.tickets) && Array.isArray(raw.menuSync)) {
-      return raw as CloudKitchenState;
-    }
-    return GHOSTGRID_SEED;
-  }, [product.initialData]);
-
-  const { state, setState, resetState } = useDemoState<CloudKitchenState>(product.slug, initialSeed);
+  const { state, setState, resetState } = useDemoState<CloudKitchenState>(
+    product.slug,
+    GHOSTGRID_SEED
+  );
 
   const [tab, setTab] = useState<"kds" | "menu-sync" | "payouts">("kds");
   const [brandFilter, setBrandFilter] = useState<"All" | VirtualBrand>("All");

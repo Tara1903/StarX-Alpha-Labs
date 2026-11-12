@@ -54,17 +54,9 @@ const NAV_VIEWS: { id: VesperaView; label: string; icon: React.ComponentType<{ c
 ];
 
 export function RestaurantManagementOsApp({ product }: { product: DemoProductDefinition }) {
-  const initialSeed = useMemo<VesperaBistroState>(() => {
-    const raw = product.initialData as Partial<VesperaBistroState> | undefined;
-    if (raw && Array.isArray(raw.tables) && Array.isArray(raw.checks) && Array.isArray(raw.menuItems)) {
-      return raw as VesperaBistroState;
-    }
-    return VESPERA_BISTRO_SEED;
-  }, [product.initialData]);
-
   const { state, setState, resetState, hasReset } = useDemoState<VesperaBistroState>(
     product.slug,
-    initialSeed
+    VESPERA_BISTRO_SEED
   );
 
   const [activeView, setActiveView] = useState<VesperaView>("floor");
