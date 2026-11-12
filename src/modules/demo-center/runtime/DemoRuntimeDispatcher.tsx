@@ -4,6 +4,20 @@ import React from "react";
 import Link from "next/link";
 import { DemoProductDefinition } from "../types";
 import { RestaurantManagementPilotApp } from "../pilots/RestaurantManagementPilotApp";
+import { RestaurantManagementOsApp } from "../demos/cat01/RestaurantManagementOsApp";
+import { RestaurantPosBillingApp } from "../demos/cat01/RestaurantPosBillingApp";
+import { CloudKitchenHubApp } from "../demos/cat01/CloudKitchenHubApp";
+import { CafeEspressoOsApp } from "../demos/cat01/CafeEspressoOsApp";
+import { LeLevainBakehouseApp } from "../demos/cat01/LeLevainBakehouseApp";
+import { FoodDeliveryDispatchApp } from "../demos/cat01/FoodDeliveryDispatchApp";
+import { VelvetHostReservationsApp } from "../demos/cat01/VelvetHostReservationsApp";
+import { AureliaGrandPmsApp } from "../demos/cat01/AureliaGrandPmsApp";
+import { BanquetFlowCateringApp } from "../demos/cat01/BanquetFlowCateringApp";
+import { StreetRollFoodTruckApp } from "../demos/cat01/StreetRollFoodTruckApp";
+import { CopperStillBarPubApp } from "../demos/cat01/CopperStillBarPubApp";
+import { SnapServeQsrApp } from "../demos/cat01/SnapServeQsrApp";
+import { HarvestCartGroceryApp } from "../demos/cat01/HarvestCartGroceryApp";
+import { PantryLedgerWmsApp } from "../demos/cat01/PantryLedgerWmsApp";
 import { ArrowLeft, CheckCircle2, Clock, Layers, ShieldCheck, Sparkles, Wrench } from "lucide-react";
 
 interface DemoRuntimeDispatcherProps {
@@ -18,6 +32,62 @@ interface DemoRuntimeDispatcherProps {
 export function DemoRuntimeDispatcher({ product }: DemoRuntimeDispatcherProps) {
   if (product.slug === "restaurant-management-pilot") {
     return <RestaurantManagementPilotApp product={product} />;
+  }
+
+  if (product.slug === "restaurant-management-system") {
+    return <RestaurantManagementOsApp product={product} />;
+  }
+
+  if (product.slug === "restaurant-pos-billing") {
+    return <RestaurantPosBillingApp product={product} />;
+  }
+
+  if (product.slug === "cloud-kitchen-management") {
+    return <CloudKitchenHubApp product={product} />;
+  }
+
+  if (product.slug === "cafe-management-system") {
+    return <CafeEspressoOsApp product={product} />;
+  }
+
+  if (product.slug === "bakery-management-system") {
+    return <LeLevainBakehouseApp product={product} />;
+  }
+
+  if (product.slug === "food-delivery-management") {
+    return <FoodDeliveryDispatchApp product={product} />;
+  }
+
+  if (product.slug === "table-reservation-booking") {
+    return <VelvetHostReservationsApp product={product} />;
+  }
+
+  if (product.slug === "hotel-restaurant-management") {
+    return <AureliaGrandPmsApp product={product} />;
+  }
+
+  if (product.slug === "catering-business-management") {
+    return <BanquetFlowCateringApp product={product} />;
+  }
+
+  if (product.slug === "food-truck-management") {
+    return <StreetRollFoodTruckApp product={product} />;
+  }
+
+  if (product.slug === "bar-pub-management") {
+    return <CopperStillBarPubApp product={product} />;
+  }
+
+  if (product.slug === "qsr-management") {
+    return <SnapServeQsrApp product={product} />;
+  }
+
+  if (product.slug === "grocery-fresh-food-ordering") {
+    return <HarvestCartGroceryApp product={product} />;
+  }
+
+  if (product.slug === "food-inventory-supply-management") {
+    return <PantryLedgerWmsApp product={product} />;
   }
 
   return <ForgePendingImplementationView product={product} />;

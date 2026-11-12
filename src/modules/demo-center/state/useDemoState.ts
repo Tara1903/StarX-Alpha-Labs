@@ -16,27 +16,22 @@ export function useDemoState<T extends Record<string, any>>(demoSlug: string, in
     return sid;
   };
 
-  const [state, setStateInternal] = useState<T>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = sessionStorage.getItem(storageKey);
-        if (stored) {
-          return JSON.parse(stored);
-        }
-      } catch (err) {
-        console.warn(`[useDemoState] Failed reading state for ${demoSlug}`, err);
-      }
-    }
-    return initialData;
-  });
+  const [state, setStateInternal] = useState<T>(initialData);
 
   const [hasReset, setHasReset] = useState(false);
 
-  // Sync from isolated DB sandbox on initial mount when sessionStorage has no override
+  // Sync from sessionStorage or isolated DB sandbox after hydration
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const stored = sessionStorage.getItem(storageKey);
-    if (stored) return;
+    try {
+      const stored = sessionStorage.getItem(storageKey);
+      if (stored) {
+        setStateInternal(JSON.parse(stored));
+        return;
+      }
+    } catch (err) {
+      console.warn(`[useDemoState] Failed reading state for ${demoSlug}`, err);
+    }
     const sid = getSessionKey();
     fetch(`/api/demos/sandbox?slug=${encodeURIComponent(demoSlug)}&sessionKey=${encodeURIComponent(sid)}`)
       .then((res) => (res.ok ? res.json() : null))
