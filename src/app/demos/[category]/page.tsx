@@ -2,8 +2,12 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { DEMO_CATEGORIES } from "@/data/categories";
 import { getDemosByCategory } from "@/data/demos";
+import { listPublishedCustomForgeDemoModels } from "@/lib/forge/runtimeResolver";
+import { mergeUniqueDemos } from "@/lib/forge/demoMerge";
 import { CategoryClient } from "./CategoryClient";
 import { SITE_CONFIG } from "@/lib/constants";
+
+export const dynamic = "force-dynamic";
 
 interface CategoryPageProps {
   params: Promise<{
@@ -43,7 +47,9 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
-  const demos = getDemosByCategory(category.slug);
+  const baseDemos = getDemosByCategory(category.slug);
+  const customDemos = await listPublishedCustomForgeDemoModels(category.slug);
+  const demos = mergeUniqueDemos(baseDemos, customDemos);
 
   return <CategoryClient category={category} demos={demos} />;
 }

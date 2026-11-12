@@ -6,6 +6,8 @@ import { resolvePublishedForgeProduct } from "@/lib/forge/runtimeResolver";
 import { DemoDetailClient } from "./DemoDetailClient";
 import { SITE_CONFIG } from "@/lib/constants";
 
+export const dynamic = "force-dynamic";
+
 interface DemoDetailPageProps {
   params: Promise<{
     category: string;

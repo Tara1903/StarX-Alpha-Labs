@@ -1,20 +1,26 @@
 import "server-only";
 
-import { getForgeDemoById } from "./store";
+import { getForgeDemoById, listForgeDemos } from "./store";
 import type { ForgeDemoRecord } from "./types";
 import type { DemoArchetype, DemoProductDefinition } from "@/modules/demo-center/types";
+import { DEMO_CATEGORIES, toDemoModel } from "@/modules/demo-center/registry";
+import type { DemoModel } from "@/types/demo";
 
 /**
  * Converts a Forge demo record into a DemoProductDefinition compatible
  * with DemoRuntimeDispatcher and public showcase metadata.
  */
-export function forgeDemoToProductDefinition(demo: ForgeDemoRecord): DemoProductDefinition {
+export function forgeDemoToProductDefinition(
+  demo: ForgeDemoRecord,
+  fallbackId = 9000
+): DemoProductDefinition {
+  const category = DEMO_CATEGORIES.find((c) => c.slug === demo.categorySlug);
   return {
-    id: demo.catalogId || 9000,
+    id: demo.catalogId || fallbackId,
     slug: demo.slug,
     name: demo.businessName,
-    categoryNumber: 1,
-    categoryName: demo.industry,
+    categoryNumber: category?.number || 1,
+    categoryName: category?.name || demo.industry,
     categorySlug: demo.categorySlug,
     archetype: (demo.archetype || "analytics-canvas") as DemoArchetype,
     tagline: demo.designDirection || demo.industry,
@@ -55,4 +61,25 @@ export async function resolvePublishedForgeProduct(
   if (demo.publishingStatus !== "published") return null;
   if (demo.categorySlug !== categorySlug) return null;
   return forgeDemoToProductDefinition(demo);
+}
+
+/**
+ * Lists published custom Forge demos (non-catalog entries) as DemoModels
+ * so public showcase hubs display newly published Forge pilots cleanly.
+ */
+export async function listPublishedCustomForgeDemoModels(categorySlug?: string): Promise<DemoModel[]> {
+  try {
+    const demos = await listForgeDemos();
+    return demos
+      .filter(
+        (d) =>
+          d.catalogId === null &&
+          d.publishingStatus === "published" &&
+          (!categorySlug || d.categorySlug === categorySlug)
+      )
+      .map((d, index) => toDemoModel(forgeDemoToProductDefinition(d, 9000 + index)));
+  } catch (err) {
+    console.warn("[Forge] Failed to load published custom demos for showcase:", err);
+    return [];
+  }
 }

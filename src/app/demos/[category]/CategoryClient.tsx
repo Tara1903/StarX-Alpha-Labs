@@ -93,7 +93,7 @@ export function CategoryClient({ category, demos }: CategoryClientProps) {
           <div className="relative z-10 max-w-4xl space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#102D50] text-[#73D8FF] text-xs font-semibold border border-[#1769AA]/50">
               <Icon className="w-4 h-4 text-[#32A9E8]" />
-              <span>Category {category.number} of 12 &bull; {category.count} Models</span>
+              <span>Category {category.number} of 12 &bull; {demos.length} Models</span>
             </div>
 
             <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">

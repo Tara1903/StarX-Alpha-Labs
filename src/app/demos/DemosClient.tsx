@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ALL_DEMOS } from "@/data/demos";
 import { DEMO_CATEGORIES } from "@/data/categories";
 import { DemoModel } from "@/types/demo";
+import { mergeUniqueDemos } from "@/lib/forge/demoMerge";
 import { DemoCard } from "@/components/demos/DemoCard";
 import { DemoFilterBar, DemoFilterState } from "@/components/demos/DemoFilterBar";
 import { CustomizationModal } from "@/components/demos/CustomizationModal";
@@ -47,10 +48,15 @@ const ICON_MAP: Record<string, any> = {
   Smartphone
 };
 
-export function DemosClient() {
+export function DemosClient({ publishedCustomDemos = [] }: { publishedCustomDemos?: DemoModel[] }) {
   const { t, language, setLanguage } = useLanguage();
   const [activeVideoDemo, setActiveVideoDemo] = useState<DemoModel | null>(null);
   const [activeCustomizationDemo, setActiveCustomizationDemo] = useState<DemoModel | null>(null);
+
+  const allDemos = useMemo(
+    () => mergeUniqueDemos(ALL_DEMOS, publishedCustomDemos),
+    [publishedCustomDemos]
+  );
 
   const [filters, setFilters] = useState<DemoFilterState>({
     searchQuery: "",
@@ -67,7 +73,7 @@ export function DemosClient() {
 
   // Filter & Sort calculation
   const filteredDemos = useMemo(() => {
-    let list = [...ALL_DEMOS];
+    let list = [...allDemos];
 
     // Tab filter
     if (filters.activeTab === "featured") {
@@ -139,11 +145,11 @@ export function DemosClient() {
     }
 
     return list;
-  }, [filters]);
+  }, [allDemos, filters]);
 
   const exportCatalogueCSV = () => {
     const headers = ["ID", "Name", "Category", "Dev Type", "Platform", "Starting Price", "Est. Time", "Status", "AI Enabled", "E-commerce"];
-    const rows = ALL_DEMOS.map((d) => [
+    const rows = allDemos.map((d) => [
       d.id,
       `"${d.name.replace(/"/g, '""')}"`,
       `"${d.categoryName.replace(/"/g, '""')}"`,
@@ -177,7 +183,7 @@ export function DemosClient() {
           <div className="flex items-center gap-2">
             <span className="px-3 py-1 rounded-full bg-[#102D50] text-[#73D8FF] text-xs font-mono border border-[#1769AA]/50 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-[#32A9E8] animate-ping" />
-              160 Production Models Online
+              {allDemos.length} Production Models Online
             </span>
           </div>
 
@@ -232,7 +238,7 @@ export function DemosClient() {
           {/* Quick Metrics Bar */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 max-w-3xl mx-auto">
             {[
-              { label: "Catalogue Entries", value: "160 Models", sub: "Fully Documented" },
+              { label: "Catalogue Entries", value: `${allDemos.length} Models`, sub: "Fully Documented" },
               { label: "Core Industries", value: "12 Sectors", sub: "Specialized Architectures" },
               { label: "Role Portals", value: "Multi-Persona", sub: "Admin, Staff, Customer" },
               { label: "Turnaround", value: "1-4 Weeks", sub: "Production Deployed" },
@@ -260,6 +266,7 @@ export function DemosClient() {
             {DEMO_CATEGORIES.map((cat) => {
               const Icon = ICON_MAP[cat.iconName] || Layers;
               const isSelected = filters.selectedCategory === cat.slug;
+              const extraCount = publishedCustomDemos.filter((d) => d.categorySlug === cat.slug).length;
 
               return (
                 <div
@@ -276,7 +283,7 @@ export function DemosClient() {
                         <Icon className="w-5 h-5" />
                       </div>
                       <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-[#050D1A] text-slate-300 border border-[#143054]">
-                        {cat.count} Models
+                        {cat.count + extraCount} Models
                       </span>
                     </div>
 
@@ -316,7 +323,7 @@ export function DemosClient() {
             filters={filters}
             onChange={setFilters}
             totalFiltered={filteredDemos.length}
-            totalCount={ALL_DEMOS.length}
+            totalCount={allDemos.length}
           />
 
           {/* Demos Cards Grid */}

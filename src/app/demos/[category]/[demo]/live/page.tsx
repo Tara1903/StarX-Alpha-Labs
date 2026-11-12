@@ -4,6 +4,8 @@ import { ALL_160_DEMOS, getDemoProductBySlug } from "@/modules/demo-center/regis
 import { DemoRuntimeDispatcher } from "@/modules/demo-center/runtime/DemoRuntimeDispatcher";
 import { resolvePublishedForgeProduct } from "@/lib/forge/runtimeResolver";
 
+export const dynamic = "force-dynamic";
+
 interface LiveDemoPageProps {
   params: Promise<{
     category: string;

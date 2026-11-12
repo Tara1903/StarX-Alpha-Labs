@@ -1,6 +1,9 @@
 import { Metadata } from "next";
 import { DemosClient } from "./DemosClient";
 import { SITE_CONFIG } from "@/lib/constants";
+import { listPublishedCustomForgeDemoModels } from "@/lib/forge/runtimeResolver";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "160 Enterprise Demo Models — StarX Alpha Labs",
@@ -23,6 +26,7 @@ export const metadata: Metadata = {
   }
 };
 
-export default function DemosPage() {
-  return <DemosClient />;
+export default async function DemosPage() {
+  const publishedCustomDemos = await listPublishedCustomForgeDemoModels();
+  return <DemosClient publishedCustomDemos={publishedCustomDemos} />;
 }
