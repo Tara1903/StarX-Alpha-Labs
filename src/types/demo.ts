@@ -3,14 +3,21 @@ export type DemoPlatform = "Website" | "Web App" | "Mobile App";
 export type DemoDevType = "Web App" | "Mobile App" | "Website" | "Cloud ERP" | "AI Microservice" | "SaaS Platform";
 export type DemoProductType =
   | "business_website"
+  | "corporate_website"
+  | "brand_experience"
   | "ecommerce_website"
   | "web_application"
   | "marketplace"
   | "native_android_app"
   | "native_ios_app"
   | "pwa"
-  | "business_management_software"
-  | "digital_ecosystem";
+  | "subscription_platform"
+  | "membership_platform"
+  | "creator_platform"
+  | "interactive_experience"
+  | "digital_ecosystem"
+  | "fintech_application"
+  | "business_management_software";
 
 export interface DemoRoleAccount {
   role: "admin" | "customer" | "staff" | "vendor" | "delivery" | "teacher" | "student" | "manager";

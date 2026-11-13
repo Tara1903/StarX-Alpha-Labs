@@ -6,22 +6,21 @@ import { getPublishedCatalogSlugSet } from "@/lib/forge/runtimeResolver";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "160 Enterprise Demo Models — StarX Alpha Labs",
+  title: "240 Enterprise Digital Product Blueprints — StarX Alpha Labs",
   description:
-    "Explore the canonical catalogue of 160 enterprise software solutions across 12 industries: Food & Hospitality, Retail & Ecommerce, Healthcare, Real Estate, Education, Automotive, Beauty & Wellness, Logistics, Professional Services, Manufacturing, Travel & Events, and Technology & SaaS.",
+    "Explore the canonical catalogue of 240 enterprise digital products, e-commerce storefronts, mobile apps, and customer platforms across 12 industries: Food & Hospitality, Retail & Ecommerce, Healthcare, Real Estate, Education, Automotive, Beauty & Wellness, Logistics, Professional Services, Manufacturing, Travel & Events, and Technology & SaaS.",
   keywords: [
-    "enterprise software catalogue",
-    "160 demo models",
-    "restaurant management system",
-    "ecommerce storefront",
-    "hospital management system",
-    "manufacturing erp",
-    "saas subscription management",
+    "enterprise digital products",
+    "240 demo blueprints",
+    "ecommerce storefronts",
+    "native mobile apps",
+    "customer platforms",
+    "digital ecosystems",
     "starx alpha labs",
   ],
   openGraph: {
-    title: "160 Enterprise Demo Models Catalogue — StarX Alpha Labs",
-    description: "Explore 160 industry-specific business software blueprints across 12 sectors.",
+    title: "240 Enterprise Digital Product Blueprints — StarX Alpha Labs",
+    description: "Explore 240 customer-facing business software and digital product blueprints across 12 sectors.",
     url: `${SITE_CONFIG.url}/demos`,
   },
 };

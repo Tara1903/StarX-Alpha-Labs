@@ -107,7 +107,7 @@ export function DemoFilterBar({ filters, onChange, totalFiltered, totalCount }: 
               aria-label="Sort demo models"
               className="bg-transparent text-slate-200 focus:outline-none cursor-pointer pr-1"
             >
-              <option value="default" className="bg-[#050D1A] text-white">Sort: Standard (#1 - #160)</option>
+              <option value="default" className="bg-[#050D1A] text-white">Sort: Standard Blueprint Index</option>
               <option value="popular" className="bg-[#050D1A] text-white">Sort: Most Popular</option>
               <option value="price-asc" className="bg-[#050D1A] text-white">Sort: Price: Low to High</option>
               <option value="price-desc" className="bg-[#050D1A] text-white">Sort: Price: High to Low</option>
@@ -132,7 +132,7 @@ export function DemoFilterBar({ filters, onChange, totalFiltered, totalCount }: 
       <div className="flex items-center justify-between flex-wrap gap-2 pt-1">
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
           {[
-            { id: "all", label: `All 160 Models (${totalCount})` },
+            { id: "all", label: `All Products (${totalCount})` },
             { id: "featured", label: "Featured Flagships" },
             { id: "popular", label: "Popular & In-Demand" },
             { id: "recent", label: "Recently Updated" },

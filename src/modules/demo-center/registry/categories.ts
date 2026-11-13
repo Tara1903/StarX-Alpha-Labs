@@ -9,7 +9,7 @@ export const MASTER_DEMO_CATEGORIES: DemoCategoryDefinition[] = [
     description: "Dedicated hospitality software systems covering floor seating, KOT dispatch, direct ordering, bar pour control, QSR kiosks, and commissary food inventory.",
     iconName: "UtensilsCrossed",
     gradient: "from-amber-500/20 via-orange-500/10 to-transparent",
-    count: 14,
+    count: 20,
     highlights: ["Dining Floor & Table Management", "KOT Kitchen Dispatch", "Cloud Kitchen Consolidation", "Recipe Costing & FIFO Supply"],
   },
   {
@@ -20,7 +20,7 @@ export const MASTER_DEMO_CATEGORIES: DemoCategoryDefinition[] = [
     description: "End-to-end retail and commerce suites covering barcode POS, HUID bullion billing, serialized electronics, wholesale portals, and headless D2C storefronts.",
     iconName: "ShoppingBag",
     gradient: "from-blue-500/20 via-indigo-500/10 to-transparent",
-    count: 14,
+    count: 20,
     highlights: ["Multi-Store Chain POS", "Serialized & Batch Inventory", "D2C & Multi-Vendor Markets", "Returns & RMA Automation"],
   },
   {
@@ -31,7 +31,7 @@ export const MASTER_DEMO_CATEGORIES: DemoCategoryDefinition[] = [
     description: "Structured healthcare software platforms for hospitals, specialty clinics, pathology labs, veterinary practices, optical centers, and claims billing.",
     iconName: "Activity",
     gradient: "from-teal-500/20 via-cyan-500/10 to-transparent",
-    count: 14,
+    count: 20,
     highlights: ["OPD & IPD Ward Operations", "Dental & Optical Charting", "Pathology LIS & Reports", "Telemedicine & Patient Portals"],
   },
   {
@@ -42,7 +42,7 @@ export const MASTER_DEMO_CATEGORIES: DemoCategoryDefinition[] = [
     description: "Property lifecycle software for developers, brokerages, rental managers, commercial leasing teams, interior studios, and snag inspection crews.",
     iconName: "Building2",
     gradient: "from-emerald-500/20 via-teal-500/10 to-transparent",
-    count: 14,
+    count: 20,
     highlights: ["Unit Inventory & Booking", "Real Estate Sales CRM", "Construction BOQ & DPR", "Society, Rental & CAM Billing"],
   },
   {
@@ -53,7 +53,7 @@ export const MASTER_DEMO_CATEGORIES: DemoCategoryDefinition[] = [
     description: "Academic and EdTech systems tailored for K-12 schools, universities, coaching institutes, digital libraries, CBT assessment hubs, and corporate training.",
     iconName: "GraduationCap",
     gradient: "from-sky-500/20 via-blue-500/10 to-transparent",
-    count: 13,
+    count: 20,
     highlights: ["School & College SIS/ERP", "Cohort & Creator LMS", "CBT Exams & Admissions", "Attendance & Library Circulation"],
   },
   {
@@ -64,7 +64,7 @@ export const MASTER_DEMO_CATEGORIES: DemoCategoryDefinition[] = [
     description: "Automotive software engineered for new/used dealerships, workshop job cards, VIN/fitment spare parts, vehicle inspections, car washes, and EV networks.",
     iconName: "Wrench",
     gradient: "from-red-500/20 via-amber-500/10 to-transparent",
-    count: 13,
+    count: 20,
     highlights: ["Dealership VIN & Showroom DMS", "Service Bay & Workshop Jobs", "EV OCPP Charging Networks", "150-Point Vehicle Appraisals"],
   },
   {
@@ -75,7 +75,7 @@ export const MASTER_DEMO_CATEGORIES: DemoCategoryDefinition[] = [
     description: "Client experience and booking platforms built for hair salons, bridal studios, gyms, yoga shalas, massage clinics, diet coaches, and beauty D2C brands.",
     iconName: "Sparkles",
     gradient: "from-rose-500/20 via-pink-500/10 to-transparent",
-    count: 13,
+    count: 20,
     highlights: ["Stylist & Room Dual Calendars", "Gym Turnstile & Memberships", "Class Passes & Waitlist Rules", "Wellness Intakes & Meal Plans"],
   },
   {
@@ -86,7 +86,7 @@ export const MASTER_DEMO_CATEGORIES: DemoCategoryDefinition[] = [
     description: "Logistics command systems uniting hub manifests, warehouse wave picking, last-mile rider dispatch, ocean/air forwarding, and multi-stop route planning.",
     iconName: "Layers",
     gradient: "from-amber-600/20 via-orange-600/10 to-transparent",
-    count: 13,
+    count: 20,
     highlights: ["Courier AWB & COD Remittance", "Zone-Bin Warehouse WMS", "FTL/PTL & Freight Forwarding", "Multi-Stop Route Optimization"],
   },
   {
@@ -97,7 +97,7 @@ export const MASTER_DEMO_CATEGORIES: DemoCategoryDefinition[] = [
     description: "Practice management suites handling legal matters, tax compliance deadlines, retainer burn tracking, recruitment pipelines, engineering RFIs, and policy books.",
     iconName: "Briefcase",
     gradient: "from-purple-500/20 via-indigo-500/10 to-transparent",
-    count: 13,
+    count: 20,
     highlights: ["Legal Matters & Time Billing", "CA Tax & Compliance Calendars", "Agency Proofing & Retainers", "ATS Hiring & Advisory Portfolios"],
   },
   {
@@ -108,7 +108,7 @@ export const MASTER_DEMO_CATEGORIES: DemoCategoryDefinition[] = [
     description: "Industrial ERP and MES systems covering discrete/process manufacturing, garment cut-to-pack, food FSSAI recall, PCB serial tracking, and 3-way procurement.",
     iconName: "Factory",
     gradient: "from-slate-500/20 via-zinc-500/10 to-transparent",
-    count: 13,
+    count: 20,
     highlights: ["Multi-Level BOM & MRP Runs", "Shopfloor OEE & Scheduling", "IQC/CAPA Quality Control", "Industry-Vertical Factory ERPs"],
   },
   {
@@ -119,7 +119,7 @@ export const MASTER_DEMO_CATEGORIES: DemoCategoryDefinition[] = [
     description: "Travel and event commerce platforms supporting custom itineraries, hotel tape charts, reserved-seat ticketing, destination weddings, resorts, and trade expos.",
     iconName: "Ticket",
     gradient: "from-violet-500/20 via-fuchsia-500/10 to-transparent",
-    count: 13,
+    count: 20,
     highlights: ["Custom Itinerary & DMC Suites", "Hotel, Resort & Flight Portals", "Reserved-Seat Event Ticketing", "Weddings & Expo Booth Maps"],
   },
   {
@@ -130,7 +130,7 @@ export const MASTER_DEMO_CATEGORIES: DemoCategoryDefinition[] = [
     description: "Modern SaaS and internal software platforms for metered recurring billing, agile sprints, RAG chatbot orchestration, developer API gateways, and IT asset governance.",
     iconName: "Smartphone",
     gradient: "from-cyan-500/20 via-blue-500/10 to-transparent",
-    count: 13,
+    count: 20,
     highlights: ["Metered SaaS Subscriptions & MRR", "Multi-Pipeline B2B CRM", "AI RAG Bot & Automation Flows", "API Portals & IT Asset Control"],
   },
 ];

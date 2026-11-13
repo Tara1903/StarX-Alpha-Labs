@@ -18,8 +18,8 @@ import { CAT12_TECHNOLOGY_SAAS } from "./catalogue/cat12_technology_saas";
 export { DEMO_CATEGORIES, validateMasterCatalogue };
 export type DemoItem = DemoProductDefinition;
 
-// CANONICAL MASTER 160 BUSINESS DEMOS CATALOGUE (PHASE 3A)
-export const ALL_160_DEMOS: DemoProductDefinition[] = [
+// MASTER DIGITAL PRODUCTS CATALOGUE (EXPANDED PORTFOLIO)
+export const ALL_MASTER_DEMOS: DemoProductDefinition[] = [
   ...CAT01_FOOD_HOSPITALITY,
   ...CAT02_RETAIL_ECOMMERCE,
   ...CAT03_HEALTHCARE,
@@ -34,7 +34,10 @@ export const ALL_160_DEMOS: DemoProductDefinition[] = [
   ...CAT12_TECHNOLOGY_SAAS,
 ];
 
-const catalogueValidation = validateMasterCatalogue(ALL_160_DEMOS, DEMO_CATEGORIES);
+// Preserved backward-compatible alias for existing callers
+export const ALL_160_DEMOS: DemoProductDefinition[] = ALL_MASTER_DEMOS;
+
+const catalogueValidation = validateMasterCatalogue(ALL_MASTER_DEMOS, DEMO_CATEGORIES);
 if (!catalogueValidation.valid) {
   throw new Error(
     `[DemoCenter Registry] Invalid canonical catalogue: ${catalogueValidation.errors.join(" | ")}`

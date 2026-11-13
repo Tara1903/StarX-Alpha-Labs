@@ -33,8 +33,8 @@ export function validateMasterCatalogue(
     errors.push(`Expected 12 categories, found ${categories.length}.`);
   }
 
-  if (demos.length !== 160) {
-    errors.push(`Expected 160 catalogue demos, found ${demos.length}.`);
+  if (demos.length < 160) {
+    errors.push(`Expected at least 160 foundational catalogue demos, found ${demos.length}.`);
   }
 
   const categoryMap = new Map<string, DemoCategoryDefinition>();
@@ -54,8 +54,8 @@ export function validateMasterCatalogue(
   }
 
   for (const demo of demos) {
-    if (!Number.isInteger(demo.id) || demo.id < 1 || demo.id > 160) {
-      errors.push(`Invalid demo ID ${demo.id} for "${demo.name}". Expected 1..160.`);
+    if (!Number.isInteger(demo.id) || demo.id < 1) {
+      errors.push(`Invalid demo ID ${demo.id} for "${demo.name}". Expected positive integer.`);
     } else if (seenIds.has(demo.id)) {
       errors.push(`Duplicate demo ID detected: ${demo.id}`);
     }
@@ -69,7 +69,7 @@ export function validateMasterCatalogue(
     seenSlugs.add(demo.slug);
 
     if (demo.slug === "restaurant-management-pilot") {
-      errors.push("Internal pilot 'restaurant-management-pilot' must not appear inside the 160-demo public catalogue.");
+      errors.push("Internal pilot 'restaurant-management-pilot' must not appear inside the public catalogue.");
     }
 
     if (!categoryMap.has(demo.categorySlug)) {
@@ -92,14 +92,13 @@ export function validateMasterCatalogue(
     }
   }
 
-  for (const [slug, expected] of Object.entries(EXPECTED_CATEGORY_COUNTS)) {
-    const actual = actualCounts[slug] ?? 0;
-    if (actual !== expected) {
-      errors.push(`Category "${slug}" count mismatch: expected ${expected}, found ${actual}.`);
+  for (const cat of categories) {
+    const actual = actualCounts[cat.slug] ?? 0;
+    if (actual === 0) {
+      errors.push(`Category "${cat.slug}" has 0 demos in the catalogue.`);
     }
-    const cat = categoryMap.get(slug);
-    if (cat && cat.count !== expected) {
-      errors.push(`Category "${slug}" metadata.count (${cat.count}) does not equal ${expected}.`);
+    if (cat.count !== actual) {
+      errors.push(`Category "${cat.slug}" metadata.count (${cat.count}) does not match actual count (${actual}).`);
     }
   }
 

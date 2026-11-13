@@ -16,7 +16,14 @@ export type DemoArchetype =
   | "developer-portal"
   | "node-automation"
   | "analytics-canvas"
-  | "community-feed";
+  | "community-feed"
+  | "brand-storytelling"
+  | "product-configurator"
+  | "mobile-app-showcase"
+  | "subscription-hub"
+  | "creator-showcase"
+  | "interactive-3d-experience"
+  | "ecosystem-suite";
 
 export interface DemoBrandConfig {
   primary: string;
@@ -40,14 +47,21 @@ export interface DemoWorkflowSpec {
 
 export type DemoProductType =
   | "business_website"
+  | "corporate_website"
+  | "brand_experience"
   | "ecommerce_website"
   | "web_application"
   | "marketplace"
   | "native_android_app"
   | "native_ios_app"
   | "pwa"
-  | "business_management_software"
-  | "digital_ecosystem";
+  | "subscription_platform"
+  | "membership_platform"
+  | "creator_platform"
+  | "interactive_experience"
+  | "digital_ecosystem"
+  | "fintech_application"
+  | "business_management_software";
 
 export interface DemoProductDefinition {
   id: number;

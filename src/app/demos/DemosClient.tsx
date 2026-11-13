@@ -186,7 +186,7 @@ export function DemosClient({ publishedSlugs = [] }: { publishedSlugs?: string[]
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `starx_alpha_labs_160_demos_catalogue.csv`);
+    link.setAttribute("download", `starx_alpha_labs_digital_product_catalogue.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -234,10 +234,10 @@ export function DemosClient({ publishedSlugs = [] }: { publishedSlugs?: string[]
             <button
               onClick={exportCatalogueCSV}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0F243E] hover:bg-[#163359] text-slate-200 border border-[#1A3D68] text-xs font-medium transition-all"
-              title="Download Full 160 Demos Catalogue as CSV"
+              title="Download Full Demos Catalogue as CSV"
             >
               <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="hidden sm:inline">Export CSV (160 Demos)</span>
+              <span className="hidden sm:inline">Export CSV ({allDemos.length} Demos)</span>
             </button>
           </div>
         </div>

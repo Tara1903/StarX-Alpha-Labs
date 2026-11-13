@@ -1,0 +1,968 @@
+[
+  {
+    "id": "92109c08-2fbb-41d4-a46c-34773d981351",
+    "catalog_id": 26,
+    "slug": "wholesale-distribution-management",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "70dd9981-3ee4-4c0b-af87-547ebca40483",
+    "catalog_id": 28,
+    "slug": "order-returns-management",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "da6913ec-f3ac-4a01-b735-6670d24f1b54",
+    "catalog_id": 24,
+    "slug": "multi-vendor-marketplace",
+    "publishing_status": "published"
+  },
+  {
+    "id": "47fc5050-85b2-44e9-b830-667a1ba065fe",
+    "catalog_id": 8,
+    "slug": "hotel-restaurant-management",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "c57c8348-99d8-4e5f-9556-d47be3a8c0c8",
+    "catalog_id": 5,
+    "slug": "bakery-management-system",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "755e94dd-14c0-4436-81b2-fd90ff8b3651",
+    "catalog_id": 1,
+    "slug": "restaurant-management-system",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "ac035c2c-2c3f-418b-ac7a-68f662628241",
+    "catalog_id": 20,
+    "slug": "furniture-store-management",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "5239384f-61bb-46c4-9745-5de20e3ae436",
+    "catalog_id": 3,
+    "slug": "cloud-kitchen-management",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "fbc29378-35f6-48d8-a322-8bf2cfe43df7",
+    "catalog_id": 11,
+    "slug": "bar-pub-management",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "541fe527-c77f-46f9-8943-3b332072a1ee",
+    "catalog_id": 13,
+    "slug": "grocery-fresh-food-ordering",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "e3a36a92-2c3a-49b4-a10b-694d04f393ec",
+    "catalog_id": 17,
+    "slug": "fashion-apparel-store",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "fae9d22f-efdd-41a5-bcd7-7276a1958954",
+    "catalog_id": 7,
+    "slug": "table-reservation-booking",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "f5aca349-9ba9-4b31-8309-7bf983bcd7a5",
+    "catalog_id": 9,
+    "slug": "catering-business-management",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "7bd0522a-7818-4810-a74a-f6f819a25226",
+    "catalog_id": 14,
+    "slug": "food-inventory-supply-management",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "245fc6ca-0854-4651-aedf-f928e03f4882",
+    "catalog_id": 18,
+    "slug": "electronics-store-management",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "9988d25d-337b-4d00-ad3b-2393c91a886e",
+    "catalog_id": 22,
+    "slug": "pharmacy-retail-management",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "819eff88-b1ba-405c-aa6c-4d4c90882f9e",
+    "catalog_id": 23,
+    "slug": "ecommerce-storefront",
+    "publishing_status": "published"
+  },
+  {
+    "id": "f714a020-c8f2-43dd-a43c-69391735ad88",
+    "catalog_id": 6,
+    "slug": "food-delivery-management",
+    "publishing_status": "published"
+  },
+  {
+    "id": "9e8d15ae-6133-41e7-ad28-1fe31b78a23d",
+    "catalog_id": 4,
+    "slug": "cafe-management-system",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "858a15f8-03c4-4c1b-953c-3b126df263a8",
+    "catalog_id": null,
+    "slug": "restaurant-management-pilot",
+    "publishing_status": "published"
+  },
+  {
+    "id": "7aeb1dce-b958-472f-a106-d5629de77053",
+    "catalog_id": 2,
+    "slug": "restaurant-pos-billing",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "382614de-4dfe-4c1f-a465-127493f7bfca",
+    "catalog_id": 12,
+    "slug": "qsr-management",
+    "publishing_status": "published"
+  },
+  {
+    "id": "11e99276-cf45-4e48-a1b8-6ff15b797db1",
+    "catalog_id": 10,
+    "slug": "food-truck-management",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "3493e7c7-51da-4040-8710-6dcdb0a816ce",
+    "catalog_id": 15,
+    "slug": "retail-store-management",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "bb4130ac-6db5-4bd5-8072-3a193179ec99",
+    "catalog_id": 16,
+    "slug": "multi-store-pos-system",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "1946b13b-490f-4757-927a-cf3a6c4f1e34",
+    "catalog_id": 19,
+    "slug": "grocery-store-management",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "8ea372e8-363d-4bef-beff-44d2e23ab7e8",
+    "catalog_id": 21,
+    "slug": "jewellery-store-management",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "2e54a99c-931a-40e8-8fb4-73a5a45aee69",
+    "catalog_id": 25,
+    "slug": "online-fashion-boutique",
+    "publishing_status": "published"
+  },
+  {
+    "id": "276e1931-4a29-4c94-9601-70fc8824daad",
+    "catalog_id": 27,
+    "slug": "inventory-stock-management",
+    "publishing_status": "archived"
+  },
+  {
+    "id": "624197c6-0e6a-480a-be64-f2a9de5dea9b",
+    "catalog_id": 29,
+    "slug": "hospital-management-system",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "ee7a7327-f32d-43b0-8947-43c10ff60400",
+    "catalog_id": 30,
+    "slug": "clinic-management-system",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "485f8ba4-2566-4044-8c63-eeb98e9fa414",
+    "catalog_id": 31,
+    "slug": "doctor-appointment-booking",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "cf34d3cd-6f51-4ad1-a4f4-96dbd1be54bd",
+    "catalog_id": 32,
+    "slug": "dental-clinic-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "3d006738-e47a-46db-b854-1c85b6e6c0db",
+    "catalog_id": 33,
+    "slug": "diagnostic-lab-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "ef4ae4a2-bf4b-4260-bc04-b39182f96b39",
+    "catalog_id": 34,
+    "slug": "pharmacy-management-system",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "1c749a68-f2aa-4b64-bef5-d3a6379bb02f",
+    "catalog_id": 35,
+    "slug": "patient-management-portal",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "9bcb77d3-5ff3-4a4e-b53b-793c518ac0ef",
+    "catalog_id": 36,
+    "slug": "telemedicine-platform",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "b137e5c7-d571-4ed6-9a64-8ca360049708",
+    "catalog_id": 37,
+    "slug": "physiotherapy-clinic-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "04239938-52fa-4025-9e2f-7350a7ce0610",
+    "catalog_id": 38,
+    "slug": "veterinary-clinic-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "d8d45de3-9650-4cc6-b4f5-78d402f1e8f3",
+    "catalog_id": 39,
+    "slug": "eye-care-optical-clinic",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "a151176a-dbba-4cd0-9527-51d929437a8b",
+    "catalog_id": 40,
+    "slug": "healthcare-billing-insurance",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "f9ba744d-d4d1-4da4-8682-28c74c9570ee",
+    "catalog_id": 41,
+    "slug": "medical-records-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "b0fb30f5-6d1f-4b9b-a81c-534c242fa014",
+    "catalog_id": 42,
+    "slug": "hospital-staff-operations",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "9643dae5-5822-4b4e-ac3a-d0a99ad146a7",
+    "catalog_id": 43,
+    "slug": "real-estate-property-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "3356251a-4e82-4a54-8596-1f119d649f63",
+    "catalog_id": 44,
+    "slug": "property-listing-marketplace",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "c5407113-26e8-4542-b027-ce998aa0e2d4",
+    "catalog_id": 45,
+    "slug": "real-estate-crm",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "ddf0be1f-6779-4a5d-9e71-94602f572bfa",
+    "catalog_id": 46,
+    "slug": "rental-property-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "fea28735-72ec-4895-b6ce-55a9f5410958",
+    "catalog_id": 47,
+    "slug": "apartment-society-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "25eaa6e1-4480-4bd9-88ee-ec65867248f9",
+    "catalog_id": 48,
+    "slug": "property-booking-platform",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "25cc9f86-1bf5-432d-acb1-60d8b40dfab7",
+    "catalog_id": 49,
+    "slug": "real-estate-agent-dashboard",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "f9642225-54d8-4edd-86db-39d8c128e333",
+    "catalog_id": 50,
+    "slug": "construction-project-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "72628bae-4498-4301-9a91-6ff16df319fa",
+    "catalog_id": 51,
+    "slug": "property-inspection-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "04a051ff-6743-42a5-85e5-ba1de7b732c9",
+    "catalog_id": 52,
+    "slug": "commercial-property-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "cb0fc62c-40f5-475d-8cd2-128dfe5d8fd8",
+    "catalog_id": 53,
+    "slug": "co-working-space-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "e0de75ff-3d9d-4053-8ed5-10abc87a2f51",
+    "catalog_id": 54,
+    "slug": "interior-design-studio-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "dc4c55f5-5875-4d3e-aa9b-bd499df0636b",
+    "catalog_id": 55,
+    "slug": "real-estate-lead-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "4f92050c-3c0b-4edb-9e25-259d62bd0d8a",
+    "catalog_id": 56,
+    "slug": "property-maintenance-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "50412031-08c3-4875-8162-5f7deee23a0b",
+    "catalog_id": 57,
+    "slug": "school-management-system",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "8d4ce05d-6c6a-413a-bb3d-d70ec5373b53",
+    "catalog_id": 58,
+    "slug": "college-management-system",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "c885d918-d9a7-49e0-b51a-7e00943fcf8c",
+    "catalog_id": 59,
+    "slug": "learning-management-system",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "9e4883b9-42ee-4c7d-85ec-b34a7859098c",
+    "catalog_id": 60,
+    "slug": "online-course-platform",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "86701e95-9164-40ed-b11b-75f6806b916e",
+    "catalog_id": 61,
+    "slug": "coaching-institute-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "f14576d7-8a65-49cb-b20c-d38e56c88435",
+    "catalog_id": 62,
+    "slug": "student-admission-portal",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "f6813c2b-59e9-427b-91eb-fec0a7896153",
+    "catalog_id": 63,
+    "slug": "examination-assessment-system",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "93fd0e89-7f0c-4e43-8261-77a7dd347c29",
+    "catalog_id": 64,
+    "slug": "tuition-centre-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "ebad2c42-cda5-4e7e-861f-a88ca0fabc8a",
+    "catalog_id": 65,
+    "slug": "university-administration-system",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "b9cf6f5d-7298-49fb-812f-a5a6d8de2d0d",
+    "catalog_id": 66,
+    "slug": "library-management-system",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "dea017e9-4c2a-47c9-9c60-66b1f239425e",
+    "catalog_id": 67,
+    "slug": "attendance-management-system",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "05860494-3f70-440c-b072-6ef9652e1593",
+    "catalog_id": 68,
+    "slug": "edtech-learning-marketplace",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "00b68142-e1c6-4c18-9318-96ea90ecf475",
+    "catalog_id": 69,
+    "slug": "training-certification-platform",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "8863a488-569d-4724-8281-ffe15acc8c7e",
+    "catalog_id": 70,
+    "slug": "car-dealership-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "803a66e4-d55e-40a2-8f85-de56074e0f53",
+    "catalog_id": 71,
+    "slug": "automobile-service-centre-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "f05592be-b39d-4c65-b0dc-508228e66a94",
+    "catalog_id": 72,
+    "slug": "vehicle-rental-platform",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "319cd8fb-8af4-4aa0-bdc8-5c0a90500d7a",
+    "catalog_id": 73,
+    "slug": "car-wash-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "7016a7bd-7de6-4319-9aa9-f5442528a0ac",
+    "catalog_id": 74,
+    "slug": "auto-parts-inventory-system",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "317126a3-08dd-4359-ab5e-ed80ad0fe5c3",
+    "catalog_id": 75,
+    "slug": "motorcycle-dealership-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "2bbe91f7-9738-4cc8-8cbf-1361c83a2831",
+    "catalog_id": 76,
+    "slug": "vehicle-inspection-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "3a851885-0e10-4401-9416-552f32c91ed2",
+    "catalog_id": 77,
+    "slug": "garage-workshop-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "5382b676-118b-4aea-9444-48fa88175a59",
+    "catalog_id": 78,
+    "slug": "ev-charging-station-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "5fae2fb7-d006-4435-b635-aaef80428183",
+    "catalog_id": 79,
+    "slug": "fleet-maintenance-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "20097657-ef3f-4fca-91b4-a88bd97ca14c",
+    "catalog_id": 80,
+    "slug": "driving-school-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "9893fc9f-522e-446c-a964-7877bf0ce68e",
+    "catalog_id": 81,
+    "slug": "used-car-marketplace",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "60f3f546-650f-40d4-b9e3-418783a75fe5",
+    "catalog_id": 82,
+    "slug": "automobile-crm-lead-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "86d6eb18-c905-45da-9485-61acfc5a3164",
+    "catalog_id": 83,
+    "slug": "salon-management-system",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "bca7781a-66eb-409a-b36d-8c1c0b49bcce",
+    "catalog_id": 84,
+    "slug": "spa-management-system",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "bd807bb6-4db6-4c15-a047-8640e811fa7c",
+    "catalog_id": 85,
+    "slug": "barber-shop-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "97eec364-bfb0-4040-805f-99da29d89d67",
+    "catalog_id": 86,
+    "slug": "beauty-parlour-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "83cecea6-faf1-451a-8985-7f49d363dcc2",
+    "catalog_id": 87,
+    "slug": "fitness-gym-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "348d8a8d-55cd-4525-bb7b-56b66752cfe5",
+    "catalog_id": 88,
+    "slug": "yoga-studio-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "6a2f47db-2a60-469e-9775-1b1c17ec5f6c",
+    "catalog_id": 89,
+    "slug": "personal-trainer-platform",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "f2ed35dc-3447-4c6b-ad4c-4c0a7c6b477b",
+    "catalog_id": 90,
+    "slug": "wellness-centre-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "49789a3b-23cc-4e93-bbca-388b0d6f7368",
+    "catalog_id": 91,
+    "slug": "skincare-beauty-ecommerce",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "3a9ea02a-6182-4d18-9a5c-d0f04601ee06",
+    "catalog_id": 92,
+    "slug": "makeup-artist-booking-platform",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "dfee1344-aa5a-453b-8ac8-f3c53b11a2d6",
+    "catalog_id": 93,
+    "slug": "massage-therapy-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "26f35eb2-6570-4e37-924a-2211ad5bc31f",
+    "catalog_id": 94,
+    "slug": "nutrition-diet-coaching-platform",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "efbeede0-8760-479f-a184-dce7153a556f",
+    "catalog_id": 95,
+    "slug": "tattoo-studio-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "d1f3b6ad-50f4-4e81-8b09-33425398f42e",
+    "catalog_id": 96,
+    "slug": "logistics-management-system",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "0978250d-88a2-4220-aff6-30e20658b1a2",
+    "catalog_id": 97,
+    "slug": "fleet-management-dashboard",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "39a958c2-24ff-4a78-b147-12dfecaa7c7b",
+    "catalog_id": 98,
+    "slug": "courier-delivery-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "553347d6-ce41-4244-a680-5934634ed823",
+    "catalog_id": 99,
+    "slug": "warehouse-management-system",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "d55c5e1b-5ae0-488d-813f-828a010d4ecb",
+    "catalog_id": 100,
+    "slug": "transportation-management-system",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "158175d1-616e-41f0-9477-120f87c976cd",
+    "catalog_id": 101,
+    "slug": "last-mile-delivery-platform",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "172f5ad4-bfb8-4db1-a1b4-2bafcd378675",
+    "catalog_id": 102,
+    "slug": "shipment-tracking-portal",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "0d2565bf-1a06-4cc5-bbe9-2c835ef1096a",
+    "catalog_id": 103,
+    "slug": "moving-relocation-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "4a6dad95-2829-44d8-a68f-213051fc75a7",
+    "catalog_id": 104,
+    "slug": "trucking-business-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "077da379-fc74-443a-a191-f5d879f1cd72",
+    "catalog_id": 105,
+    "slug": "freight-forwarding-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "ef71f325-6f2d-4757-8a0b-404a30670021",
+    "catalog_id": 106,
+    "slug": "delivery-partner-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "bb1213ca-9ca6-4f45-adc4-8a4309e866c1",
+    "catalog_id": 107,
+    "slug": "inventory-distribution-logistics",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "dbf55dc2-bc37-467e-80b1-4cfffcf4469a",
+    "catalog_id": 108,
+    "slug": "route-planning-optimization",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "8d8b3bdb-0d49-4031-9275-741e3af413f3",
+    "catalog_id": 109,
+    "slug": "law-firm-management-system",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "71dd4090-f016-4ce0-98e6-8102434ddff5",
+    "catalog_id": 110,
+    "slug": "accounting-ca-practice-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "17d4b234-ac73-4848-974e-91a097185278",
+    "catalog_id": 111,
+    "slug": "digital-marketing-agency-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "8ddd26ce-1b0c-43b4-82a5-04c5ddcadff0",
+    "catalog_id": 126,
+    "slug": "supply-chain-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "1d4916fb-d30d-4af0-9cc1-9d62ecf85798",
+    "catalog_id": 112,
+    "slug": "consultancy-management-system",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "54be5016-98cd-4577-93bc-b069b5a23b62",
+    "catalog_id": 113,
+    "slug": "hr-recruitment-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "0208277e-0e7f-40d7-881a-911189e8dd0e",
+    "catalog_id": 114,
+    "slug": "project-management-agency",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "c9cd2198-9cd0-4b8c-8880-19ddee3eb460",
+    "catalog_id": 115,
+    "slug": "architecture-firm-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "0be0a671-9d13-420e-a7f5-12ebefca8858",
+    "catalog_id": 116,
+    "slug": "engineering-consultancy-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "104dd256-9f7b-4746-b94c-a4234fca3ece",
+    "catalog_id": 117,
+    "slug": "insurance-agency-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "081d8619-c2db-49ae-abc5-b7c3d84b51fe",
+    "catalog_id": 118,
+    "slug": "financial-advisory-crm",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "1f389c31-57bf-4599-90b4-ad66efb2af6d",
+    "catalog_id": 119,
+    "slug": "photography-studio-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "df2f80dc-10cd-4a9c-81e9-f4b5c1eef6b3",
+    "catalog_id": 120,
+    "slug": "event-planning-business-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "e5c4fbfb-e5dc-411b-a7a0-8d0d5a1192e9",
+    "catalog_id": 121,
+    "slug": "cleaning-services-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "24b878da-2996-4de1-bce2-3ee23038f326",
+    "catalog_id": 122,
+    "slug": "manufacturing-erp-system",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "f781ae03-98fa-4c6c-ad50-2fbfa20b381d",
+    "catalog_id": 123,
+    "slug": "production-planning-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "61d71143-1024-4c07-bdd9-d1f5122b14fb",
+    "catalog_id": 124,
+    "slug": "factory-operations-dashboard",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "ce3842b3-97d0-4f1a-8edf-70dd49e899b6",
+    "catalog_id": 125,
+    "slug": "quality-control-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "049209e2-3a44-4fe2-a640-d11b4975fc0b",
+    "catalog_id": 127,
+    "slug": "raw-material-inventory-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "7a056139-f95b-46c7-83e4-43906d22c9ec",
+    "catalog_id": 128,
+    "slug": "industrial-equipment-maintenance",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "b975b8c1-b1e3-4cf7-b714-5f39dee00076",
+    "catalog_id": 129,
+    "slug": "garment-manufacturing-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "93a167e5-a06d-41b5-8b11-ca7a034f8b46",
+    "catalog_id": 130,
+    "slug": "food-processing-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "ec136013-8d2e-4d3d-8648-a29b61311d1d",
+    "catalog_id": 131,
+    "slug": "furniture-manufacturing-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "8846d4f6-fa8d-46da-b5c4-4d3132caef27",
+    "catalog_id": 132,
+    "slug": "electronics-manufacturing-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "5a403e43-fbbe-4557-af3c-548865da4568",
+    "catalog_id": 133,
+    "slug": "purchase-procurement-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "3d52700a-47c9-4cc6-93e3-0f3b82603e0e",
+    "catalog_id": 134,
+    "slug": "production-workforce-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "4a0c1fd2-88a7-4245-9d49-a287a7386699",
+    "catalog_id": 135,
+    "slug": "travel-agency-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "2b26e64e-5d1c-4bae-9396-0195193adf29",
+    "catalog_id": 136,
+    "slug": "tour-package-booking-platform",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "46fe5c78-a910-4d29-bd68-8c59effba663",
+    "catalog_id": 137,
+    "slug": "hotel-booking-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "868a1050-60ad-4743-9f00-f9c3ce6c5480",
+    "catalog_id": 138,
+    "slug": "flight-booking-platform",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "e403d792-2769-4919-bc60-0b0652a18cfe",
+    "catalog_id": 139,
+    "slug": "car-rental-travel-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "895001f4-27dc-449a-a150-e93faedb045d",
+    "catalog_id": 140,
+    "slug": "travel-planner-itinerary-builder",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "fccb09b8-f5b0-4257-9735-8e8417307e6a",
+    "catalog_id": 141,
+    "slug": "event-management-platform",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "403e0251-4a1a-43af-9b84-2e4bad8af2b1",
+    "catalog_id": 142,
+    "slug": "wedding-planning-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "97c4d8e4-25dc-4e40-b5a9-38cef570c314",
+    "catalog_id": 143,
+    "slug": "conference-exhibition-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "aa5c6c5a-1146-4d49-be03-f577d73b602b",
+    "catalog_id": 144,
+    "slug": "ticket-booking-platform",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "5b389f10-f6c1-4803-959a-a675a5b4b7b6",
+    "catalog_id": 145,
+    "slug": "resort-management-system",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "8e3f2cf7-90e2-4554-9b5e-ceabcf17b8b7",
+    "catalog_id": 146,
+    "slug": "adventure-tourism-booking",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "c2c07765-046d-4609-aa85-eac3365ca0e6",
+    "catalog_id": 147,
+    "slug": "guest-house-homestay-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "e3ccde10-ccf0-45a0-8195-5c6af7741518",
+    "catalog_id": 148,
+    "slug": "saas-subscription-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "289cc5a8-bcad-46dc-8cc5-53ea020e5f0c",
+    "catalog_id": 149,
+    "slug": "crm-software-platform",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "42ba8306-d569-4454-b571-156bac1733d1",
+    "catalog_id": 150,
+    "slug": "helpdesk-customer-support",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "b7ef0b5e-ca8e-4ef2-92ee-3a1a4b6513c9",
+    "catalog_id": 151,
+    "slug": "project-management-saas",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "a4591309-f5ba-4868-90e5-27358932702b",
+    "catalog_id": 152,
+    "slug": "ai-chatbot-management-platform",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "9cbd3188-f6a5-4f9c-a497-ca21538280e3",
+    "catalog_id": 153,
+    "slug": "website-builder-platform",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "2f34e91b-6bdb-4d02-be00-aad7bfd5d3c5",
+    "catalog_id": 154,
+    "slug": "email-marketing-automation",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "d2f7ea1d-5d95-4154-8ca0-02f95eade07f",
+    "catalog_id": 155,
+    "slug": "appointment-scheduling-saas",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "dba00fd1-d569-41ea-aa6c-f7d1e1d1ae15",
+    "catalog_id": 156,
+    "slug": "business-analytics-dashboard",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "965c816e-2acc-4094-b669-a6a40990fbec",
+    "catalog_id": 157,
+    "slug": "api-management-dashboard",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "73a72f09-0838-4470-910e-6dd63870eac1",
+    "catalog_id": 158,
+    "slug": "cloud-storage-management",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "5990a01c-6bed-44d8-8edb-233f2b59c49b",
+    "catalog_id": 159,
+    "slug": "it-asset-management-system",
+    "publishing_status": "unpublished"
+  },
+  {
+    "id": "af4ebb87-7622-4a94-b0f5-cd9aabb3f831",
+    "catalog_id": 160,
+    "slug": "team-collaboration-platform",
+    "publishing_status": "unpublished"
+  }
+]
