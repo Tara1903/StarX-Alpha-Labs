@@ -36,6 +36,34 @@ interface DemoDetailClientProps {
   relatedDemos: DemoModel[];
 }
 
+const ACTIVE_SANDBOX_SLUGS = [
+  // Category 01 — Food & Hospitality Complete 20-Product Suite
+  "restaurant-management-system",
+  "restaurant-pos-billing",
+  "cloud-kitchen-management",
+  "cafe-management-system",
+  "bakery-management-system",
+  "food-delivery-management",
+  "table-reservation-booking",
+  "hotel-restaurant-management",
+  "catering-business-management",
+  "food-truck-management",
+  "bar-pub-management",
+  "qsr-management",
+  "grocery-fresh-food-ordering",
+  "food-inventory-supply-management",
+  "luxe-dining-brand-experience",
+  "chef-curated-food-subscription",
+  "crave-native-android-ios-ordering-app",
+  "grand-palace-hotel-guest-portal",
+  "gourmet-artisan-catering-marketplace",
+  "omni-hospitality-digital-ecosystem",
+  // Additional Flagships
+  "ecommerce-storefront",
+  "multi-vendor-marketplace",
+  "online-fashion-boutique",
+];
+
 export function DemoDetailClient({ demo, relatedDemos }: DemoDetailClientProps) {
   const { t } = useLanguage();
   const [videoOpen, setVideoOpen] = useState(false);
@@ -160,16 +188,7 @@ export function DemoDetailClient({ demo, relatedDemos }: DemoDetailClientProps) 
               {/* Action Buttons Group */}
               <div className="pt-2 flex flex-wrap gap-3">
                 {/* 1. View Live Demo or Interactive Sandbox */}
-                {demo.availabilityStatus === "Live Demo" || [
-                  "luxe-dining-brand-experience",
-                  "grand-palace-hotel-guest-portal",
-                  "chef-curated-food-subscription",
-                  "food-delivery-management",
-                  "qsr-management",
-                  "ecommerce-storefront",
-                  "multi-vendor-marketplace",
-                  "online-fashion-boutique"
-                ].includes(demo.slug) ? (
+                {demo.availabilityStatus === "Live Demo" || ACTIVE_SANDBOX_SLUGS.includes(demo.slug) ? (
                   <Link
                     href={`/demos/${demo.categorySlug}/${demo.slug}/live`}
                     className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#1769AA] to-[#1F7ECB] hover:from-[#1E7ECA] hover:to-[#32A9E8] text-white font-bold text-sm shadow-xl shadow-[#1769AA]/40 flex items-center gap-2 border border-[#32A9E8]/50 transition-all"
@@ -342,7 +361,7 @@ export function DemoDetailClient({ demo, relatedDemos }: DemoDetailClientProps) 
                 Test how the application adapts for different user types. In the Live Sandbox, you can switch personas with one click.
               </p>
             </div>
-            {demo.availabilityStatus === "Live Demo" ? (
+            {demo.availabilityStatus === "Live Demo" || ACTIVE_SANDBOX_SLUGS.includes(demo.slug) ? (
               <Link
                 href={`/demos/${demo.categorySlug}/${demo.slug}/live`}
                 className="px-4 py-2 rounded-xl bg-[#1769AA] text-white text-xs font-semibold hover:bg-[#1E7ECA] flex items-center gap-1.5"

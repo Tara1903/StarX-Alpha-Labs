@@ -17,17 +17,95 @@ function ForgeRuntimeLoading() {
   );
 }
 
-// 5 Surviving Flagship Demonstrations + Protected Pilot
-const RestaurantManagementPilotApp = dynamic(
-  () => import("../pilots/RestaurantManagementPilotApp").then((m) => m.RestaurantManagementPilotApp),
+// -----------------------------------------------------------------------------
+// Category 01 — Food & Hospitality: Complete 20-Product Runtime Suite
+// -----------------------------------------------------------------------------
+const RestaurantManagementOsApp = dynamic(
+  () => import("../demos/cat01/RestaurantManagementOsApp").then((m) => m.RestaurantManagementOsApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const RestaurantPosBillingApp = dynamic(
+  () => import("../demos/cat01/RestaurantPosBillingApp").then((m) => m.RestaurantPosBillingApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const CloudKitchenHubApp = dynamic(
+  () => import("../demos/cat01/CloudKitchenHubApp").then((m) => m.CloudKitchenHubApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const CafeEspressoOsApp = dynamic(
+  () => import("../demos/cat01/CafeEspressoOsApp").then((m) => m.CafeEspressoOsApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const LeLevainBakehouseApp = dynamic(
+  () => import("../demos/cat01/LeLevainBakehouseApp").then((m) => m.LeLevainBakehouseApp),
   { loading: () => <ForgeRuntimeLoading /> }
 );
 const FoodDeliveryDispatchApp = dynamic(
   () => import("../demos/cat01/FoodDeliveryDispatchApp").then((m) => m.FoodDeliveryDispatchApp),
   { loading: () => <ForgeRuntimeLoading /> }
 );
+const VelvetHostReservationsApp = dynamic(
+  () => import("../demos/cat01/VelvetHostReservationsApp").then((m) => m.VelvetHostReservationsApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const AureliaGrandPmsApp = dynamic(
+  () => import("../demos/cat01/AureliaGrandPmsApp").then((m) => m.AureliaGrandPmsApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const BanquetFlowCateringApp = dynamic(
+  () => import("../demos/cat01/BanquetFlowCateringApp").then((m) => m.BanquetFlowCateringApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const StreetRollFoodTruckApp = dynamic(
+  () => import("../demos/cat01/StreetRollFoodTruckApp").then((m) => m.StreetRollFoodTruckApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const CopperStillBarPubApp = dynamic(
+  () => import("../demos/cat01/CopperStillBarPubApp").then((m) => m.CopperStillBarPubApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
 const SnapServeQsrApp = dynamic(
   () => import("../demos/cat01/SnapServeQsrApp").then((m) => m.SnapServeQsrApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const HarvestCartGroceryApp = dynamic(
+  () => import("../demos/cat01/HarvestCartGroceryApp").then((m) => m.HarvestCartGroceryApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const PantryLedgerWmsApp = dynamic(
+  () => import("../demos/cat01/PantryLedgerWmsApp").then((m) => m.PantryLedgerWmsApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const LuxeDiningExperienceApp = dynamic(
+  () => import("../demos/cat01/LuxeDiningExperienceApp").then((m) => m.LuxeDiningExperienceApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const ChefCuratedSubscriptionApp = dynamic(
+  () => import("../demos/cat01/ChefCuratedSubscriptionApp").then((m) => m.ChefCuratedSubscriptionApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const CraveGoNativeOrderingApp = dynamic(
+  () => import("../demos/cat01/CraveGoNativeOrderingApp").then((m) => m.CraveGoNativeOrderingApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const GrandPalaceGuestPortalApp = dynamic(
+  () => import("../demos/cat01/GrandPalaceGuestPortalApp").then((m) => m.GrandPalaceGuestPortalApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const GourmetTableMarketplaceApp = dynamic(
+  () => import("../demos/cat01/GourmetTableMarketplaceApp").then((m) => m.GourmetTableMarketplaceApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const OmniDineEcosystemApp = dynamic(
+  () => import("../demos/cat01/OmniDineEcosystemApp").then((m) => m.OmniDineEcosystemApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+
+// -----------------------------------------------------------------------------
+// Category 02 & Shared Flagships + Protected Pilot
+// -----------------------------------------------------------------------------
+const RestaurantManagementPilotApp = dynamic(
+  () => import("../pilots/RestaurantManagementPilotApp").then((m) => m.RestaurantManagementPilotApp),
   { loading: () => <ForgeRuntimeLoading /> }
 );
 const AuraDirectEcommerceApp = dynamic(
@@ -42,18 +120,6 @@ const MaisonEpureBoutiqueApp = dynamic(
   () => import("../demos/cat02/MaisonEpureBoutiqueApp").then((m) => m.MaisonEpureBoutiqueApp),
   { loading: () => <ForgeRuntimeLoading /> }
 );
-const LuxeDiningExperienceApp = dynamic(
-  () => import("../demos/cat01/LuxeDiningExperienceApp").then((m) => m.LuxeDiningExperienceApp),
-  { loading: () => <ForgeRuntimeLoading /> }
-);
-const GrandPalaceGuestPortalApp = dynamic(
-  () => import("../demos/cat01/GrandPalaceGuestPortalApp").then((m) => m.GrandPalaceGuestPortalApp),
-  { loading: () => <ForgeRuntimeLoading /> }
-);
-const ChefCuratedSubscriptionApp = dynamic(
-  () => import("../demos/cat01/ChefCuratedSubscriptionApp").then((m) => m.ChefCuratedSubscriptionApp),
-  { loading: () => <ForgeRuntimeLoading /> }
-);
 
 interface DemoRuntimeDispatcherProps {
   product: DemoProductDefinition;
@@ -61,8 +127,8 @@ interface DemoRuntimeDispatcherProps {
 
 /**
  * Runtime dispatcher for active StarX Forge customer-facing applications.
- * Following the portfolio reset, only the 5 surviving flagships and the Maison Ember
- * pilot are active. All other concepts display an honest build-pending engineering view.
+ * Category 01 (Food & Hospitality) features the complete 20-product suite.
+ * Additional surviving flagships and the Maison Ember pilot are also active.
  */
 export function DemoRuntimeDispatcher({ product }: DemoRuntimeDispatcherProps) {
   // 1. Protected Pilot (Maison Ember)
@@ -70,44 +136,127 @@ export function DemoRuntimeDispatcher({ product }: DemoRuntimeDispatcherProps) {
     return <RestaurantManagementPilotApp product={product} />;
   }
 
-  // 2. Demo #06 — Real-Time Food Delivery Dispatch & Radar Telemetry
+  // ---------------------------------------------------------------------------
+  // Category 01 — Food & Hospitality (IDs #01–#14, #161–#166)
+  // ---------------------------------------------------------------------------
+
+  // #01 — Restaurant Management & Kitchen Order Dispatch System
+  if (product.slug === "restaurant-management-system") {
+    return <RestaurantManagementOsApp product={product} />;
+  }
+
+  // #02 — Restaurant POS & Cloud Billing Terminal
+  if (product.slug === "restaurant-pos-billing") {
+    return <RestaurantPosBillingApp product={product} />;
+  }
+
+  // #03 — Multi-Brand Cloud Kitchen Management Hub
+  if (product.slug === "cloud-kitchen-management") {
+    return <CloudKitchenHubApp product={product} />;
+  }
+
+  // #04 — Artisan Cafe & Espresso Bar Management OS
+  if (product.slug === "cafe-management-system") {
+    return <CafeEspressoOsApp product={product} />;
+  }
+
+  // #05 — Artisan Bakery Production & Custom Cake Studio
+  if (product.slug === "bakery-management-system") {
+    return <LeLevainBakehouseApp product={product} />;
+  }
+
+  // #06 — Real-Time Food Delivery Dispatch & Radar Telemetry
   if (product.slug === "food-delivery-management") {
     return <FoodDeliveryDispatchApp product={product} />;
   }
 
-  // 3. Demo #12 — QSR Self-Service Ordering Kiosk & Kitchen Token Screen
+  // #07 — Fine Dining Table Reservation & Guest Host Stand
+  if (product.slug === "table-reservation-booking") {
+    return <VelvetHostReservationsApp product={product} />;
+  }
+
+  // #08 — Hotel Restaurant & Guest Folio PMS Integration
+  if (product.slug === "hotel-restaurant-management") {
+    return <AureliaGrandPmsApp product={product} />;
+  }
+
+  // #09 — Event Catering & Banquet Proposal Flow
+  if (product.slug === "catering-business-management") {
+    return <BanquetFlowCateringApp product={product} />;
+  }
+
+  // #10 — Mobile Food Truck Fleet Tracker & Live Street Pitch
+  if (product.slug === "food-truck-management") {
+    return <StreetRollFoodTruckApp product={product} />;
+  }
+
+  // #11 — Nightlife Bar, Craft Taproom & Tab Management
+  if (product.slug === "bar-pub-management") {
+    return <CopperStillBarPubApp product={product} />;
+  }
+
+  // #12 — QSR Self-Service Ordering Kiosk & Kitchen Token Screen
   if (product.slug === "qsr-management") {
     return <SnapServeQsrApp product={product} />;
   }
 
-  // 4. Demo #23 — LuxeCart D2C Brand E-Commerce Storefront
-  if (product.slug === "ecommerce-storefront") {
-    return <AuraDirectEcommerceApp product={product} />;
+  // #13 — Farm-Fresh Organic Grocery & Catch-Weight Delivery
+  if (product.slug === "grocery-fresh-food-ordering") {
+    return <HarvestCartGroceryApp product={product} />;
   }
 
-  // 5. Demo #24 — OmniBazaar Multi-Vendor Marketplace & Seller Onboarding
-  if (product.slug === "multi-vendor-marketplace") {
-    return <NexusMarketplaceApp product={product} />;
+  // #14 — Food Inventory, Expiry Tracking & Supply Chain WMS
+  if (product.slug === "food-inventory-supply-management") {
+    return <PantryLedgerWmsApp product={product} />;
   }
 
-  // 6. Demo #25 — Maison Soie Haute Couture Fashion Boutique & Interactive Lookbook
-  if (product.slug === "online-fashion-boutique") {
-    return <MaisonEpureBoutiqueApp product={product} />;
-  }
-
-  // 7. Demo #161 — Luxe Dining Brand Storytelling Website (Aurelia)
+  // #161 — Aurelia Luxe Dining Brand Storytelling Website
   if (product.slug === "luxe-dining-brand-experience") {
     return <LuxeDiningExperienceApp product={product} />;
   }
 
-  // 8. Demo #164 — Grand Palace Hotel Guest Experience Portal
+  // #162 — Artisanal Chef-Curated Meal Subscription Platform
+  if (product.slug === "chef-curated-food-subscription") {
+    return <ChefCuratedSubscriptionApp product={product} />;
+  }
+
+  // #163 — CraveGo Native iOS/Android Food Ordering App
+  if (product.slug === "crave-native-android-ios-ordering-app") {
+    return <CraveGoNativeOrderingApp product={product} />;
+  }
+
+  // #164 — Grand Palace Hotel Guest Experience Portal
   if (product.slug === "grand-palace-hotel-guest-portal") {
     return <GrandPalaceGuestPortalApp product={product} />;
   }
 
-  // 9. Demo #162 — Chef-Curated Meal Subscription Platform
-  if (product.slug === "chef-curated-food-subscription") {
-    return <ChefCuratedSubscriptionApp product={product} />;
+  // #165 — Gourmet Table Private Chef & Catering Marketplace
+  if (product.slug === "gourmet-artisan-catering-marketplace") {
+    return <GourmetTableMarketplaceApp product={product} />;
+  }
+
+  // #166 — OmniDine Hospitality Digital Ecosystem (3-Surface Suite)
+  if (product.slug === "omni-hospitality-digital-ecosystem") {
+    return <OmniDineEcosystemApp product={product} />;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Category 02 Flagships
+  // ---------------------------------------------------------------------------
+
+  // #23 — LuxeCart D2C Brand E-Commerce Storefront
+  if (product.slug === "ecommerce-storefront") {
+    return <AuraDirectEcommerceApp product={product} />;
+  }
+
+  // #24 — OmniBazaar Multi-Vendor Marketplace & Seller Onboarding
+  if (product.slug === "multi-vendor-marketplace") {
+    return <NexusMarketplaceApp product={product} />;
+  }
+
+  // #25 — Maison Soie Haute Couture Fashion Boutique & Interactive Lookbook
+  if (product.slug === "online-fashion-boutique") {
+    return <MaisonEpureBoutiqueApp product={product} />;
   }
 
   // All other concepts fall through to honest pending implementation view
