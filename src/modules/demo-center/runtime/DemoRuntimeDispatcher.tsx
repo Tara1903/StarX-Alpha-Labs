@@ -42,6 +42,18 @@ const MaisonEpureBoutiqueApp = dynamic(
   () => import("../demos/cat02/MaisonEpureBoutiqueApp").then((m) => m.MaisonEpureBoutiqueApp),
   { loading: () => <ForgeRuntimeLoading /> }
 );
+const LuxeDiningExperienceApp = dynamic(
+  () => import("../demos/cat01/LuxeDiningExperienceApp").then((m) => m.LuxeDiningExperienceApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const GrandPalaceGuestPortalApp = dynamic(
+  () => import("../demos/cat01/GrandPalaceGuestPortalApp").then((m) => m.GrandPalaceGuestPortalApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
+const ChefCuratedSubscriptionApp = dynamic(
+  () => import("../demos/cat01/ChefCuratedSubscriptionApp").then((m) => m.ChefCuratedSubscriptionApp),
+  { loading: () => <ForgeRuntimeLoading /> }
+);
 
 interface DemoRuntimeDispatcherProps {
   product: DemoProductDefinition;
@@ -81,6 +93,21 @@ export function DemoRuntimeDispatcher({ product }: DemoRuntimeDispatcherProps) {
   // 6. Demo #25 — Maison Soie Haute Couture Fashion Boutique & Interactive Lookbook
   if (product.slug === "online-fashion-boutique") {
     return <MaisonEpureBoutiqueApp product={product} />;
+  }
+
+  // 7. Demo #161 — Luxe Dining Brand Storytelling Website (Aurelia)
+  if (product.slug === "luxe-dining-brand-experience") {
+    return <LuxeDiningExperienceApp product={product} />;
+  }
+
+  // 8. Demo #164 — Grand Palace Hotel Guest Experience Portal
+  if (product.slug === "grand-palace-hotel-guest-portal") {
+    return <GrandPalaceGuestPortalApp product={product} />;
+  }
+
+  // 9. Demo #162 — Chef-Curated Meal Subscription Platform
+  if (product.slug === "chef-curated-food-subscription") {
+    return <ChefCuratedSubscriptionApp product={product} />;
   }
 
   // All other concepts fall through to honest pending implementation view
