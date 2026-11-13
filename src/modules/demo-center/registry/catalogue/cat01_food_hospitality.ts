@@ -284,7 +284,7 @@ export const CAT01_FOOD_HOSPITALITY = buildCategoryCatalogue(
       slug: "grand-palace-hotel-guest-portal",
       productType: "Customer Web Application",
       standardProductType: "web_application",
-      archetype: "clinic-operations",
+      archetype: "booking-calendar",
       shortDescription: "In-stay digital concierge for room service ordering, spa bookings, digital key card, and instant housekeeping requests.",
       fullDescription: "A frictionless guest companion web application accessible via in-room QR code for mobile check-in, live room service dining orders, resort experience reservations, and real-time chat with the front desk.",
       suitableFor: "Luxury hotels, boutique resorts, serviced apartments, and vacation villa estates",

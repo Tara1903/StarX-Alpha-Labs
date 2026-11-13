@@ -38,6 +38,57 @@ export function toCanonicalSlug(name: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+export function deriveStandardProductType(
+  spec: CanonicalCatalogSpec,
+  meta: CategoryBuildMeta
+): DemoProductType {
+  if (spec.standardProductType) return spec.standardProductType;
+  const pt = (spec.productType || "").toLowerCase();
+  const at = (spec.archetype || meta.defaultArchetype || "").toLowerCase();
+  const nm = (spec.name || "").toLowerCase();
+
+  if (pt.includes("marketplace") || nm.includes("marketplace") || pt.includes("exchange")) {
+    return "marketplace";
+  }
+  if (pt.includes("ecommerce") || pt.includes("storefront") || pt.includes("boutique") || at === "ecommerce-storefront") {
+    return "ecommerce_website";
+  }
+  if (pt.includes("subscription") || at === "subscription-hub") {
+    return "subscription_platform";
+  }
+  if (pt.includes("membership") || nm.includes("membership")) {
+    return "membership_platform";
+  }
+  if (pt.includes("ios") || nm.includes("ios")) {
+    return "native_ios_app";
+  }
+  if (pt.includes("android") || nm.includes("android")) {
+    return "native_android_app";
+  }
+  if (pt.includes("mobile app") || at === "mobile-app-showcase") {
+    return "native_android_app";
+  }
+  if (pt.includes("configurator") || pt.includes("3d") || pt.includes("ar") || at === "product-configurator" || at === "interactive-3d-experience") {
+    return "interactive_experience";
+  }
+  if (pt.includes("creator") || at === "creator-showcase") {
+    return "creator_platform";
+  }
+  if (pt.includes("corporate") || pt.includes("brand storytelling") || at === "brand-storytelling") {
+    return "brand_experience";
+  }
+  if (pt.includes("website") || nm.includes("website")) {
+    return "business_website";
+  }
+  if (pt.includes("ecosystem") || at === "ecosystem-suite") {
+    return "digital_ecosystem";
+  }
+  if (pt.includes("finance") || nm.includes("finance") || pt.includes("budgeting") || pt.includes("investment")) {
+    return "fintech_application";
+  }
+  return "web_application";
+}
+
 export function buildCategoryCatalogue(
   meta: CategoryBuildMeta,
   specs: CanonicalCatalogSpec[]
@@ -57,7 +108,7 @@ export function buildCategoryCatalogue(
       categorySlug: meta.categorySlug,
       archetype: spec.archetype || meta.defaultArchetype,
       productType: spec.productType,
-      standardProductType: spec.standardProductType,
+      standardProductType: spec.standardProductType || deriveStandardProductType(spec, meta),
       tagline: spec.shortDescription,
       shortDescription: spec.shortDescription,
       fullDescription: spec.fullDescription,

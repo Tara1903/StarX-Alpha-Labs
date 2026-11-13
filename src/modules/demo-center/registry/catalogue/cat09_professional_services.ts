@@ -213,7 +213,7 @@ export const CAT09_PROFESSIONAL_SERVICES = buildCategoryCatalogue(
       slug: "apex-law-firm-client-legal-portal",
       productType: "Legal Client Portal Web Application",
       standardProductType: "web_application",
-      archetype: "clinic-operations",
+      archetype: "kanban-workflow",
       shortDescription: "Secure legal client portal with encrypted case file room, transparent billable hours breakdown, and retainer trust payments.",
       fullDescription: "A high-security client portal designed for premier corporate law firms, litigation boutiques, and chartered accounting practices, enabling clients to access privileged legal briefs, review real-time matter billing ledgers, and pay retainers via secure trust account rails.",
       suitableFor: "Corporate law firms, litigation chambers, tax advisory practices, and high-stakes legal consultants",
