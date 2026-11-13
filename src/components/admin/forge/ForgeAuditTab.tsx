@@ -67,10 +67,6 @@ export function ForgeAuditTab({ onShowToast }: ForgeAuditTabProps) {
     switch (decision) {
       case "KEEP":
         return "bg-emerald-500/15 text-emerald-400 border-emerald-500/30";
-      case "RECLASSIFY":
-        return "bg-blue-500/15 text-blue-400 border-blue-500/30";
-      case "REBUILD":
-        return "bg-amber-500/15 text-amber-400 border-amber-500/30";
       case "SCRAP":
         return "bg-rose-500/15 text-rose-400 border-rose-500/30";
     }
@@ -94,18 +90,17 @@ export function ForgeAuditTab({ onShowToast }: ForgeAuditTabProps) {
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Batch 1 & 2 Portfolio Audit: 12 Industry Solutions with Differentiated Product Types
+            Portfolio Reset: Customer-Facing Digital Products Over Internal Dashboards
           </h2>
 
           <p className="text-sm text-slate-300 max-w-3xl leading-relaxed">
-            StarX Alpha Labs maintains exactly 12 industry categories across the public showcase. Management software is an independent
-            product type (<code className="text-cyan-400 font-mono">business_management_software</code>), integrated directly into its native industry (e.g. Restaurant Management in Food & Hospitality, Multi-Store POS in Retail & Ecommerce).
+            StarX Alpha Labs showcases the digital products businesses purchase: premium business websites, e-commerce storefronts, mobile apps, customer portals, and marketplaces across exactly 12 industry categories. Internal management dashboards have been scrapped from the active showcase.
           </p>
         </div>
       </div>
 
       {/* Metrics Counter Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="p-4 rounded-xl bg-[#0A172C] border border-[#173863]">
           <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider block">Audited Demos</span>
           <div className="mt-1 flex items-baseline gap-2">
@@ -124,31 +119,13 @@ export function ForgeAuditTab({ onShowToast }: ForgeAuditTabProps) {
           <span className="text-[10px] text-slate-400 mt-1 block">Customer digital products</span>
         </div>
 
-        <div className="p-4 rounded-xl bg-[#0A172C] border border-blue-500/30">
-          <span className="text-[11px] font-medium text-blue-400 uppercase tracking-wider block">RECLASSIFY</span>
-          <div className="mt-1 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-blue-400">{metrics.reclassifyCount}</span>
-            <span className="text-xs text-slate-400">({Math.round((metrics.reclassifyCount / metrics.totalAudited) * 100)}%)</span>
-          </div>
-          <span className="text-[10px] text-slate-400 mt-1 block">Typed as Business Mgmt</span>
-        </div>
-
-        <div className="p-4 rounded-xl bg-[#0A172C] border border-amber-500/30">
-          <span className="text-[11px] font-medium text-amber-400 uppercase tracking-wider block">REBUILD</span>
-          <div className="mt-1 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-amber-400">{metrics.rebuildCount}</span>
-            <span className="text-xs text-slate-400">({Math.round((metrics.rebuildCount / metrics.totalAudited) * 100)}%)</span>
-          </div>
-          <span className="text-[10px] text-slate-400 mt-1 block">Consumer product rebuilds</span>
-        </div>
-
         <div className="p-4 rounded-xl bg-[#0A172C] border border-rose-500/30">
-          <span className="text-[11px] font-medium text-rose-400 uppercase tracking-wider block">SCRAP</span>
+          <span className="text-[11px] font-medium text-rose-400 uppercase tracking-wider block">SCRAP (Archived)</span>
           <div className="mt-1 flex items-baseline gap-2">
             <span className="text-2xl font-black text-rose-400">{metrics.scrapCount}</span>
             <span className="text-xs text-slate-400">({Math.round((metrics.scrapCount / metrics.totalAudited) * 100)}%)</span>
           </div>
-          <span className="text-[10px] text-slate-400 mt-1 block">Redundant / weak models</span>
+          <span className="text-[10px] text-slate-400 mt-1 block">Internal admin dashboards</span>
         </div>
 
         <div className="p-4 rounded-xl bg-[#0A172C] border border-[#173863]">
@@ -170,8 +147,8 @@ export function ForgeAuditTab({ onShowToast }: ForgeAuditTabProps) {
           </p>
           <p>
             The public catalogue strictly retains the 12 industry categories matching the homepage 2×6 layout.
-            The 16 reclassified applications (#01, #02, #03, #08, #09, #15, #16, #17, #18, #19, #20, #21, #22, #26, #27, #28)
-            remain anchored in their native industries (Food & Hospitality or Retail & Ecommerce) with their product type standardized as <code className="text-blue-400 font-mono">business_management_software</code>.
+            The 23 legacy management tools have been scrapped from the active showcase to preserve agency brand positioning.
+            Future additions will be customer-facing products (websites, stores, mobile apps, booking portals).
           </p>
         </div>
       </div>
@@ -244,9 +221,7 @@ export function ForgeAuditTab({ onShowToast }: ForgeAuditTabProps) {
           >
             <option value="ALL">All Decisions</option>
             <option value="KEEP">KEEP (5 Flagships)</option>
-            <option value="RECLASSIFY">RECLASSIFY (16 Management)</option>
-            <option value="REBUILD">REBUILD (4 High-Potential)</option>
-            <option value="SCRAP">SCRAP (3 Weak)</option>
+            <option value="SCRAP">SCRAP (23 Scrapped / Archived)</option>
           </select>
 
           <span className="text-xs text-slate-400 ml-auto font-mono">

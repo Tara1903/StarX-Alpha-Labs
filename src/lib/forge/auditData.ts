@@ -1,6 +1,6 @@
 import type { DemoProductType } from "@/types/demo";
 
-export type AuditDecision = "KEEP" | "RECLASSIFY" | "REBUILD" | "SCRAP";
+export type AuditDecision = "KEEP" | "SCRAP";
 
 export interface DemoAuditRecord {
   id: number;
@@ -29,7 +29,9 @@ export interface DemoAuditRecord {
 }
 
 export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
-  // --- BATCH 01: FOOD & HOSPITALITY ---
+  // =========================================================================
+  // BATCH 01: FOOD & HOSPITALITY (14 DEMOS: 2 KEEP, 12 SCRAP)
+  // =========================================================================
   {
     id: 1,
     catalogId: 1,
@@ -40,13 +42,13 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     originalCategoryName: "Food & Hospitality",
     targetCategorySlug: "food-hospitality",
     targetCategoryName: "Food & Hospitality",
-    productType: "business_management_software",
+    productType: "web_application",
     scores: { design: 23, functionality: 23, completeness: 19, originality: 13, commercial: 14, total: 92 },
-    decision: "RECLASSIFY",
-    analysisReasoning: "Highly capable multi-table floor state engine, KOT kitchen dispatch, recipe costing and shift management. A genuine enterprise operational software suite retained within Food & Hospitality under the business_management_software product type.",
+    decision: "SCRAP",
+    analysisReasoning: "Internal dining operations dashboard (floor plan, KOT dispatch, recipe costing). Scrapped in portfolio reset to abandon internal management software in favor of client-sellable customer-facing dining websites and guest portals.",
     salvageableAssets: ["Interactive 12-table floor plan canvas", "Real-time KOT audio alert dispatcher", "Bill split and course-firing algorithms"],
-    issuesFound: ["Previously unclassified product type; now standardized as business_management_software"],
-    recommendedAction: "Retain in Food & Hospitality category with standardized product type 'business_management_software'."
+    issuesFound: ["Back-office management software rather than customer-facing digital product"],
+    recommendedAction: "Scrapped. Reusable floor canvas and bill split components archived."
   },
   {
     id: 2,
@@ -58,13 +60,13 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     originalCategoryName: "Food & Hospitality",
     targetCategorySlug: "food-hospitality",
     targetCategoryName: "Food & Hospitality",
-    productType: "business_management_software",
+    productType: "web_application",
     scores: { design: 22, functionality: 23, completeness: 18, originality: 11, commercial: 12, total: 86 },
-    decision: "RECLASSIFY",
-    analysisReasoning: "Fast-touch cashier terminal with numpad item entry, split bill drawer, and GST invoice formatting. Retained in Food & Hospitality under the business_management_software product type.",
+    decision: "SCRAP",
+    analysisReasoning: "Cashier billing terminal with numpad entry and split payments. Scrapped in portfolio reset; clients do not buy standalone web POS terminals from a digital agency.",
     salvageableAssets: ["Numpad speed-dial component", "Split payment calculator", "Thermal print CSS preview"],
-    issuesFound: ["Overlaps with demo #01 floor billing; specialized for rapid counter checkout"],
-    recommendedAction: "Retain in Food & Hospitality category with product type 'business_management_software'."
+    issuesFound: ["Operational cashier terminal; zero consumer web appeal"],
+    recommendedAction: "Scrapped. Payment split calculator harvested for consumer checkout."
   },
   {
     id: 3,
@@ -76,13 +78,13 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     originalCategoryName: "Food & Hospitality",
     targetCategorySlug: "food-hospitality",
     targetCategoryName: "Food & Hospitality",
-    productType: "business_management_software",
+    productType: "web_application",
     scores: { design: 21, functionality: 23, completeness: 18, originality: 11, commercial: 13, total: 86 },
-    decision: "RECLASSIFY",
-    analysisReasoning: "Multi-brand ghost kitchen order consolidation, aggregator dispatch integration (Swiggy/Zomato), and packaging lines. Operational business software within Food & Hospitality.",
-    salvageableAssets: ["Multi-brand kitchen router", "Rider pickup countdown timer", "Kitchen ticket line-printer layout"],
-    issuesFound: ["B2B back-office tool now cleanly typed as business_management_software"],
-    recommendedAction: "Retain in Food & Hospitality category with product type 'business_management_software'."
+    decision: "SCRAP",
+    analysisReasoning: "Multi-brand ghost kitchen order consolidation and station dispatch. Scrapped in portfolio reset to focus on customer-facing multi-brand food ordering apps.",
+    salvageableAssets: ["Multi-brand station router", "Rider pickup countdown timer", "Kitchen ticket line-printer layout"],
+    issuesFound: ["Internal commissary tooling without consumer interface"],
+    recommendedAction: "Scrapped. Station router archived."
   },
   {
     id: 4,
@@ -96,11 +98,11 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     targetCategoryName: "Food & Hospitality",
     productType: "pwa",
     scores: { design: 18, functionality: 17, completeness: 14, originality: 11, commercial: 10, total: 70 },
-    decision: "REBUILD",
-    analysisReasoning: "Valuable boutique cafe concept built as a generic back-office dashboard rather than the customer-facing mobile ordering PWA with bean flavor notes and loyalty stamp card that specialty coffee shops purchase.",
+    decision: "SCRAP",
+    analysisReasoning: "Previous implementation was built as a dark back-office dashboard instead of a customer-facing cafe app. Existing code scrapped; slated for brand-new customer ordering PWA concept.",
     salvageableAssets: ["Roaster bean profile schema", "Beverage modifier options (milk substitutes, syrups)"],
-    issuesFound: ["Looks like a dark dashboard rather than an inviting artisan cafe product", "Lacks customer ordering journey"],
-    recommendedAction: "Rebuild as an Artisan Specialty Cafe Mobile Ordering & Stamp Loyalty PWA in Food & Hospitality."
+    issuesFound: ["Dark dashboard interface; lacks customer mobile ordering journey"],
+    recommendedAction: "Scrapped. Slated for fresh consumer PWA design in future catalogue."
   },
   {
     id: 5,
@@ -114,11 +116,11 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     targetCategoryName: "Food & Hospitality",
     productType: "ecommerce_website",
     scores: { design: 17, functionality: 17, completeness: 13, originality: 10, commercial: 10, total: 67 },
-    decision: "REBUILD",
-    analysisReasoning: "High commercial interest concept implemented as internal flour batch yields rather than a luxury cake designer studio and pastry pre-ordering storefront.",
+    decision: "SCRAP",
+    analysisReasoning: "Implemented as internal flour batch yields and oven schedules. Existing code scrapped to make way for a luxury custom cake studio and pastry ecommerce storefront.",
     salvageableAssets: ["Recipe batch scaling multiplier", "Allergen matrix badges"],
-    issuesFound: ["Missing bespoke custom cake inquiry builder", "Missing pastry storefront visuals"],
-    recommendedAction: "Rebuild as a Custom Cake Studio & Bakehouse Online Ordering Storefront in Food & Hospitality."
+    issuesFound: ["Industrial bakery schedule rather than consumer pastry storefront"],
+    recommendedAction: "Scrapped. Allergen badges archived."
   },
   {
     id: 6,
@@ -133,10 +135,10 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     productType: "web_application",
     scores: { design: 22, functionality: 23, completeness: 18, originality: 12, commercial: 13, total: 88 },
     decision: "KEEP",
-    analysisReasoning: "Top-tier real-time delivery logistics dispatch application with live SVG radar tracking, rider battery/speed telemetry, and geofence alerts.",
-    salvageableAssets: ["Live SVG delivery map component", "Fleet rider status monitor", "Order dispatch stepper"],
-    issuesFound: ["Minor: Simulated socket event for rider progress"],
-    recommendedAction: "Keep as a premier Food & Hospitality logistics demo."
+    analysisReasoning: "Exceptional real-time delivery logistics dispatch application with live SVG radar tracking, rider battery/speed telemetry, and geofence alerts. A genuine, sellable logistics web app.",
+    salvageableAssets: ["Live SVG delivery radar map", "Fleet rider status monitor", "Order dispatch stepper"],
+    issuesFound: ["None. Retained as flagship demo."],
+    recommendedAction: "KEEP. Maintained active in Food & Hospitality showcase."
   },
   {
     id: 7,
@@ -150,11 +152,11 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     targetCategoryName: "Food & Hospitality",
     productType: "web_application",
     scores: { design: 20, functionality: 19, completeness: 15, originality: 11, commercial: 11, total: 76 },
-    decision: "REBUILD",
-    analysisReasoning: "Currently built as a host-stand reception planner rather than an OpenTable-style guest booking portal with tasting menu prepayment, party size selector, and dietary note collection.",
+    decision: "SCRAP",
+    analysisReasoning: "Built from the perspective of a restaurant maitre d' rather than a customer dining reservation experience. Existing code scrapped for fresh consumer guest booking portal.",
     salvageableAssets: ["Table assignment slot algorithm", "VIP diner history profile"],
-    issuesFound: ["Inverted perspective: built for the maitre d' instead of the guest"],
-    recommendedAction: "Rebuild as a Guest Table Reservation & Dining Experience Booking Platform in Food & Hospitality."
+    issuesFound: ["Host-stand perspective rather than guest booking experience"],
+    recommendedAction: "Scrapped. Time-slot picker logic archived."
   },
   {
     id: 8,
@@ -166,13 +168,13 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     originalCategoryName: "Food & Hospitality",
     targetCategorySlug: "food-hospitality",
     targetCategoryName: "Food & Hospitality",
-    productType: "business_management_software",
+    productType: "web_application",
     scores: { design: 20, functionality: 20, completeness: 16, originality: 11, commercial: 12, total: 79 },
-    decision: "RECLASSIFY",
-    analysisReasoning: "Enterprise PMS integration for room service charge posting, multi-outlet dining billing, and room guest account reconciliation. Retained within Food & Hospitality as business_management_software.",
-    salvageableAssets: ["Room folio billing mapper", "Banquet dining ledger component"],
-    issuesFound: ["Operational hotel PMS tool standardized as business_management_software"],
-    recommendedAction: "Retain in Food & Hospitality category with product type 'business_management_software'."
+    decision: "SCRAP",
+    analysisReasoning: "Enterprise PMS integration for hotel room folio charges and banquet ledgers. Scrapped as back-office management software.",
+    salvageableAssets: ["Room folio charge posting mapper", "Banquet dining ledger component"],
+    issuesFound: ["Enterprise hotel back-office PMS; zero client showcase appeal"],
+    recommendedAction: "Scrapped. Folio charge engine archived."
   },
   {
     id: 9,
@@ -184,13 +186,13 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     originalCategoryName: "Food & Hospitality",
     targetCategorySlug: "food-hospitality",
     targetCategoryName: "Food & Hospitality",
-    productType: "business_management_software",
+    productType: "web_application",
     scores: { design: 19, functionality: 19, completeness: 16, originality: 11, commercial: 11, total: 76 },
-    decision: "RECLASSIFY",
-    analysisReasoning: "Full Banquet Event Order (BEO) contract workflow, per-head ingredient scaling, equipment checklist, and staff deployment schedules. Retained within Food & Hospitality.",
+    decision: "SCRAP",
+    analysisReasoning: "Banquet event order (BEO) contract workflow and equipment checklist. Scrapped in portfolio reset.",
     salvageableAssets: ["BEO generator", "Headcount ingredient calculation engine"],
-    issuesFound: ["Heavy internal back-office format now correctly designated as business_management_software"],
-    recommendedAction: "Retain in Food & Hospitality category with product type 'business_management_software'."
+    issuesFound: ["Heavy internal back-office format"],
+    recommendedAction: "Scrapped. Headcount calculation logic archived."
   },
   {
     id: 10,
@@ -205,10 +207,10 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     productType: "web_application",
     scores: { design: 13, functionality: 13, completeness: 11, originality: 8, commercial: 7, total: 52 },
     decision: "SCRAP",
-    analysisReasoning: "Weak commercial value. Duplicates generic POS features of demo #02 without solving actual food truck pain points (offline sync, live roaming GPS).",
+    analysisReasoning: "Weak commercial value. Redundant basic POS with low enterprise differentiation. Scrapped permanently.",
     salvageableAssets: ["Live GPS location broadcasting badge"],
-    issuesFound: ["Redundant with demo #02", "Low enterprise purchasing interest"],
-    recommendedAction: "Scrap from active showcase. Archive source; harvest GPS broadcasting component."
+    issuesFound: ["Redundant with POS #02; low client demand"],
+    recommendedAction: "Scrapped permanently."
   },
   {
     id: 11,
@@ -220,13 +222,13 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     originalCategoryName: "Food & Hospitality",
     targetCategorySlug: "food-hospitality",
     targetCategoryName: "Food & Hospitality",
-    productType: "business_management_software",
+    productType: "web_application",
     scores: { design: 16, functionality: 15, completeness: 12, originality: 9, commercial: 8, total: 60 },
     decision: "SCRAP",
-    analysisReasoning: "Redundant with demo #01 (Aura Dine) and #02 (Apex POS). Bar tabs and pour tracking are already covered; lacks smart tap flow meter IoT telemetry.",
+    analysisReasoning: "Redundant duplicate of bar tabs and pour tracking. Scrapped permanently.",
     salvageableAssets: ["Keg percentage visual gauge", "Happy hour timed pricing toggle"],
     issuesFound: ["Heavy duplication with restaurant POS"],
-    recommendedAction: "Scrap from active showcase. Merge keg telemetry into demo #01 bar module."
+    recommendedAction: "Scrapped permanently."
   },
   {
     id: 12,
@@ -241,10 +243,10 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     productType: "web_application",
     scores: { design: 21, functionality: 21, completeness: 17, originality: 11, commercial: 12, total: 82 },
     decision: "KEEP",
-    analysisReasoning: "Outstanding dual-mode kiosk and rapid kitchen order dispatch. Fast oversized touch targets, meal combo upsells, and token queue display.",
+    analysisReasoning: "Outstanding dual-mode self-service ordering kiosk and rapid counter dispatch with oversized touch targets, meal combo upsells, and token queue display. A genuine customer-facing digital product.",
     salvageableAssets: ["Oversized touch ordering interface", "Fast food combo configurator", "Token calling screen"],
-    issuesFound: ["Kiosk full-screen mode needs minor styling polish"],
-    recommendedAction: "Keep as a flagship Food & Hospitality QSR self-service product."
+    issuesFound: ["None. Retained as flagship QSR demo."],
+    recommendedAction: "KEEP. Maintained active in Food & Hospitality showcase."
   },
   {
     id: 13,
@@ -258,11 +260,11 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     targetCategoryName: "Food & Hospitality",
     productType: "ecommerce_website",
     scores: { design: 17, functionality: 18, completeness: 15, originality: 10, commercial: 10, total: 70 },
-    decision: "REBUILD",
-    analysisReasoning: "Valuable farm-to-table concept built as internal procurement sheets rather than an engaging consumer organic grocery subscription storefront.",
+    decision: "SCRAP",
+    analysisReasoning: "Built as internal procurement sheets rather than an engaging consumer organic grocery subscription storefront. Existing code scrapped for future consumer storefront.",
     salvageableAssets: ["Perishable freshness countdown", "Weight-based gram pricing selector"],
-    issuesFound: ["Missing organic produce photography and subscription weekly basket builder"],
-    recommendedAction: "Rebuild as a Farm-to-Door Organic Produce & Weekly Subscription Storefront in Food & Hospitality."
+    issuesFound: ["Internal procurement focus rather than consumer shopping experience"],
+    recommendedAction: "Scrapped. Weight calculation logic archived."
   },
   {
     id: 14,
@@ -274,16 +276,18 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     originalCategoryName: "Food & Hospitality",
     targetCategorySlug: "food-hospitality",
     targetCategoryName: "Food & Hospitality",
-    productType: "business_management_software",
+    productType: "web_application",
     scores: { design: 15, functionality: 15, completeness: 12, originality: 8, commercial: 8, total: 58 },
     decision: "SCRAP",
-    analysisReasoning: "Weak differentiation. Pure spreadsheet-like stock levels that are completely superseded and outclassed by demo #27 (OmniVault WMS).",
+    analysisReasoning: "Weak differentiation spreadsheet-like inventory table. Scrapped permanently.",
     salvageableAssets: ["FIFO stock expiry badge component"],
-    issuesFound: ["Complete overlap with enterprise WMS #27", "Uninspired tabular UI"],
-    recommendedAction: "Scrap from active showcase. Consolidate food supply rules into demo #27."
+    issuesFound: ["Uninspired tabular UI with zero customer-facing product value"],
+    recommendedAction: "Scrapped permanently."
   },
 
-  // --- BATCH 02: RETAIL & ECOMMERCE ---
+  // =========================================================================
+  // BATCH 02: RETAIL & ECOMMERCE (14 DEMOS: 3 KEEP, 11 SCRAP)
+  // =========================================================================
   {
     id: 15,
     catalogId: 15,
@@ -294,13 +298,13 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     originalCategoryName: "Retail & Ecommerce",
     targetCategorySlug: "retail-ecommerce",
     targetCategoryName: "Retail & Ecommerce",
-    productType: "business_management_software",
+    productType: "web_application",
     scores: { design: 23, functionality: 23, completeness: 18, originality: 13, commercial: 14, total: 91 },
-    decision: "RECLASSIFY",
-    analysisReasoning: "Comprehensive multi-counter store operations, supplier purchase orders, returns and shift reconciliation. Retained within Retail & Ecommerce with product type business_management_software.",
+    decision: "SCRAP",
+    analysisReasoning: "Multi-counter retail store manager with supplier POs and register closeouts. Scrapped as internal back-office tool.",
     salvageableAssets: ["Daily register closeout modal", "Supplier PO generation flow", "Staff shift metrics"],
-    issuesFound: ["Correctly classified under Retail & Ecommerce with product type business_management_software"],
-    recommendedAction: "Retain in Retail & Ecommerce category with product type 'business_management_software'."
+    issuesFound: ["Back-office operational tool rather than customer-facing retail product"],
+    recommendedAction: "Scrapped. Modal layouts archived."
   },
   {
     id: 16,
@@ -312,13 +316,13 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     originalCategoryName: "Retail & Ecommerce",
     targetCategorySlug: "retail-ecommerce",
     targetCategoryName: "Retail & Ecommerce",
-    productType: "business_management_software",
+    productType: "web_application",
     scores: { design: 24, functionality: 24, completeness: 19, originality: 14, commercial: 14, total: 95 },
-    decision: "RECLASSIFY",
-    analysisReasoning: "Exceptional multi-location chain POS with branch switcher, inter-store stock transfer requests, and consolidated sales auditing. Retained in Retail & Ecommerce.",
+    decision: "SCRAP",
+    analysisReasoning: "High-grade multi-location cashier POS terminal. Scrapped as management software; clients buy D2C storefronts and branded mobile apps.",
     salvageableAssets: ["Branch switcher topbar", "Inter-store transfer request workflow", "Consolidated chain revenue chart"],
-    issuesFound: ["Standardized product type as business_management_software"],
-    recommendedAction: "Retain in Retail & Ecommerce category with product type 'business_management_software'."
+    issuesFound: ["Internal cashier POS rather than consumer shopping experience"],
+    recommendedAction: "Scrapped. Branch switcher component archived."
   },
   {
     id: 17,
@@ -330,13 +334,13 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     originalCategoryName: "Retail & Ecommerce",
     targetCategorySlug: "retail-ecommerce",
     targetCategoryName: "Retail & Ecommerce",
-    productType: "business_management_software",
+    productType: "web_application",
     scores: { design: 23, functionality: 23, completeness: 18, originality: 13, commercial: 14, total: 91 },
-    decision: "RECLASSIFY",
-    analysisReasoning: "Complete apparel merchandising platform with size/color SKU matrix, designer season collections, and return/exchange ledger. Operational software within Retail & Ecommerce.",
+    decision: "SCRAP",
+    analysisReasoning: "Back-office apparel SKU matrix and seasonal designer collection manager. Scrapped in portfolio reset.",
     salvageableAssets: ["Size x Color variant matrix", "Seasonal collection manager", "Garment exchange workflow"],
-    issuesFound: ["Back-office merchandising system classified as business_management_software"],
-    recommendedAction: "Retain in Retail & Ecommerce category with product type 'business_management_software'."
+    issuesFound: ["Back-office merchandising system rather than consumer fashion storefront"],
+    recommendedAction: "Scrapped. Variant matrix logic archived."
   },
   {
     id: 18,
@@ -348,13 +352,13 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     originalCategoryName: "Retail & Ecommerce",
     targetCategorySlug: "retail-ecommerce",
     targetCategoryName: "Retail & Ecommerce",
-    productType: "business_management_software",
+    productType: "web_application",
     scores: { design: 23, functionality: 23, completeness: 18, originality: 13, commercial: 14, total: 91 },
-    decision: "RECLASSIFY",
-    analysisReasoning: "High-grade electronics management suite with serialized IMEI tracking, manufacturer warranty ledger, and repair service job cards. Retained within Retail & Ecommerce.",
+    decision: "SCRAP",
+    analysisReasoning: "Hardware serial number/IMEI tracking and repair job cards. Scrapped as internal repair shop software.",
     salvageableAssets: ["IMEI/Serial lookup scanner simulator", "Warranty period tracker", "Repair job card workflow"],
-    issuesFound: ["High-complexity hardware tool designated as business_management_software"],
-    recommendedAction: "Retain in Retail & Ecommerce category with product type 'business_management_software'."
+    issuesFound: ["Service bay management software rather than electronics ecommerce experience"],
+    recommendedAction: "Scrapped. Serial lookup component archived."
   },
   {
     id: 19,
@@ -366,13 +370,13 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     originalCategoryName: "Retail & Ecommerce",
     targetCategorySlug: "retail-ecommerce",
     targetCategoryName: "Retail & Ecommerce",
-    productType: "business_management_software",
+    productType: "web_application",
     scores: { design: 22, functionality: 23, completeness: 18, originality: 13, commercial: 14, total: 90 },
-    decision: "RECLASSIFY",
-    analysisReasoning: "Fast supermarket checkout with barcode scan simulation, weight tare calculation, perishable expiry tracking, and supplier restocking POs. Retained within Retail & Ecommerce.",
+    decision: "SCRAP",
+    analysisReasoning: "Supermarket cashier barcode checkout and spoilage write-offs. Scrapped as back-office management tool.",
     salvageableAssets: ["Weight tare calculator", "Barcode audio beeper simulation", "Perishable shelf-life audit board"],
-    issuesFound: ["Supermarket POS and inventory designated as business_management_software"],
-    recommendedAction: "Retain in Retail & Ecommerce category with product type 'business_management_software'."
+    issuesFound: ["Cashier checkout terminal rather than consumer grocery shopping app"],
+    recommendedAction: "Scrapped. Audio beeper and tare calculator archived."
   },
   {
     id: 20,
@@ -384,13 +388,13 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     originalCategoryName: "Retail & Ecommerce",
     targetCategorySlug: "retail-ecommerce",
     targetCategoryName: "Retail & Ecommerce",
-    productType: "business_management_software",
+    productType: "web_application",
     scores: { design: 23, functionality: 23, completeness: 19, originality: 13, commercial: 14, total: 92 },
-    decision: "RECLASSIFY",
-    analysisReasoning: "Bespoke furniture retail platform featuring room collection sets, material & finish swatch selectors, quotation builder, and 2-man delivery scheduling. Retained within Retail & Ecommerce.",
-    salvageableAssets: ["Finish swatch selector", "Quotation builder modal", "Two-man white-glove delivery scheduler"],
-    issuesFound: ["Back-office quotation and dispatch tool classified as business_management_software"],
-    recommendedAction: "Retain in Retail & Ecommerce category with product type 'business_management_software'."
+    decision: "SCRAP",
+    analysisReasoning: "Furniture quote builder and two-man delivery route scheduler. Scrapped as internal logistics software.",
+    salvageableAssets: ["Finish swatch selector", "Quotation builder modal", "Two-man delivery scheduler"],
+    issuesFound: ["Internal operations suite rather than consumer furniture ecommerce store"],
+    recommendedAction: "Scrapped. Swatch selector archived."
   },
   {
     id: 21,
@@ -402,13 +406,13 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     originalCategoryName: "Retail & Ecommerce",
     targetCategorySlug: "retail-ecommerce",
     targetCategoryName: "Retail & Ecommerce",
-    productType: "business_management_software",
+    productType: "web_application",
     scores: { design: 24, functionality: 24, completeness: 19, originality: 13, commercial: 14, total: 94 },
-    decision: "RECLASSIFY",
-    analysisReasoning: "Remarkable bullion and jewellery retail suite featuring a live daily gold rate board, wastage & making charge calculations, and government HUID hallmarking verification. Retained within Retail & Ecommerce.",
+    decision: "SCRAP",
+    analysisReasoning: "Bullion gold rate board and HUID government hallmarking verifier. Scrapped as back-office jewelry operations.",
     salvageableAssets: ["Live bullion rate recalculation ticker", "HUID hallmarking certificate modal", "Wastage and making charge breakdown"],
-    issuesFound: ["High-value bullion operations classified as business_management_software"],
-    recommendedAction: "Retain in Retail & Ecommerce category with product type 'business_management_software'."
+    issuesFound: ["Bullion back-office operations rather than luxury consumer jewelry boutique"],
+    recommendedAction: "Scrapped. Gold ticker component archived."
   },
   {
     id: 22,
@@ -420,13 +424,13 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     originalCategoryName: "Retail & Ecommerce",
     targetCategorySlug: "retail-ecommerce",
     targetCategoryName: "Retail & Ecommerce",
-    productType: "business_management_software",
+    productType: "web_application",
     scores: { design: 23, functionality: 23, completeness: 19, originality: 13, commercial: 14, total: 92 },
-    decision: "RECLASSIFY",
-    analysisReasoning: "Highly compliant pharmacy dispensary system with Schedule H1 prescription enforcement, batch-wise strip/tablet unit conversion, and expired batch quarantine. Retained within Retail & Ecommerce.",
+    decision: "SCRAP",
+    analysisReasoning: "Pharmacy dispensary with Schedule H1 prescription verification and strip unit conversion. Scrapped as medical dispensary software.",
     salvageableAssets: ["Rx prescription requirement gate", "Strip vs. loose tablet unit converter", "Batch expiry quarantine manager"],
-    issuesFound: ["Clinical dispensary system designated as business_management_software"],
-    recommendedAction: "Retain in Retail & Ecommerce category with product type 'business_management_software'."
+    issuesFound: ["Dispensary compliance software rather than consumer wellness / pharmacy ecommerce"],
+    recommendedAction: "Scrapped. Rx upload gate archived."
   },
   {
     id: 23,
@@ -441,10 +445,10 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     productType: "ecommerce_website",
     scores: { design: 24, functionality: 24, completeness: 20, originality: 14, commercial: 14, total: 96 },
     decision: "KEEP",
-    analysisReasoning: "Superb consumer-facing D2C digital product! Full product detail modal, multi-item cart slideover drawer, promo code discounts, and simulated Stripe/UPI checkout.",
+    analysisReasoning: "Superb consumer-facing D2C digital product! Full product detail modal, multi-item cart slideover drawer, promo code discounts, and simulated checkout.",
     salvageableAssets: ["Cart slideover drawer with quantity controls", "Simulated checkout payment sheet", "Product filter sidebar"],
-    issuesFound: ["None. Excellent consumer digital product."],
-    recommendedAction: "Keep as flagship showcase in Retail & Ecommerce."
+    issuesFound: ["None. Retained as premier D2C Storefront flagship demo."],
+    recommendedAction: "KEEP. Maintained active in Retail & Ecommerce showcase."
   },
   {
     id: 24,
@@ -461,8 +465,8 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     decision: "KEEP",
     analysisReasoning: "A true 3-sided marketplace experience! Product catalog with vendor storefronts, seller onboarding modal, commission rate ledger, and multi-vendor split cart.",
     salvageableAssets: ["Vendor storefront badge card", "Marketplace commission calculation engine", "Seller application workflow"],
-    issuesFound: ["None. Complete multi-sided digital product."],
-    recommendedAction: "Keep as premier Marketplace demo in Retail & Ecommerce."
+    issuesFound: ["None. Retained as premier Marketplace flagship demo."],
+    recommendedAction: "KEEP. Maintained active in Retail & Ecommerce showcase."
   },
   {
     id: 25,
@@ -477,10 +481,10 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     productType: "ecommerce_website",
     scores: { design: 25, functionality: 25, completeness: 20, originality: 14, commercial: 14, total: 98 },
     decision: "KEEP",
-    analysisReasoning: "The gold standard of luxury digital products! Interactive editorial lookbook with clickable hotspot tags, live size/color pill selectors, curated stories, and couture drawer checkout.",
-    salvageableAssets: ["Interactive editorial lookbook hotspot viewer", "Fabric composition and care modal", "Luxury slide-out shopping bag"],
+    analysisReasoning: "The pinnacle of luxury digital products! Interactive editorial lookbook with clickable hotspot tags, live size/color pill selectors, curated stories, and couture drawer checkout.",
+    salvageableAssets: ["Interactive editorial lookbook hotspot viewer", "Fabric composition modal", "Luxury slide-out shopping bag"],
     issuesFound: ["None. Highest scoring demo in portfolio."],
-    recommendedAction: "Keep as premier Haute Couture flagship product in Retail & Ecommerce."
+    recommendedAction: "KEEP. Maintained active in Retail & Ecommerce showcase."
   },
   {
     id: 26,
@@ -492,13 +496,13 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     originalCategoryName: "Retail & Ecommerce",
     targetCategorySlug: "retail-ecommerce",
     targetCategoryName: "Retail & Ecommerce",
-    productType: "business_management_software",
+    productType: "web_application",
     scores: { design: 23, functionality: 23, completeness: 18, originality: 14, commercial: 14, total: 92 },
-    decision: "RECLASSIFY",
-    analysisReasoning: "B2B wholesale trading suite with tiered quantity pricing, client trade credit limits, proforma invoices, and pallet logistics estimators. Retained within Retail & Ecommerce.",
+    decision: "SCRAP",
+    analysisReasoning: "B2B wholesale trading suite with tiered quantity pricing and customer credit limits. Scrapped as back-office wholesale management software.",
     salvageableAssets: ["Tiered quantity price matrix", "Trade credit limit approval badge", "Proforma invoice generator"],
-    issuesFound: ["B2B enterprise portal correctly typed as business_management_software"],
-    recommendedAction: "Retain in Retail & Ecommerce category with product type 'business_management_software'."
+    issuesFound: ["B2B enterprise portal without consumer retail digital experience"],
+    recommendedAction: "Scrapped. Price matrix archived."
   },
   {
     id: 27,
@@ -510,13 +514,13 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     originalCategoryName: "Retail & Ecommerce",
     targetCategorySlug: "retail-ecommerce",
     targetCategoryName: "Retail & Ecommerce",
-    productType: "business_management_software",
+    productType: "web_application",
     scores: { design: 25, functionality: 25, completeness: 19, originality: 14, commercial: 14, total: 97 },
-    decision: "RECLASSIFY",
-    analysisReasoning: "A masterpiece of warehouse management! Interactive 4-aisle bin locator grid, wave picking status board, cycle count audits, and automatic stock reorder triggers. Retained in Retail & Ecommerce.",
+    decision: "SCRAP",
+    analysisReasoning: "Masterpiece warehouse management system with 4-aisle bin locator and wave picking. Scrapped as internal logistics software; client companies buy customer portals and websites.",
     salvageableAssets: ["Visual 4-aisle warehouse bin grid", "Wave picking status dispatch board", "Cycle count discrepancy logger"],
-    issuesFound: ["Industrial inventory suite designated as business_management_software"],
-    recommendedAction: "Retain in Retail & Ecommerce category with product type 'business_management_software'."
+    issuesFound: ["Pure warehouse management software with zero consumer product appeal"],
+    recommendedAction: "Scrapped. Bin locator and wave picking engine archived."
   },
   {
     id: 28,
@@ -528,16 +532,18 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     originalCategoryName: "Retail & Ecommerce",
     targetCategorySlug: "retail-ecommerce",
     targetCategoryName: "Retail & Ecommerce",
-    productType: "business_management_software",
+    productType: "web_application",
     scores: { design: 24, functionality: 24, completeness: 19, originality: 14, commercial: 14, total: 95 },
-    decision: "RECLASSIFY",
-    analysisReasoning: "Comprehensive reverse logistics engine! Customer RMA claim submission, photographic proof review, return authorization approval, courier reverse pickup, and instant refund credit. Retained in Retail & Ecommerce.",
+    decision: "SCRAP",
+    analysisReasoning: "Reverse logistics RMA platform with photographic inspection and courier reverse pickup. Scrapped as internal operations software.",
     salvageableAssets: ["RMA photo inspection gallery", "Reverse courier AWB generator", "Store credit refund processor"],
-    issuesFound: ["Reverse logistics operations designated as business_management_software"],
-    recommendedAction: "Retain in Retail & Ecommerce category with product type 'business_management_software'."
+    issuesFound: ["Internal operations suite rather than customer digital product"],
+    recommendedAction: "Scrapped. Photo inspection gallery archived."
   },
 
-  // --- PILOT: MAISON EMBER (Rule 10 Preservation) ---
+  // =========================================================================
+  // PILOT: MAISON EMBER (Protected Pilot under Rule 10)
+  // =========================================================================
   {
     id: 0,
     catalogId: 0,
@@ -554,28 +560,26 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     analysisReasoning: "The foundational production pilot. Preserved unconditionally under Rule 10 with published status intact.",
     salvageableAssets: ["Original sound-effects player", "Fine dining dark theme tokens", "Maison Ember visual identity"],
     issuesFound: ["None. Protected pilot benchmark."],
-    recommendedAction: "Retain published status and pilot isolation per Rule 10."
+    recommendedAction: "KEEP (PILOT). Retain published status and pilot isolation per Rule 10."
   }
 ];
 
 export interface PortfolioAuditMetrics {
   totalAudited: number;
   keepCount: number;
+  scrapCount: number;
   reclassifyCount: number;
   rebuildCount: number;
-  scrapCount: number;
   averageScore: number;
   highestScoring: { name: string; score: number };
   lowestScoring: { name: string; score: number };
 }
 
 export function getPortfolioAuditMetrics(): PortfolioAuditMetrics {
-  const demosOnly = PORTFOLIO_AUDIT_DATA.filter(d => d.batch !== "Pilot");
-  const total = demosOnly.length;
-  const keep = demosOnly.filter(d => d.decision === "KEEP").length;
-  const reclassify = demosOnly.filter(d => d.decision === "RECLASSIFY").length;
-  const rebuild = demosOnly.filter(d => d.decision === "REBUILD").length;
-  const scrap = demosOnly.filter(d => d.decision === "SCRAP").length;
+  const demosOnly = PORTFOLIO_AUDIT_DATA.filter((d) => d.batch !== "Pilot");
+  const total = demosOnly.length; // 28
+  const keep = demosOnly.filter((d) => d.decision === "KEEP").length; // 5
+  const scrap = demosOnly.filter((d) => d.decision === "SCRAP").length; // 23
 
   const sum = demosOnly.reduce((acc, d) => acc + d.scores.total, 0);
   const avg = Math.round(sum / total);
@@ -590,11 +594,11 @@ export function getPortfolioAuditMetrics(): PortfolioAuditMetrics {
   return {
     totalAudited: total,
     keepCount: keep,
-    reclassifyCount: reclassify,
-    rebuildCount: rebuild,
     scrapCount: scrap,
+    reclassifyCount: 0,
+    rebuildCount: 0,
     averageScore: avg,
     highestScoring: { name: highest.name, score: highest.scores.total },
-    lowestScoring: { name: lowest.name, score: lowest.scores.total }
+    lowestScoring: { name: lowest.name, score: lowest.scores.total },
   };
 }

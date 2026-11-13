@@ -39,7 +39,7 @@ export function IndustriesSection() {
             <span className="w-12 h-0.5 bg-gradient-to-l from-transparent to-[#00D9FF]" />
           </h2>
           <p className="text-sm text-[#C8D5EF] max-w-xl mx-auto">
-            Battle-tested industry architectures pre-configured with real-time dispatch, POS billing, and automated workflows.
+            Production-grade digital products, e-commerce storefronts, mobile apps, and customer platforms engineered for scale.
           </p>
         </div>
 
