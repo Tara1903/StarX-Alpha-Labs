@@ -9,10 +9,15 @@ import {
   BookOpen,
   CheckCircle2,
   ChefHat,
+  ChevronDown,
+  ChevronUp,
   ClipboardList,
   Clock,
   Flame,
+  Layers,
   LayoutGrid,
+  Link2,
+  Maximize2,
   Menu,
   Package,
   Plus,
@@ -21,10 +26,13 @@ import {
   Search,
   Sparkles,
   Trash2,
+  Unlink,
   UserCheck,
   Users,
   Utensils,
   X,
+  ZoomIn,
+  ZoomOut,
 } from "lucide-react";
 import type { DemoProductDefinition } from "../../types";
 import { toDemoModel } from "../../registry";
@@ -98,6 +106,21 @@ export function RestaurantManagementOsApp({ product }: { product: DemoProductDef
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
   const [settleCheckTarget, setSettleCheckTarget] = useState<VesperaCheck | null>(null);
   const [checkStatusFilter, setCheckStatusFilter] = useState<"All" | VesperaCheck["status"]>("All");
+
+  // Interactive Floor Map Zoom & Pan State
+  const [zoomLevel, setZoomLevel] = useState<number>(100);
+  const handleZoomIn = () => setZoomLevel((z) => Math.min(150, z + 15));
+  const handleZoomOut = () => setZoomLevel((z) => Math.max(75, z - 15));
+  const handleResetZoom = () => setZoomLevel(100);
+
+  // Table Grouping & Merging State
+  const [mergeModalOpen, setMergeModalOpen] = useState(false);
+  const [mergePrimaryId, setMergePrimaryId] = useState<string>("");
+  const [mergeSecondaryId, setMergeSecondaryId] = useState<string>("");
+  const [mergeError, setMergeError] = useState<string>("");
+
+  // Mobile Telemetry Drawer
+  const [mobileMetricsOpen, setMobileMetricsOpen] = useState(false);
 
   const notify = (msg: string) => {
     setToast(msg);
@@ -341,6 +364,89 @@ export function RestaurantManagementOsApp({ product }: { product: DemoProductDef
     notify(`${check.ticketNumber} settled via ${method} — table moved to Cleaning.`);
   };
 
+  const handleConfirmMerge = () => {
+    if (!mergePrimaryId || !mergeSecondaryId) {
+      setMergeError("Please select both tables to merge.");
+      return;
+    }
+    if (mergePrimaryId === mergeSecondaryId) {
+      setMergeError("Cannot merge a table with itself.");
+      return;
+    }
+    const t1 = state.tables.find((t) => t.id === mergePrimaryId);
+    const t2 = state.tables.find((t) => t.id === mergeSecondaryId);
+    if (!t1 || !t2) {
+      setMergeError("Invalid table selection.");
+      return;
+    }
+
+    setState((prev) => ({
+      ...prev,
+      tables: prev.tables.map((t) => {
+        if (t.id === t1.id) {
+          return {
+            ...t,
+            code: `${t1.code}+${t2.code.replace("T-", "")}`,
+            seats: t1.seats + t2.seats,
+            mergedWith: t2.id,
+          };
+        }
+        if (t.id === t2.id) {
+          return {
+            ...t,
+            status: "Cleaning",
+            guestName: `Joined with ${t1.code}`,
+            mergedWith: t1.id,
+          };
+        }
+        return t;
+      }),
+    }));
+
+    setMergeModalOpen(false);
+    const combinedCode = `${t1.code}+${t2.code.replace("T-", "")}`;
+    const totalCap = t1.seats + t2.seats;
+    setMergePrimaryId("");
+    setMergeSecondaryId("");
+    setMergeError("");
+    notify(`Combined ${t1.code} & ${t2.code} into station ${combinedCode} (${totalCap} seats).`);
+  };
+
+  const handleUnmergeTable = (tableId: string) => {
+    const table = state.tables.find((t) => t.id === tableId);
+    if (!table || !table.mergedWith) return;
+    const partnerId = table.mergedWith;
+
+    const seedT1 = VESPERA_BISTRO_SEED.tables.find((t) => t.id === table.id);
+    const seedT2 = VESPERA_BISTRO_SEED.tables.find((t) => t.id === partnerId);
+
+    setState((prev) => ({
+      ...prev,
+      tables: prev.tables.map((t) => {
+        if (t.id === table.id) {
+          return {
+            ...t,
+            code: seedT1?.code || t.code.split("+")[0],
+            seats: seedT1?.seats || 4,
+            mergedWith: undefined,
+          };
+        }
+        if (t.id === partnerId) {
+          return {
+            ...t,
+            code: seedT2?.code || t.code,
+            seats: seedT2?.seats || 4,
+            status: "Available",
+            guestName: undefined,
+            mergedWith: undefined,
+          };
+        }
+        return t;
+      }),
+    }));
+    notify(`Separated merged station ${table.code} back to independent tables.`);
+  };
+
   const handleCreateDish = (e: React.FormEvent) => {
     e.preventDefault();
     const price = Number(dishForm.price);
@@ -417,12 +523,12 @@ export function RestaurantManagementOsApp({ product }: { product: DemoProductDef
     <div className="min-h-screen bg-[#0F1419] text-[#F5F2EB] flex flex-col font-sans selection:bg-[#D96B43]/30">
       {/* Top Evaluation Utility + Vespera Live Service Bar */}
       <header className="sticky top-0 z-30 border-b border-[#252F3A] bg-[#0A0F14]/95 backdrop-blur-md">
-        <div className="px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
+        <div className="px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               type="button"
               onClick={() => setMobileMenuOpen((v) => !v)}
-              className="lg:hidden p-2 rounded border border-[#252F3A] bg-[#171C21] text-[#F5F2EB]"
+              className="lg:hidden p-1.5 sm:p-2 rounded border border-[#252F3A] bg-[#171C21] text-[#F5F2EB]"
               aria-label="Toggle navigation"
             >
               {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -430,51 +536,51 @@ export function RestaurantManagementOsApp({ product }: { product: DemoProductDef
 
             <Link
               href={`/demos/${product.categorySlug}/${product.slug}`}
-              className="inline-flex items-center gap-1.5 text-xs text-[#9BA3AF] hover:text-[#F5F2EB] border border-[#252F3A] px-2.5 py-1.5 rounded bg-[#171C21]"
+              className="inline-flex items-center gap-1 text-xs text-[#9BA3AF] hover:text-[#F5F2EB] border border-[#252F3A] px-2 py-1.5 rounded bg-[#171C21] shrink-0"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              Back
+              <span className="hidden sm:inline">Back</span>
             </Link>
 
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded bg-[#D96B43] text-[#0F1419] font-bold flex items-center justify-center font-mono text-sm">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded bg-[#D96B43] text-[#0F1419] font-bold flex items-center justify-center font-mono text-xs sm:text-sm shrink-0">
                 V
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold tracking-tight text-sm text-[#F5F2EB]">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="font-semibold tracking-tight text-xs sm:text-sm text-[#F5F2EB] truncate">
                     Vespera Bistro OS
                   </span>
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#4CA771]/15 text-[#7ED99F] border border-[#4CA771]/35">
+                  <span className="hidden xs:inline-block text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#4CA771]/15 text-[#7ED99F] border border-[#4CA771]/35">
                     {state.serviceName}
                   </span>
                 </div>
-                <p className="text-[11px] font-mono text-[#9BA3AF]">
-                  Covers {telemetry.openCovers}/{telemetry.totalSeats} • Gross ₹{telemetry.shiftGross.toLocaleString("en-IN")}
+                <p className="text-[10px] sm:text-[11px] font-mono text-[#9BA3AF] truncate">
+                  Covers {telemetry.openCovers}/{telemetry.totalSeats} • <span className="hidden sm:inline">Gross </span>₹{telemetry.shiftGross.toLocaleString("en-IN")}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="relative hidden sm:block">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <div className="relative hidden md:block">
               <Search className="w-3.5 h-3.5 text-[#9BA3AF] absolute left-2.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search table, guest, check..."
-                className="pl-8 pr-3 py-1.5 w-52 text-xs rounded bg-[#171C21] border border-[#252F3A] text-[#F5F2EB] placeholder:text-[#6B7280] focus:outline-none focus:border-[#D96B43]"
+                placeholder="Search table, guest..."
+                className="pl-8 pr-3 py-1.5 w-40 lg:w-52 text-xs rounded bg-[#171C21] border border-[#252F3A] text-[#F5F2EB] placeholder:text-[#6B7280] focus:outline-none focus:border-[#D96B43]"
               />
             </div>
 
             <button
               type="button"
               onClick={() => setActiveView("menu")}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-mono border border-[#E59840]/40 bg-[#211A14] text-[#FFB86D]"
+              className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-mono border border-[#E59840]/40 bg-[#211A14] text-[#FFB86D]"
             >
               <AlertTriangle className="w-3.5 h-3.5" />
-              86 List ({telemetry.eightySixCount})
+              86 ({telemetry.eightySixCount})
             </button>
 
             <button
@@ -486,10 +592,20 @@ export function RestaurantManagementOsApp({ product }: { product: DemoProductDef
                 }));
                 setWalkInModalOpen(true);
               }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold bg-[#D96B43] hover:bg-[#E07A5F] text-[#F5F2EB] cursor-pointer"
+              className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded text-xs font-semibold bg-[#D96B43] hover:bg-[#E07A5F] text-[#F5F2EB] cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
-              Seat Walk-In
+              <span>Seat Walk-In</span>
+            </button>
+
+            {/* Mobile Shift Metrics expander */}
+            <button
+              type="button"
+              onClick={() => setMobileMetricsOpen((v) => !v)}
+              className="sm:hidden p-1.5 rounded border border-[#252F3A] bg-[#171C21] text-[#9BA3AF]"
+              aria-label="Toggle telemetry metrics"
+            >
+              {mobileMetricsOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </button>
 
             <button
@@ -498,22 +614,51 @@ export function RestaurantManagementOsApp({ product }: { product: DemoProductDef
                 resetState();
                 notify("Restored Vespera Bistro seed telemetry.");
               }}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs border border-[#252F3A] bg-[#171C21] hover:bg-[#202934] text-[#9BA3AF] hover:text-[#F5F2EB] cursor-pointer"
+              className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs border border-[#252F3A] bg-[#171C21] hover:bg-[#202934] text-[#9BA3AF] hover:text-[#F5F2EB] cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              {hasReset ? "Reset" : "Reset"}
+              Reset
             </button>
 
             <button
               type="button"
               onClick={() => setCustomModalOpen(true)}
-              className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs border border-[#D96B43]/40 bg-[#D96B43]/10 text-[#FFB59C] hover:bg-[#D96B43]/20 cursor-pointer"
+              className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs border border-[#D96B43]/40 bg-[#D96B43]/10 text-[#FFB59C] hover:bg-[#D96B43]/20 cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              Customize System
+              Customize
             </button>
           </div>
         </div>
+
+        {/* Collapsible Mobile Telemetry Strip */}
+        {mobileMetricsOpen && (
+          <div className="sm:hidden px-4 py-2 border-t border-[#252F3A] bg-[#14181D] grid grid-cols-2 gap-2 text-[11px] font-mono">
+            <div className="p-1.5 rounded bg-[#0F1419] border border-[#252F3A]">
+              <span className="text-[#9BA3AF] block text-[9px] uppercase">Avg Check</span>
+              <span className="text-[#F5F2EB] font-bold">₹{telemetry.avgCheck.toLocaleString("en-IN")}</span>
+            </div>
+            <div className="p-1.5 rounded bg-[#0F1419] border border-[#252F3A]">
+              <span className="text-[#9BA3AF] block text-[9px] uppercase">86'd Dishes</span>
+              <span className="text-[#FFB86D] font-bold">{telemetry.eightySixCount} items</span>
+            </div>
+            <div className="p-1.5 rounded bg-[#0F1419] border border-[#252F3A]">
+              <span className="text-[#9BA3AF] block text-[9px] uppercase">Low Pantry</span>
+              <span className="text-[#E59840] font-bold">{telemetry.lowStockItems.length} alerts</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                resetState();
+                notify("Reset telemetry state.");
+              }}
+              className="p-1.5 rounded bg-[#202934] border border-[#252F3A] text-[#9BA3AF] hover:text-[#F5F2EB] flex items-center justify-center gap-1"
+            >
+              <RotateCcw className="w-3 h-3" />
+              Reset Seed
+            </button>
+          </div>
+        )}
       </header>
 
       {/* Main Workspace Frame */}
@@ -575,7 +720,7 @@ export function RestaurantManagementOsApp({ product }: { product: DemoProductDef
           {activeView === "floor" && (
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
               <div className="xl:col-span-8 space-y-5">
-                {/* Zone Tabs & Live Metrics Strip */}
+                {/* Zone Tabs & Live Metrics Strip + Interactive Floor Toolbar */}
                 <div className="flex flex-wrap items-center justify-between gap-3 bg-[#171C21] border border-[#252F3A] rounded-lg px-4 py-3">
                   <div className="flex flex-wrap items-center gap-1.5">
                     {(["All", "Main Dining", "Chef's Counter", "Atrium Patio"] as const).map((z) => (
@@ -593,8 +738,55 @@ export function RestaurantManagementOsApp({ product }: { product: DemoProductDef
                       </button>
                     ))}
                   </div>
-                  <div className="flex items-center gap-3 text-xs font-mono">
-                    <span className="text-[#7ED99F]">
+
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs font-mono">
+                    {/* Floor Zoom & Pan Controls */}
+                    <div className="flex items-center gap-1 bg-[#0F1419] border border-[#252F3A] rounded px-1.5 py-1">
+                      <button
+                        type="button"
+                        onClick={handleZoomOut}
+                        disabled={zoomLevel <= 75}
+                        title="Zoom Out Floor Map"
+                        className="p-1 rounded text-[#9BA3AF] hover:text-[#F5F2EB] disabled:opacity-40 cursor-pointer"
+                        aria-label="Zoom out"
+                      >
+                        <ZoomOut className="w-3.5 h-3.5" />
+                      </button>
+                      <span className="text-[11px] font-semibold text-[#FFB59C] px-1 select-none">
+                        {zoomLevel}%
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleZoomIn}
+                        disabled={zoomLevel >= 150}
+                        title="Zoom In Floor Map"
+                        className="p-1 rounded text-[#9BA3AF] hover:text-[#F5F2EB] disabled:opacity-40 cursor-pointer"
+                        aria-label="Zoom in"
+                      >
+                        <ZoomIn className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleResetZoom}
+                        title="Reset 100% Fit"
+                        className="ml-1 pl-1.5 border-l border-[#252F3A] text-[10px] text-[#9BA3AF] hover:text-[#F5F2EB] flex items-center gap-0.5 cursor-pointer"
+                      >
+                        <Maximize2 className="w-3 h-3" />
+                        Fit
+                      </button>
+                    </div>
+
+                    {/* Table Merge Trigger */}
+                    <button
+                      type="button"
+                      onClick={() => setMergeModalOpen(true)}
+                      className="px-2.5 py-1 rounded border border-[#D96B43]/50 bg-[#D96B43]/15 text-[#FFB59C] hover:bg-[#D96B43]/25 flex items-center gap-1.5 cursor-pointer font-sans text-xs font-medium"
+                    >
+                      <Layers className="w-3.5 h-3.5 text-[#D96B43]" />
+                      <span>Merge Tables</span>
+                    </button>
+
+                    <span className="text-[#7ED99F] hidden sm:inline">
                       Occupied {telemetry.occupiedTablesCount}/{state.tables.length}
                     </span>
                     <button
@@ -610,114 +802,165 @@ export function RestaurantManagementOsApp({ product }: { product: DemoProductDef
                   </div>
                 </div>
 
-                {/* Grouped Zones Floor Cards */}
-                {(["Main Dining", "Chef's Counter", "Atrium Patio"] as DiningZone[])
-                  .filter((z) => zoneFilter === "All" || zoneFilter === z)
-                  .map((zone) => {
-                    const zoneTables = filteredTables.filter((t) => t.zone === zone);
-                    if (zoneTables.length === 0) return null;
-                    return (
-                      <section key={zone} className="space-y-2.5">
-                        <div className="flex items-center justify-between">
-                          <h2 className="text-sm font-semibold tracking-tight text-[#F5F2EB] flex items-center gap-2">
-                            <Utensils className="w-3.5 h-3.5 text-[#D96B43]" />
-                            {zone}
-                          </h2>
-                          <span className="text-[11px] font-mono text-[#9BA3AF]">
-                            {zoneTables.filter((t) => t.status !== "Available").length}/{zoneTables.length} active
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                          {zoneTables.map((table) => {
-                            const check = state.checks.find((c) => c.id === table.activeCheckId && c.status !== "Settled");
-                            const fin = check ? calcCheckFinancials(check) : null;
-                            const isSelected = selectedTableId === table.id;
-                            return (
-                              <div
-                                key={table.id}
-                                onClick={() => setSelectedTableId(isSelected ? null : table.id)}
-                                className={`rounded-lg border p-3.5 transition cursor-pointer ${statusTone(table.status)} ${
-                                  isSelected ? "ring-2 ring-[#D96B43]" : "hover:border-[#374353]"
-                                }`}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <span className="font-mono font-bold text-sm text-[#F5F2EB]">{table.code}</span>
-                                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#0F1419]/80 border border-[#252F3A]">
-                                    {table.seats} Top
-                                  </span>
-                                </div>
-                                <div className="mt-2">
-                                  <p className="text-xs font-semibold text-[#F5F2EB] truncate">
-                                    {table.guestName || table.status}
-                                  </p>
-                                  <p className="text-[11px] text-[#9BA3AF] mt-0.5">
-                                    {table.status === "Available"
-                                      ? "Ready to seat"
-                                      : `${table.partySize || table.seats}p • ${table.serverName || "Host"} • ${table.elapsedMinutes}m`}
-                                  </p>
-                                </div>
-                                <div className="mt-3 pt-2.5 border-t border-[#252F3A]/80 flex items-center justify-between text-[11px] font-mono">
-                                  <span>{check ? check.ticketNumber : table.status}</span>
-                                  <span className="font-bold text-[#F5F2EB]">
-                                    {fin ? `₹${fin.total.toLocaleString("en-IN")}` : "—"}
-                                  </span>
-                                </div>
+                {/* Scaled Floor Area */}
+                <div
+                  className="space-y-5 transition-transform duration-150 origin-top-left"
+                  style={{
+                    transform: `scale(${zoomLevel / 100})`,
+                    width: zoomLevel !== 100 ? `${(100 / zoomLevel) * 100}%` : "100%",
+                  }}
+                >
+                  {(["Main Dining", "Chef's Counter", "Atrium Patio"] as DiningZone[])
+                    .filter((z) => zoneFilter === "All" || zoneFilter === z)
+                    .map((zone) => {
+                      const zoneTables = filteredTables.filter((t) => t.zone === zone);
+                      if (zoneTables.length === 0) return null;
+                      return (
+                        <section key={zone} className="space-y-2.5">
+                          <div className="flex items-center justify-between">
+                            <h2 className="text-sm font-semibold tracking-tight text-[#F5F2EB] flex items-center gap-2">
+                              <Utensils className="w-3.5 h-3.5 text-[#D96B43]" />
+                              {zone}
+                            </h2>
+                            <span className="text-[11px] font-mono text-[#9BA3AF]">
+                              {zoneTables.filter((t) => t.status !== "Available").length}/{zoneTables.length} active
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                            {zoneTables.map((table) => {
+                              const check = state.checks.find((c) => c.id === table.activeCheckId && c.status !== "Settled");
+                              const fin = check ? calcCheckFinancials(check) : null;
+                              const isSelected = selectedTableId === table.id;
+                              const isMerged = Boolean(table.mergedWith);
+                              return (
+                                <div
+                                  key={table.id}
+                                  onClick={() => setSelectedTableId(isSelected ? null : table.id)}
+                                  className={`rounded-lg border p-3.5 transition-all duration-200 cursor-pointer ${statusTone(table.status)} ${
+                                    table.status === "Entrée Fired" ? "shadow-[0_0_12px_rgba(217,107,67,0.18)]" : ""
+                                  } ${isSelected ? "ring-2 ring-[#D96B43]" : "hover:border-[#374353]"}`}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="font-mono font-bold text-sm text-[#F5F2EB]">{table.code}</span>
+                                      {isMerged && (
+                                        <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#D96B43]/20 text-[#FFB59C] border border-[#D96B43]/40 flex items-center gap-0.5">
+                                          <Link2 className="w-2.5 h-2.5" />
+                                          Merged
+                                        </span>
+                                      )}
+                                    </div>
+                                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#0F1419]/80 border border-[#252F3A]">
+                                      {table.seats} Top
+                                    </span>
+                                  </div>
+                                  <div className="mt-2">
+                                    <p className="text-xs font-semibold text-[#F5F2EB] truncate">
+                                      {table.guestName || table.status}
+                                    </p>
+                                    <p className="text-[11px] text-[#9BA3AF] mt-0.5">
+                                      {table.status === "Available"
+                                        ? "Ready to seat"
+                                        : `${table.partySize || table.seats}p • ${table.serverName || "Host"} • ${table.elapsedMinutes}m`}
+                                    </p>
+                                  </div>
+                                  <div className="mt-3 pt-2.5 border-t border-[#252F3A]/80 flex items-center justify-between text-[11px] font-mono">
+                                    <span>{check ? check.ticketNumber : table.status}</span>
+                                    <span className="font-bold text-[#F5F2EB]">
+                                      {fin ? `₹${fin.total.toLocaleString("en-IN")}` : "—"}
+                                    </span>
+                                  </div>
 
-                                {isSelected && (
-                                  <div
-                                    className="mt-3 pt-2.5 border-t border-[#252F3A] flex flex-wrap gap-1.5"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    {table.status === "Available" ? (
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          setWalkInForm((p) => ({ ...p, tableId: table.id }));
-                                          setWalkInModalOpen(true);
-                                        }}
-                                        className="px-2 py-1 rounded bg-[#D96B43] text-[#F5F2EB] text-[10px] font-semibold cursor-pointer"
-                                      >
-                                        Seat Guest
-                                      </button>
-                                    ) : (
-                                      <>
-                                        <button
-                                          type="button"
-                                          onClick={() => {
-                                            setNewOrderForm((p) => ({ ...p, tableId: table.id }));
-                                            setNewOrderModalOpen(true);
-                                          }}
-                                          className="px-2 py-1 rounded bg-[#202934] border border-[#374353] text-[#F5F2EB] text-[10px] cursor-pointer"
-                                        >
-                                          + Dish
-                                        </button>
-                                        {check && (
+                                  {isSelected && (
+                                    <div
+                                      className="mt-3 pt-2.5 border-t border-[#252F3A] flex flex-wrap gap-1.5"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      {table.status === "Available" ? (
+                                        <>
                                           <button
                                             type="button"
-                                            onClick={() => setSettleCheckTarget(check)}
-                                            className="px-2 py-1 rounded bg-[#4CA771] text-[#0F1419] font-semibold text-[10px] cursor-pointer"
+                                            onClick={() => {
+                                              setWalkInForm((p) => ({ ...p, tableId: table.id }));
+                                              setWalkInModalOpen(true);
+                                            }}
+                                            className="px-2 py-1 rounded bg-[#D96B43] text-[#F5F2EB] text-[10px] font-semibold cursor-pointer"
                                           >
-                                            Settle
+                                            Seat Guest
                                           </button>
-                                        )}
-                                        <button
-                                          type="button"
-                                          onClick={() => handleCycleTableStatus(table.id, "Available")}
-                                          className="px-2 py-1 rounded border border-[#252F3A] text-[#9BA3AF] text-[10px] cursor-pointer"
-                                        >
-                                          Clear
-                                        </button>
-                                      </>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </section>
-                    );
-                  })}
+                                          {isMerged ? (
+                                            <button
+                                              type="button"
+                                              onClick={() => handleUnmergeTable(table.id)}
+                                              className="px-2 py-1 rounded bg-[#202934] border border-[#D96B43]/50 text-[#FFB59C] text-[10px] flex items-center gap-1 cursor-pointer"
+                                            >
+                                              <Unlink className="w-2.5 h-2.5" />
+                                              Unmerge
+                                            </button>
+                                          ) : (
+                                            <button
+                                              type="button"
+                                              onClick={() => {
+                                                setMergePrimaryId(table.id);
+                                                setMergeModalOpen(true);
+                                              }}
+                                              className="px-2 py-1 rounded bg-[#202934] border border-[#374353] text-[#9BA3AF] hover:text-[#F5F2EB] text-[10px] flex items-center gap-1 cursor-pointer"
+                                            >
+                                              <Layers className="w-2.5 h-2.5" />
+                                              Merge
+                                            </button>
+                                          )}
+                                        </>
+                                      ) : (
+                                        <>
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              setNewOrderForm((p) => ({ ...p, tableId: table.id }));
+                                              setNewOrderModalOpen(true);
+                                            }}
+                                            className="px-2 py-1 rounded bg-[#202934] border border-[#374353] text-[#F5F2EB] text-[10px] cursor-pointer"
+                                          >
+                                            + Dish
+                                          </button>
+                                          {check && (
+                                            <button
+                                              type="button"
+                                              onClick={() => setSettleCheckTarget(check)}
+                                              className="px-2 py-1 rounded bg-[#4CA771] text-[#0F1419] font-semibold text-[10px] cursor-pointer"
+                                            >
+                                              Settle
+                                            </button>
+                                          )}
+                                          {isMerged && (
+                                            <button
+                                              type="button"
+                                              onClick={() => handleUnmergeTable(table.id)}
+                                              className="px-2 py-1 rounded bg-[#202934] border border-[#D96B43]/50 text-[#FFB59C] text-[10px] flex items-center gap-1 cursor-pointer"
+                                            >
+                                              <Unlink className="w-2.5 h-2.5" />
+                                              Unmerge
+                                            </button>
+                                          )}
+                                          <button
+                                            type="button"
+                                            onClick={() => handleCycleTableStatus(table.id, "Available")}
+                                            className="px-2 py-1 rounded border border-[#252F3A] text-[#9BA3AF] text-[10px] cursor-pointer"
+                                          >
+                                            Clear
+                                          </button>
+                                        </>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </section>
+                      );
+                    })}
+                </div>
               </div>
 
               {/* Right Dock: Live KOT Pass + Critical 86 Alert */}
@@ -1577,6 +1820,139 @@ export function RestaurantManagementOsApp({ product }: { product: DemoProductDef
           </form>
         </div>
       )}
+
+      {/* Table Merge & Grouping Modal */}
+      {mergeModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-xl border border-[#374353] bg-[#171C21] p-5 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[#252F3A] pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded bg-[#D96B43]/20 text-[#FFB59C] flex items-center justify-center">
+                  <Layers className="w-4 h-4 text-[#D96B43]" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-[#F5F2EB]">Combine Floor Tables</h3>
+                  <p className="text-[11px] text-[#9BA3AF]">Group stations for large parties or banquet seating</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMergeModalOpen(false)}
+                className="text-[#9BA3AF] hover:text-[#F5F2EB] cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {mergeError && (
+              <p className="text-xs text-[#FCA5A5] bg-[#EF4444]/15 border border-[#EF4444]/30 p-2.5 rounded">
+                {mergeError}
+              </p>
+            )}
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="block text-[#9BA3AF] mb-1 font-medium">Primary Anchor Table</label>
+                <select
+                  value={mergePrimaryId}
+                  onChange={(e) => setMergePrimaryId(e.target.value)}
+                  className="w-full px-3 py-2 rounded bg-[#0F1419] border border-[#252F3A] text-[#F5F2EB] focus:outline-none focus:border-[#D96B43]"
+                >
+                  <option value="">Select Anchor Table...</option>
+                  {state.tables
+                    .filter((t) => !t.mergedWith)
+                    .map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.code} ({t.seats} Top) — {t.zone} [{t.status}]
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[#9BA3AF] mb-1 font-medium">Adjacent Table to Combine</label>
+                <select
+                  value={mergeSecondaryId}
+                  onChange={(e) => setMergeSecondaryId(e.target.value)}
+                  className="w-full px-3 py-2 rounded bg-[#0F1419] border border-[#252F3A] text-[#F5F2EB] focus:outline-none focus:border-[#D96B43]"
+                >
+                  <option value="">Select Table to Join...</option>
+                  {state.tables
+                    .filter((t) => !t.mergedWith && t.id !== mergePrimaryId)
+                    .map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.code} ({t.seats} Top) — {t.zone} [{t.status}]
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              {mergePrimaryId && mergeSecondaryId && (
+                <div className="p-3 rounded-lg border border-[#D96B43]/30 bg-[#211A14] space-y-1.5 text-[11px] font-mono">
+                  <span className="text-[#FFB59C] font-semibold block">Combined Capacity Preview</span>
+                  <div className="flex items-center justify-between text-[#F5F2EB]">
+                    <span>Station Code:</span>
+                    <span className="font-bold">
+                      {(state.tables.find((t) => t.id === mergePrimaryId)?.code || "")}+
+                      {(state.tables.find((t) => t.id === mergeSecondaryId)?.code.replace("T-", "") || "")}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-[#F5F2EB]">
+                    <span>Combined Guest Seats:</span>
+                    <span className="font-bold text-[#7ED99F]">
+                      {(state.tables.find((t) => t.id === mergePrimaryId)?.seats || 0) +
+                        (state.tables.find((t) => t.id === mergeSecondaryId)?.seats || 0)}{" "}
+                      Guests
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-[#252F3A]">
+              <button
+                type="button"
+                onClick={() => setMergeModalOpen(false)}
+                className="px-3 py-1.5 rounded border border-[#252F3A] text-xs text-[#9BA3AF] hover:text-[#F5F2EB] cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmMerge}
+                className="px-4 py-1.5 rounded bg-[#D96B43] hover:bg-[#E07A5F] text-[#F5F2EB] text-xs font-semibold cursor-pointer flex items-center gap-1.5"
+              >
+                <Link2 className="w-3.5 h-3.5" />
+                Confirm Table Merge
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Bottom Station Navigation Dock */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 border-t border-[#252F3A] bg-[#0A0F14]/95 backdrop-blur-md px-2 py-1.5 flex items-center justify-around shadow-2xl">
+        {NAV_VIEWS.slice(0, 5).map((item) => {
+          const Icon = item.icon;
+          const isActive = activeView === item.id;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setActiveView(item.id)}
+              className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded transition text-[10px] font-medium cursor-pointer relative ${
+                isActive ? "text-[#FFB59C] font-semibold" : "text-[#9BA3AF] hover:text-[#F5F2EB]"
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              <span>{item.id === "floor" ? "Floor" : item.id === "kot" ? "KOT Pass" : item.label.split(" ")[0]}</span>
+              {item.id === "kot" && telemetry.activeChecks.length > 0 && (
+                <span className="absolute top-0.5 right-1 w-2 h-2 rounded-full bg-[#D96B43]" />
+              )}
+            </button>
+          );
+        })}
+      </nav>
 
       <CustomizationModal demo={toDemoModel(product)} isOpen={customModalOpen} onClose={() => setCustomModalOpen(false)} />
 

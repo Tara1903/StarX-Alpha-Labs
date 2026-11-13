@@ -13,6 +13,7 @@ export interface VesperaTable {
   serverName?: string;
   elapsedMinutes: number;
   activeCheckId?: string;
+  mergedWith?: string;
 }
 
 export interface VesperaMenuItem {

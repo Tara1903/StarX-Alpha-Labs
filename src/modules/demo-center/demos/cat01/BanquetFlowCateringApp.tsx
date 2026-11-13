@@ -4,15 +4,23 @@ import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
+  Award,
   Calculator,
   Calendar,
   CheckCircle2,
+  ChevronRight,
   ClipboardCheck,
+  Download,
+  FileText,
+  MapPin,
   Plus,
+  Printer,
   RotateCcw,
+  ShieldCheck,
   Sparkles,
   Truck,
   Users,
+  X,
 } from "lucide-react";
 import type { DemoProductDefinition } from "../../types";
 import { toDemoModel } from "../../registry";
@@ -125,6 +133,7 @@ export function BanquetFlowCateringApp({ product }: { product: DemoProductDefini
   const [addBotanical, setAddBotanical] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [customOpen, setCustomOpen] = useState(false);
+  const [selectedProposalEvent, setSelectedProposalEvent] = useState<BanquetEvent | null>(null);
 
   const notify = (msg: string) => {
     setToast(msg);
@@ -296,6 +305,42 @@ export function BanquetFlowCateringApp({ product }: { product: DemoProductDefini
               </span>
             </div>
 
+            {/* Interactive Catering Milestone Timeline */}
+            <div className="rounded-2xl border border-[#BDC9C1]/70 bg-white p-4 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#005D42] flex items-center gap-1.5">
+                  <Award className="w-3.5 h-3.5" />
+                  Catering Lifecycle Progression
+                </span>
+                <span className="text-[11px] font-mono text-[#3E4943]">
+                  BEO Protocol · ISO 22000 Clean Pass
+                </span>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                {STAGES.map((stg, i) => {
+                  const count = state.events.filter((e) => e.stage === stg).length;
+                  return (
+                    <div
+                      key={stg}
+                      className={`p-2.5 rounded-xl border flex flex-col justify-between transition ${
+                        count > 0
+                          ? "border-[#047857]/40 bg-[#97F5CC]/20 text-[#002115]"
+                          : "border-[#E2E8F0] bg-[#F8F9FF] text-[#3E4943]"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-[10px] font-mono font-bold">
+                        <span>STAGE 0{i + 1}</span>
+                        <span className="px-1.5 py-0.2 rounded-full bg-white text-[#047857] shadow-xs">
+                          {count}
+                        </span>
+                      </div>
+                      <div className="font-bold text-xs mt-1 truncate">{stg}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {STAGES.map((stage) => {
                 const cards = state.events.filter((e) => e.stage === stage);
@@ -344,17 +389,39 @@ export function BanquetFlowCateringApp({ product }: { product: DemoProductDefini
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between pt-1">
-                          <span className="text-[11px] text-[#7D4200] font-semibold">
-                            Deposit Paid: {ev.depositPaidPct}%
-                          </span>
+                        {/* Stations tags */}
+                        {ev.stations && ev.stations.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {ev.stations.map((st) => (
+                              <span key={st} className="text-[10px] px-2 py-0.5 rounded-md bg-[#EFF4FF] text-[#005D42] font-medium border border-[#DCE9FF]">
+                                {st}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        <div className="flex flex-wrap items-center justify-between gap-1.5 pt-1.5 border-t border-[#BDC9C1]/40">
                           <button
                             type="button"
-                            onClick={() => advanceStage(ev.id)}
-                            className="px-2.5 py-1 rounded-lg bg-[#047857] hover:bg-[#005D42] text-white text-xs font-semibold cursor-pointer"
+                            onClick={() => setSelectedProposalEvent(ev)}
+                            className="px-2.5 py-1 rounded-lg border border-[#047857] text-[#047857] hover:bg-[#047857]/10 text-xs font-semibold flex items-center gap-1 cursor-pointer"
                           >
-                            Advance Stage →
+                            <FileText className="w-3.5 h-3.5" />
+                            Proposal PDF
                           </button>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[11px] text-[#7D4200] font-semibold">
+                              Paid: {ev.depositPaidPct}%
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => advanceStage(ev.id)}
+                              className="px-2.5 py-1 rounded-lg bg-[#047857] hover:bg-[#005D42] text-white text-xs font-semibold cursor-pointer flex items-center gap-0.5"
+                            >
+                              <span>Advance</span>
+                              <ChevronRight className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -533,6 +600,280 @@ export function BanquetFlowCateringApp({ product }: { product: DemoProductDefini
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Client-Ready Proposal & Contract Document Modal */}
+      {selectedProposalEvent && (
+        <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-3 sm:p-5 backdrop-blur-sm overflow-y-auto print:p-0 print:bg-white print:fixed print:inset-0">
+          <div className="w-full max-w-3xl rounded-2xl border border-[#CBD5E1] bg-[#FCFBF7] text-[#1E293B] p-6 sm:p-8 space-y-6 shadow-2xl my-auto max-h-[90vh] overflow-y-auto print:max-h-none print:shadow-none print:border-none print:p-0">
+            {/* Modal Controls Bar */}
+            <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-4 print:hidden">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-[#047857] text-white flex items-center justify-center font-bold text-xs">
+                  <FileText className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-[#0B1C30]">Client Banquet Proposal & Contract</h3>
+                  <p className="text-[11px] text-[#005D42] font-semibold">
+                    Document Ref: {selectedProposalEvent.refNo} · Stage: {selectedProposalEvent.stage}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="px-3 py-1.5 rounded-lg bg-[#047857] hover:bg-[#005D42] text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-sm"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  Print / Export PDF
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedProposalEvent(null)}
+                  className="p-1.5 rounded-lg border border-[#CBD5E1] hover:bg-[#F1F5F9] text-[#64748B] hover:text-[#0F172A] cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Printable Document Body */}
+            <div className="space-y-6 font-sans">
+              {/* Official Letterhead */}
+              <div className="flex flex-wrap items-start justify-between gap-4 border-b-2 border-[#047857] pb-5">
+                <div>
+                  <span className="text-[10px] tracking-widest uppercase font-bold text-[#047857]">
+                    Bespoke Culinary Productions & Luxury Hospitality
+                  </span>
+                  <h2 className="text-xl sm:text-2xl font-black tracking-tight text-[#0B1C30]">
+                    BANQUETFLOW CATERING GROUP
+                  </h2>
+                  <p className="text-xs text-[#64748B] mt-0.5">
+                    FSSAI Lic. #10022011000841 · ISO 22000 Food Safety Accredited
+                  </p>
+                </div>
+                <div className="text-right text-xs font-mono bg-white p-3 rounded-lg border border-[#E2E8F0] shadow-xs">
+                  <div className="font-bold text-[#047857] text-sm">{selectedProposalEvent.refNo}</div>
+                  <div className="text-[#64748B]">Issued: Nov 12, 2026</div>
+                  <div className="text-[#64748B]">Valid: 14 Business Days</div>
+                </div>
+              </div>
+
+              {/* Event & Client Specification */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-white p-4 rounded-xl border border-[#E2E8F0] text-xs">
+                <div className="space-y-1.5">
+                  <span className="text-[10px] uppercase font-bold text-[#64748B] tracking-wider">Client & Organization</span>
+                  <div className="font-bold text-sm text-[#0B1C30]">{selectedProposalEvent.client}</div>
+                  <div className="text-[#475569]">VIP Corporate Events & Galas Desk</div>
+                  <div className="text-[#475569]">Billing Contact: accounts@{selectedProposalEvent.client.toLowerCase().replace(/[^a-z]/g, "")}.com</div>
+                </div>
+                <div className="space-y-1.5">
+                  <span className="text-[10px] uppercase font-bold text-[#64748B] tracking-wider">Event & Logistics Details</span>
+                  <div className="font-bold text-sm text-[#0B1C30]">{selectedProposalEvent.title}</div>
+                  <div className="flex items-center gap-1.5 text-[#475569]">
+                    <MapPin className="w-3.5 h-3.5 text-[#047857]" />
+                    <span>Venue: {selectedProposalEvent.venue}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[#475569]">
+                    <Calendar className="w-3.5 h-3.5 text-[#047857]" />
+                    <span>Date: {selectedProposalEvent.eventDate}, 2026</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 font-semibold text-[#047857]">
+                    <Users className="w-3.5 h-3.5" />
+                    <span>Guaranteed Covers: {selectedProposalEvent.headcount} Guests</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Curated Gastronomy Architecture */}
+              <div className="space-y-3">
+                <h4 className="text-xs uppercase font-bold tracking-wider text-[#047857] flex items-center gap-1.5">
+                  <Award className="w-4 h-4" />
+                  Curated Gastronomy & Station Architecture
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                  <div className="p-3.5 rounded-xl border border-[#E2E8F0] bg-white space-y-1.5">
+                    <span className="font-bold text-[#0B1C30] block">Course 01 — Passed Canapés & Amuse</span>
+                    <p className="text-[11px] text-[#475569]">
+                      White Truffle Arancini, Cured Scottish Salmon Blinis with Royal Ossetra, and Smoked Burrata Spoons with Fig Balsamic.
+                    </p>
+                  </div>
+                  <div className="p-3.5 rounded-xl border border-[#E2E8F0] bg-white space-y-1.5">
+                    <span className="font-bold text-[#0B1C30] block">Course 02 — Plated Signature Entrées</span>
+                    <p className="text-[11px] text-[#475569]">
+                      Herb-Crusted Wagyu Tenderloin with Morel Red Wine Reduction, accompanied by Wild Chilean Sea Bass with Saffron Velouté.
+                    </p>
+                  </div>
+                  <div className="p-3.5 rounded-xl border border-[#047857]/40 bg-[#97F5CC]/15 space-y-1.5 md:col-span-2">
+                    <span className="font-bold text-[#002115] block">Specialty Live Interactive Stations (Included)</span>
+                    <div className="flex flex-wrap gap-2 pt-0.5">
+                      {selectedProposalEvent.stations.map((st) => (
+                        <span key={st} className="px-2.5 py-1 rounded-md bg-white border border-[#047857]/30 text-[#005D42] font-semibold text-xs shadow-2xs">
+                          ✦ {st}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Commercial Schedule Table */}
+              <div className="space-y-2">
+                <h4 className="text-xs uppercase font-bold tracking-wider text-[#047857]">
+                  Commercial Schedule & Financial Breakdown
+                </h4>
+                <div className="rounded-xl border border-[#E2E8F0] bg-white overflow-hidden text-xs">
+                  <table className="w-full text-left">
+                    <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[11px] font-bold uppercase text-[#64748B]">
+                      <tr>
+                        <th className="p-3">Service Line Item</th>
+                        <th className="p-3 text-center">Quantity</th>
+                        <th className="p-3 text-right">Unit Rate</th>
+                        <th className="p-3 text-right">Line Total</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#E2E8F0]">
+                      <tr>
+                        <td className="p-3 font-semibold text-[#0B1C30]">
+                          Executive Banquet Cover (Hors d'oeuvres + Plated Dinner)
+                        </td>
+                        <td className="p-3 text-center font-mono">{selectedProposalEvent.headcount} Pax</td>
+                        <td className="p-3 text-right font-mono">₹1,650</td>
+                        <td className="p-3 text-right font-mono font-bold">
+                          ₹{(selectedProposalEvent.headcount * 1650).toLocaleString("en-IN")}
+                        </td>
+                      </tr>
+                      {selectedProposalEvent.perPlate > 1650 && (
+                        <tr>
+                          <td className="p-3 font-semibold text-[#0B1C30]">
+                            Live Chef Stations Package ({selectedProposalEvent.stations.join(" & ")})
+                          </td>
+                          <td className="p-3 text-center font-mono">{selectedProposalEvent.headcount} Pax</td>
+                          <td className="p-3 text-right font-mono">₹{selectedProposalEvent.perPlate - 1650}</td>
+                          <td className="p-3 text-right font-mono font-bold">
+                            ₹{(selectedProposalEvent.headcount * (selectedProposalEvent.perPlate - 1650)).toLocaleString("en-IN")}
+                          </td>
+                        </tr>
+                      )}
+                      <tr>
+                        <td className="p-3 text-[#475569]">
+                          Uniformed Service Brigade (1:12 Butler Ratio + Maitre d')
+                        </td>
+                        <td className="p-3 text-center font-mono">Inclusive</td>
+                        <td className="p-3 text-right font-mono">Inclusive</td>
+                        <td className="p-3 text-right font-mono text-[#047857] font-semibold">Included</td>
+                      </tr>
+                      <tr>
+                        <td className="p-3 text-[#475569]">
+                          Fine Bone China, Silverware & Linen Tableware Manifest
+                        </td>
+                        <td className="p-3 text-center font-mono">{selectedProposalEvent.headcount} Sets</td>
+                        <td className="p-3 text-right font-mono">Inclusive</td>
+                        <td className="p-3 text-right font-mono text-[#047857] font-semibold">Included</td>
+                      </tr>
+                    </tbody>
+                    <tfoot className="bg-[#F8FAFC] border-t border-[#E2E8F0] font-mono">
+                      <tr>
+                        <td colSpan={3} className="p-2.5 text-right font-bold text-[#475569]">Subtotal:</td>
+                        <td className="p-2.5 text-right font-bold text-[#0B1C30]">
+                          ₹{(selectedProposalEvent.headcount * selectedProposalEvent.perPlate).toLocaleString("en-IN")}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colSpan={3} className="p-2.5 text-right text-[#64748B]">GST & Catering Surcharge (18%):</td>
+                        <td className="p-2.5 text-right text-[#64748B]">
+                          ₹{Math.round(selectedProposalEvent.headcount * selectedProposalEvent.perPlate * 0.18).toLocaleString("en-IN")}
+                        </td>
+                      </tr>
+                      <tr className="border-t-2 border-[#047857] bg-[#97F5CC]/20 text-sm">
+                        <td colSpan={3} className="p-3 text-right font-black text-[#002115]">Total Contract Value:</td>
+                        <td className="p-3 text-right font-black text-[#047857]">
+                          ₹{Math.round(selectedProposalEvent.headcount * selectedProposalEvent.perPlate * 1.18).toLocaleString("en-IN")}
+                        </td>
+                      </tr>
+                      <tr className="text-xs bg-white">
+                        <td colSpan={3} className="p-2.5 text-right font-semibold text-[#7D4200]">
+                          Deposit Recorded ({selectedProposalEvent.depositPaidPct}%):
+                        </td>
+                        <td className="p-2.5 text-right font-bold text-[#7D4200]">
+                          ₹{Math.round(selectedProposalEvent.headcount * selectedProposalEvent.perPlate * 1.18 * (selectedProposalEvent.depositPaidPct / 100)).toLocaleString("en-IN")}
+                        </td>
+                      </tr>
+                      <tr className="text-xs bg-white">
+                        <td colSpan={3} className="p-2.5 text-right font-semibold text-[#005D42]">
+                          Balance Due on Service:
+                        </td>
+                        <td className="p-2.5 text-right font-bold text-[#005D42]">
+                          ₹{Math.round(selectedProposalEvent.headcount * selectedProposalEvent.perPlate * 1.18 * ((100 - selectedProposalEvent.depositPaidPct) / 100)).toLocaleString("en-IN")}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+
+              {/* Legal Terms & Conditions */}
+              <div className="p-4 rounded-xl border border-[#E2E8F0] bg-white space-y-2 text-[11px] text-[#475569]">
+                <div className="font-bold text-xs text-[#0B1C30] flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-[#047857]" />
+                  Standard B2B Catering Terms & Headcount Policy
+                </div>
+                <ul className="list-disc pl-4 space-y-1">
+                  <li><strong>Headcount Guarantee:</strong> Final locked attendance numbers must be provided no later than 72 hours prior to execution. Billing reflects guaranteed minimum or actual attendance, whichever is greater.</li>
+                  <li><strong>Dietary Compliance:</strong> Special allergies, vegan, kosher, and halal preparations require 48-hour advance manifest lock.</li>
+                  <li><strong>Cancellation Policy:</strong> Cancellations &gt;14 days prior forfeit 25% deposit. Cancellations within 72 hours are subject to 100% contracted food fees.</li>
+                </ul>
+              </div>
+
+              {/* Signoff Signatures */}
+              <div className="grid grid-cols-2 gap-6 pt-4 border-t border-[#E2E8F0]">
+                <div className="space-y-3">
+                  <span className="text-[10px] uppercase font-bold text-[#64748B]">Prepared For BanquetFlow</span>
+                  <div className="h-10 border-b border-[#94A3B8] flex items-end font-serif italic text-sm text-[#047857]">
+                    Chef Julian Montgomery
+                  </div>
+                  <p className="text-[10px] text-[#64748B]">Executive Culinary Director · BanquetFlow Group</p>
+                </div>
+                <div className="space-y-3">
+                  <span className="text-[10px] uppercase font-bold text-[#64748B]">Client Acceptance Signoff</span>
+                  <div className="h-10 border-b border-[#94A3B8] flex items-end font-serif italic text-sm text-[#0B1C30]">
+                    Authorized Signature Verified
+                  </div>
+                  <p className="text-[10px] text-[#64748B]">{selectedProposalEvent.client} · Event Liaison</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Bottom Actions */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#E2E8F0] pt-4 print:hidden">
+              <span className="text-xs text-[#64748B]">
+                Proposal Status: <strong className="text-[#047857]">{selectedProposalEvent.stage}</strong>
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedProposalEvent(null)}
+                  className="px-4 py-2 rounded-xl border border-[#CBD5E1] text-xs font-semibold hover:bg-[#F1F5F9] cursor-pointer"
+                >
+                  Close Preview
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    advanceStage(selectedProposalEvent.id);
+                    notify(`Approved and advanced proposal ${selectedProposalEvent.refNo}!`);
+                    setSelectedProposalEvent(null);
+                  }}
+                  className="px-4 py-2 rounded-xl bg-[#047857] hover:bg-[#005D42] text-white text-xs font-bold cursor-pointer flex items-center gap-1.5 shadow-sm"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  Approve & Advance Milestone
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
