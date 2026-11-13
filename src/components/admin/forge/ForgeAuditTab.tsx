@@ -8,6 +8,7 @@ import {
   DemoAuditRecord,
   AuditDecision,
 } from "@/lib/forge/auditData";
+import { DEMO_CATEGORIES } from "@/data/categories";
 import {
   AlertTriangle,
   ArrowRight,
@@ -38,6 +39,7 @@ export function ForgeAuditTab({ onShowToast }: ForgeAuditTabProps) {
   const [search, setSearch] = useState("");
   const [selectedBatch, setSelectedBatch] = useState<string>("ALL");
   const [selectedDecision, setSelectedDecision] = useState<string>("ALL");
+  const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [selectedProductType, setSelectedProductType] = useState<string>("ALL");
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
@@ -45,6 +47,7 @@ export function ForgeAuditTab({ onShowToast }: ForgeAuditTabProps) {
     return PORTFOLIO_AUDIT_DATA.filter((item) => {
       if (selectedBatch !== "ALL" && item.batch !== selectedBatch) return false;
       if (selectedDecision !== "ALL" && item.decision !== selectedDecision) return false;
+      if (selectedCategory !== "ALL" && item.targetCategorySlug !== selectedCategory) return false;
       if (selectedProductType !== "ALL" && item.productType !== selectedProductType) return false;
       if (!search.trim()) return true;
 
@@ -52,12 +55,13 @@ export function ForgeAuditTab({ onShowToast }: ForgeAuditTabProps) {
       return (
         item.name.toLowerCase().includes(q) ||
         item.slug.toLowerCase().includes(q) ||
+        item.targetCategoryName.toLowerCase().includes(q) ||
         item.productType.toLowerCase().includes(q) ||
         item.analysisReasoning.toLowerCase().includes(q) ||
         item.salvageableAssets.some((a) => a.toLowerCase().includes(q))
       );
     });
-  }, [search, selectedBatch, selectedDecision, selectedProductType]);
+  }, [search, selectedBatch, selectedDecision, selectedCategory, selectedProductType]);
 
   const getDecisionBadge = (decision: AuditDecision) => {
     switch (decision) {
@@ -86,17 +90,16 @@ export function ForgeAuditTab({ onShowToast }: ForgeAuditTabProps) {
         <div className="relative z-10 space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-semibold border border-cyan-500/30">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Strategic Portfolio Restructuring & Quality Gate</span>
+            <span>Canonical 12-Category Architecture & Quality Gate</span>
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Batch 1 & 2 Portfolio Audit: Real Digital Products Over Generic Dashboards
+            Batch 1 & 2 Portfolio Audit: 12 Industry Solutions with Differentiated Product Types
           </h2>
 
           <p className="text-sm text-slate-300 max-w-3xl leading-relaxed">
-            Repositioning StarX Alpha Labs as a high-end software agency that builds genuine, differentiated digital products.
-            Every demo across Batch 01 (Food & Hospitality) and Batch 02 (Retail & Ecommerce) has been audited against design quality,
-            real user workflows, originality, and commercial viability.
+            StarX Alpha Labs maintains exactly 12 industry categories across the public showcase. Management software is an independent
+            product type (<code className="text-cyan-400 font-mono">business_management_software</code>), integrated directly into its native industry (e.g. Restaurant Management in Food & Hospitality, Multi-Store POS in Retail & Ecommerce).
           </p>
         </div>
       </div>
@@ -127,7 +130,7 @@ export function ForgeAuditTab({ onShowToast }: ForgeAuditTabProps) {
             <span className="text-2xl font-black text-blue-400">{metrics.reclassifyCount}</span>
             <span className="text-xs text-slate-400">({Math.round((metrics.reclassifyCount / metrics.totalAudited) * 100)}%)</span>
           </div>
-          <span className="text-[10px] text-slate-400 mt-1 block">Moved to Business Mgmt</span>
+          <span className="text-[10px] text-slate-400 mt-1 block">Typed as Business Mgmt</span>
         </div>
 
         <div className="p-4 rounded-xl bg-[#0A172C] border border-amber-500/30">
@@ -158,17 +161,17 @@ export function ForgeAuditTab({ onShowToast }: ForgeAuditTabProps) {
         </div>
       </div>
 
-      {/* Dedicated Category Structure Notification */}
+      {/* 12 Industry Solutions Architecture Notice */}
       <div className="p-4 rounded-xl bg-[#08182E] border border-blue-500/30 flex items-start gap-3">
         <Briefcase className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
         <div className="text-xs text-slate-300 leading-relaxed space-y-1">
           <p className="font-semibold text-white">
-            Category 13 Created: <span className="text-blue-400 font-mono">business-management-software</span>
+            Architecture Preserved: <span className="text-cyan-400 font-mono">Exactly 12 Canonical Industry Categories</span>
           </p>
           <p>
-            The 16 high-utility back-office management applications (#01, #02, #03, #08, #09, #15, #16, #17, #18, #19, #20, #21, #22, #26, #27, #28)
-            are reclassified into this prestigious dedicated enterprise software category. The public industry sectors remain pristine for consumer-facing storefronts,
-            ordering portals, and mobile web experiences.
+            The public catalogue strictly retains the 12 industry categories matching the homepage 2×6 layout.
+            The 16 reclassified applications (#01, #02, #03, #08, #09, #15, #16, #17, #18, #19, #20, #21, #22, #26, #27, #28)
+            remain anchored in their native industries (Food & Hospitality or Retail & Ecommerce) with their product type standardized as <code className="text-blue-400 font-mono">business_management_software</code>.
           </p>
         </div>
       </div>
@@ -187,8 +190,40 @@ export function ForgeAuditTab({ onShowToast }: ForgeAuditTabProps) {
           />
         </div>
 
-        {/* Filter Pills */}
+        {/* Filter Selectors */}
         <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+          {/* Industry Category Selector */}
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="px-2.5 py-1.5 bg-[#050D1A] rounded-lg border border-[#173863] text-xs text-slate-200 focus:outline-none focus:border-cyan-400"
+          >
+            <option value="ALL">All 12 Industries</option>
+            {DEMO_CATEGORIES.map((cat) => (
+              <option key={cat.slug} value={cat.slug}>
+                #{cat.number} {cat.name}
+              </option>
+            ))}
+          </select>
+
+          {/* Product Type Selector */}
+          <select
+            value={selectedProductType}
+            onChange={(e) => setSelectedProductType(e.target.value)}
+            className="px-2.5 py-1.5 bg-[#050D1A] rounded-lg border border-[#173863] text-xs text-slate-200 focus:outline-none focus:border-cyan-400"
+          >
+            <option value="ALL">All Product Types</option>
+            <option value="business_management_software">business_management_software</option>
+            <option value="ecommerce_website">ecommerce_website</option>
+            <option value="web_application">web_application</option>
+            <option value="marketplace">marketplace</option>
+            <option value="pwa">pwa</option>
+            <option value="business_website">business_website</option>
+            <option value="native_android_app">native_android_app</option>
+            <option value="native_ios_app">native_ios_app</option>
+            <option value="digital_ecosystem">digital_ecosystem</option>
+          </select>
+
           {/* Batch Selector */}
           <select
             value={selectedBatch}
@@ -209,23 +244,9 @@ export function ForgeAuditTab({ onShowToast }: ForgeAuditTabProps) {
           >
             <option value="ALL">All Decisions</option>
             <option value="KEEP">KEEP (5 Flagships)</option>
-            <option value="RECLASSIFY">RECLASSIFY (16 Enterprise)</option>
+            <option value="RECLASSIFY">RECLASSIFY (16 Management)</option>
             <option value="REBUILD">REBUILD (4 High-Potential)</option>
             <option value="SCRAP">SCRAP (3 Weak)</option>
-          </select>
-
-          {/* Product Type Selector */}
-          <select
-            value={selectedProductType}
-            onChange={(e) => setSelectedProductType(e.target.value)}
-            className="px-2.5 py-1.5 bg-[#050D1A] rounded-lg border border-[#173863] text-xs text-slate-200 focus:outline-none focus:border-cyan-400"
-          >
-            <option value="ALL">All Product Types</option>
-            <option value="business_management_software">business_management_software</option>
-            <option value="ecommerce_website">ecommerce_website</option>
-            <option value="web_application">web_application</option>
-            <option value="marketplace">marketplace</option>
-            <option value="pwa">pwa</option>
           </select>
 
           <span className="text-xs text-slate-400 ml-auto font-mono">
@@ -261,9 +282,11 @@ export function ForgeAuditTab({ onShowToast }: ForgeAuditTabProps) {
                     <div className="flex items-center gap-2 mt-1 text-xs text-slate-400">
                       <span>{item.batch}</span>
                       <span>&bull;</span>
-                      <span>Origin: {item.originalCategoryName}</span>
+                      <span className="text-cyan-400 font-medium">{item.targetCategoryName}</span>
                       <span>&bull;</span>
-                      <span className="text-slate-300 font-mono text-[11px]">{item.productType}</span>
+                      <span className="text-slate-300 font-mono text-[11px] bg-[#06101E] px-1.5 py-0.5 rounded border border-white/5">
+                        {item.productType}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -365,8 +388,11 @@ export function ForgeAuditTab({ onShowToast }: ForgeAuditTabProps) {
                   {/* Action & Links */}
                   <div className="pt-2 border-t border-[#132B4C] flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-slate-400">Target Category:</span>
+                      <span className="text-slate-400">Industry:</span>
                       <span className="font-semibold text-[#73D8FF]">{item.targetCategoryName}</span>
+                      <span className="text-slate-500">|</span>
+                      <span className="text-slate-400">Product Type:</span>
+                      <span className="font-mono text-cyan-300 font-semibold">{item.productType}</span>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -380,7 +406,7 @@ export function ForgeAuditTab({ onShowToast }: ForgeAuditTabProps) {
 
                       {item.batch !== "Pilot" && (
                         <Link
-                          href={`/demos/${item.originalCategorySlug}/${item.slug}`}
+                          href={`/demos/${item.targetCategorySlug}/${item.slug}`}
                           className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#09172B] hover:bg-[#122744] text-slate-300 hover:text-white border border-[#163359] font-medium transition-colors"
                         >
                           <ExternalLink className="w-3.5 h-3.5 text-slate-400" />

@@ -38,15 +38,15 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     batch: "Batch 01",
     originalCategorySlug: "food-hospitality",
     originalCategoryName: "Food & Hospitality",
-    targetCategorySlug: "business-management-software",
-    targetCategoryName: "Business Management Software",
+    targetCategorySlug: "food-hospitality",
+    targetCategoryName: "Food & Hospitality",
     productType: "business_management_software",
     scores: { design: 23, functionality: 23, completeness: 19, originality: 13, commercial: 14, total: 92 },
     decision: "RECLASSIFY",
-    analysisReasoning: "Highly capable multi-table floor state engine, KOT kitchen dispatch, recipe costing and shift management. It is a genuine enterprise back-office management system rather than a consumer dining portal.",
+    analysisReasoning: "Highly capable multi-table floor state engine, KOT kitchen dispatch, recipe costing and shift management. A genuine enterprise operational software suite retained within Food & Hospitality under the business_management_software product type.",
     salvageableAssets: ["Interactive 12-table floor plan canvas", "Real-time KOT audio alert dispatcher", "Bill split and course-firing algorithms"],
-    issuesFound: ["Misclassified under consumer hospitality instead of enterprise management suite"],
-    recommendedAction: "Move to Business Management Software category; preserve all operational capabilities."
+    issuesFound: ["Previously unclassified product type; now standardized as business_management_software"],
+    recommendedAction: "Retain in Food & Hospitality category with standardized product type 'business_management_software'."
   },
   {
     id: 2,
@@ -56,15 +56,15 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     batch: "Batch 01",
     originalCategorySlug: "food-hospitality",
     originalCategoryName: "Food & Hospitality",
-    targetCategorySlug: "business-management-software",
-    targetCategoryName: "Business Management Software",
+    targetCategorySlug: "food-hospitality",
+    targetCategoryName: "Food & Hospitality",
     productType: "business_management_software",
     scores: { design: 22, functionality: 23, completeness: 18, originality: 11, commercial: 12, total: 86 },
     decision: "RECLASSIFY",
-    analysisReasoning: "Fast-touch cashier terminal with numpad item entry, split bill drawer, and GST invoice formatting. Excellent operational POS tool.",
+    analysisReasoning: "Fast-touch cashier terminal with numpad item entry, split bill drawer, and GST invoice formatting. Retained in Food & Hospitality under the business_management_software product type.",
     salvageableAssets: ["Numpad speed-dial component", "Split payment calculator", "Thermal print CSS preview"],
-    issuesFound: ["Duplicates core billing aspects of demo #01"],
-    recommendedAction: "Reclassify as a specialized Retail/Restaurant Point-of-Sale module in Business Management Software."
+    issuesFound: ["Overlaps with demo #01 floor billing; specialized for rapid counter checkout"],
+    recommendedAction: "Retain in Food & Hospitality category with product type 'business_management_software'."
   },
   {
     id: 3,
@@ -74,15 +74,15 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     batch: "Batch 01",
     originalCategorySlug: "food-hospitality",
     originalCategoryName: "Food & Hospitality",
-    targetCategorySlug: "business-management-software",
-    targetCategoryName: "Business Management Software",
+    targetCategorySlug: "food-hospitality",
+    targetCategoryName: "Food & Hospitality",
     productType: "business_management_software",
     scores: { design: 21, functionality: 23, completeness: 18, originality: 11, commercial: 13, total: 86 },
     decision: "RECLASSIFY",
-    analysisReasoning: "Multi-brand ghost kitchen order consolidation (Swiggy/Zomato dispatch, packaging stations). Back-office operations software.",
+    analysisReasoning: "Multi-brand ghost kitchen order consolidation, aggregator dispatch integration (Swiggy/Zomato), and packaging lines. Operational business software within Food & Hospitality.",
     salvageableAssets: ["Multi-brand kitchen router", "Rider pickup countdown timer", "Kitchen ticket line-printer layout"],
-    issuesFound: ["Internal operations tooling placed in public-facing hospitality catalog"],
-    recommendedAction: "Move to Business Management Software under multi-brand food commissary operations."
+    issuesFound: ["B2B back-office tool now cleanly typed as business_management_software"],
+    recommendedAction: "Retain in Food & Hospitality category with product type 'business_management_software'."
   },
   {
     id: 4,
@@ -97,10 +97,10 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     productType: "pwa",
     scores: { design: 18, functionality: 17, completeness: 14, originality: 11, commercial: 10, total: 70 },
     decision: "REBUILD",
-    analysisReasoning: "Valuable boutique cafe concept that was built as a generic back-office dashboard rather than the customer-facing mobile ordering PWA with bean flavor notes and loyalty stamp card that coffee shops actually purchase.",
+    analysisReasoning: "Valuable boutique cafe concept built as a generic back-office dashboard rather than the customer-facing mobile ordering PWA with bean flavor notes and loyalty stamp card that specialty coffee shops purchase.",
     salvageableAssets: ["Roaster bean profile schema", "Beverage modifier options (milk substitutes, syrups)"],
     issuesFound: ["Looks like a dark dashboard rather than an inviting artisan cafe product", "Lacks customer ordering journey"],
-    recommendedAction: "Rebuild as an Artisan Specialty Cafe Mobile Ordering & Stamp Loyalty PWA."
+    recommendedAction: "Rebuild as an Artisan Specialty Cafe Mobile Ordering & Stamp Loyalty PWA in Food & Hospitality."
   },
   {
     id: 5,
@@ -118,7 +118,7 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     analysisReasoning: "High commercial interest concept implemented as internal flour batch yields rather than a luxury cake designer studio and pastry pre-ordering storefront.",
     salvageableAssets: ["Recipe batch scaling multiplier", "Allergen matrix badges"],
     issuesFound: ["Missing bespoke custom cake inquiry builder", "Missing pastry storefront visuals"],
-    recommendedAction: "Rebuild as a Custom Cake Studio & Bakehouse Online Ordering Storefront."
+    recommendedAction: "Rebuild as a Custom Cake Studio & Bakehouse Online Ordering Storefront in Food & Hospitality."
   },
   {
     id: 6,
@@ -135,7 +135,7 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     decision: "KEEP",
     analysisReasoning: "Top-tier real-time delivery logistics dispatch application with live SVG radar tracking, rider battery/speed telemetry, and geofence alerts.",
     salvageableAssets: ["Live SVG delivery map component", "Fleet rider status monitor", "Order dispatch stepper"],
-    issuesFound: ["Minor: Needs simulated socket event for rider progress"],
+    issuesFound: ["Minor: Simulated socket event for rider progress"],
     recommendedAction: "Keep as a premier Food & Hospitality logistics demo."
   },
   {
@@ -154,7 +154,7 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     analysisReasoning: "Currently built as a host-stand reception planner rather than an OpenTable-style guest booking portal with tasting menu prepayment, party size selector, and dietary note collection.",
     salvageableAssets: ["Table assignment slot algorithm", "VIP diner history profile"],
     issuesFound: ["Inverted perspective: built for the maitre d' instead of the guest"],
-    recommendedAction: "Rebuild as a Guest Table Reservation & Dining Experience Booking Platform."
+    recommendedAction: "Rebuild as a Guest Table Reservation & Dining Experience Booking Platform in Food & Hospitality."
   },
   {
     id: 8,
@@ -164,15 +164,15 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     batch: "Batch 01",
     originalCategorySlug: "food-hospitality",
     originalCategoryName: "Food & Hospitality",
-    targetCategorySlug: "business-management-software",
-    targetCategoryName: "Business Management Software",
+    targetCategorySlug: "food-hospitality",
+    targetCategoryName: "Food & Hospitality",
     productType: "business_management_software",
     scores: { design: 20, functionality: 20, completeness: 16, originality: 11, commercial: 12, total: 79 },
     decision: "RECLASSIFY",
-    analysisReasoning: "Enterprise PMS integration for room service charge posting, multi-outlet food and beverage billing, and room guest account reconciliation.",
+    analysisReasoning: "Enterprise PMS integration for room service charge posting, multi-outlet dining billing, and room guest account reconciliation. Retained within Food & Hospitality as business_management_software.",
     salvageableAssets: ["Room folio billing mapper", "Banquet dining ledger component"],
-    issuesFound: ["Belongs in enterprise hotel back-office software, not retail dining"],
-    recommendedAction: "Reclassify into Business Management Software as Hospitality PMS & F&B Suite."
+    issuesFound: ["Operational hotel PMS tool standardized as business_management_software"],
+    recommendedAction: "Retain in Food & Hospitality category with product type 'business_management_software'."
   },
   {
     id: 9,
@@ -182,15 +182,15 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     batch: "Batch 01",
     originalCategorySlug: "food-hospitality",
     originalCategoryName: "Food & Hospitality",
-    targetCategorySlug: "business-management-software",
-    targetCategoryName: "Business Management Software",
+    targetCategorySlug: "food-hospitality",
+    targetCategoryName: "Food & Hospitality",
     productType: "business_management_software",
     scores: { design: 19, functionality: 19, completeness: 16, originality: 11, commercial: 11, total: 76 },
     decision: "RECLASSIFY",
-    analysisReasoning: "Full Banquet Event Order (BEO) contract workflow, per-head ingredient scaling, equipment checklist, and staff deployment schedules.",
+    analysisReasoning: "Full Banquet Event Order (BEO) contract workflow, per-head ingredient scaling, equipment checklist, and staff deployment schedules. Retained within Food & Hospitality.",
     salvageableAssets: ["BEO generator", "Headcount ingredient calculation engine"],
-    issuesFound: ["High utility but heavy internal back-office format"],
-    recommendedAction: "Reclassify into Business Management Software under Event Catering & Logistics."
+    issuesFound: ["Heavy internal back-office format now correctly designated as business_management_software"],
+    recommendedAction: "Retain in Food & Hospitality category with product type 'business_management_software'."
   },
   {
     id: 10,
@@ -205,7 +205,7 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     productType: "web_application",
     scores: { design: 13, functionality: 13, completeness: 11, originality: 8, commercial: 7, total: 52 },
     decision: "SCRAP",
-    analysisReasoning: "Weak commercial value. Duplicates generic POS features of demo #02 without solving actual food truck pain points (generator power, offline local-first sync, live roaming GPS).",
+    analysisReasoning: "Weak commercial value. Duplicates generic POS features of demo #02 without solving actual food truck pain points (offline sync, live roaming GPS).",
     salvageableAssets: ["Live GPS location broadcasting badge"],
     issuesFound: ["Redundant with demo #02", "Low enterprise purchasing interest"],
     recommendedAction: "Scrap from active showcase. Archive source; harvest GPS broadcasting component."
@@ -218,8 +218,8 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     batch: "Batch 01",
     originalCategorySlug: "food-hospitality",
     originalCategoryName: "Food & Hospitality",
-    targetCategorySlug: "business-management-software",
-    targetCategoryName: "Business Management Software",
+    targetCategorySlug: "food-hospitality",
+    targetCategoryName: "Food & Hospitality",
     productType: "business_management_software",
     scores: { design: 16, functionality: 15, completeness: 12, originality: 9, commercial: 8, total: 60 },
     decision: "SCRAP",
@@ -259,10 +259,10 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     productType: "ecommerce_website",
     scores: { design: 17, functionality: 18, completeness: 15, originality: 10, commercial: 10, total: 70 },
     decision: "REBUILD",
-    analysisReasoning: "Valuable farm-to-table concept that was built as internal procurement sheets rather than an engaging consumer organic grocery subscription storefront.",
+    analysisReasoning: "Valuable farm-to-table concept built as internal procurement sheets rather than an engaging consumer organic grocery subscription storefront.",
     salvageableAssets: ["Perishable freshness countdown", "Weight-based gram pricing selector"],
     issuesFound: ["Missing organic produce photography and subscription weekly basket builder"],
-    recommendedAction: "Rebuild as a Farm-to-Door Organic Produce & Weekly Subscription Storefront."
+    recommendedAction: "Rebuild as a Farm-to-Door Organic Produce & Weekly Subscription Storefront in Food & Hospitality."
   },
   {
     id: 14,
@@ -272,8 +272,8 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     batch: "Batch 01",
     originalCategorySlug: "food-hospitality",
     originalCategoryName: "Food & Hospitality",
-    targetCategorySlug: "business-management-software",
-    targetCategoryName: "Business Management Software",
+    targetCategorySlug: "food-hospitality",
+    targetCategoryName: "Food & Hospitality",
     productType: "business_management_software",
     scores: { design: 15, functionality: 15, completeness: 12, originality: 8, commercial: 8, total: 58 },
     decision: "SCRAP",
@@ -292,15 +292,15 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     batch: "Batch 02",
     originalCategorySlug: "retail-ecommerce",
     originalCategoryName: "Retail & Ecommerce",
-    targetCategorySlug: "business-management-software",
-    targetCategoryName: "Business Management Software",
+    targetCategorySlug: "retail-ecommerce",
+    targetCategoryName: "Retail & Ecommerce",
     productType: "business_management_software",
     scores: { design: 23, functionality: 23, completeness: 18, originality: 13, commercial: 14, total: 91 },
     decision: "RECLASSIFY",
-    analysisReasoning: "Comprehensive multi-counter store operations, supplier purchase orders, returns and shift reconciliation. Back-office retail software.",
+    analysisReasoning: "Comprehensive multi-counter store operations, supplier purchase orders, returns and shift reconciliation. Retained within Retail & Ecommerce with product type business_management_software.",
     salvageableAssets: ["Daily register closeout modal", "Supplier PO generation flow", "Staff shift metrics"],
-    issuesFound: ["Wrong category: it is a business ERP, not a retail storefront"],
-    recommendedAction: "Reclassify into Business Management Software under Single-Store Retail Operations."
+    issuesFound: ["Correctly classified under Retail & Ecommerce with product type business_management_software"],
+    recommendedAction: "Retain in Retail & Ecommerce category with product type 'business_management_software'."
   },
   {
     id: 16,
@@ -310,15 +310,15 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     batch: "Batch 02",
     originalCategorySlug: "retail-ecommerce",
     originalCategoryName: "Retail & Ecommerce",
-    targetCategorySlug: "business-management-software",
-    targetCategoryName: "Business Management Software",
+    targetCategorySlug: "retail-ecommerce",
+    targetCategoryName: "Retail & Ecommerce",
     productType: "business_management_software",
     scores: { design: 24, functionality: 24, completeness: 19, originality: 14, commercial: 14, total: 95 },
     decision: "RECLASSIFY",
-    analysisReasoning: "Exceptional multi-location chain POS with branch switcher, inter-store stock transfer requests, and consolidated sales auditing.",
+    analysisReasoning: "Exceptional multi-location chain POS with branch switcher, inter-store stock transfer requests, and consolidated sales auditing. Retained in Retail & Ecommerce.",
     salvageableAssets: ["Branch switcher topbar", "Inter-store transfer request workflow", "Consolidated chain revenue chart"],
-    issuesFound: ["Enterprise tool classified under generic retail"],
-    recommendedAction: "Reclassify into Business Management Software as the flagship Enterprise Multi-Store POS."
+    issuesFound: ["Standardized product type as business_management_software"],
+    recommendedAction: "Retain in Retail & Ecommerce category with product type 'business_management_software'."
   },
   {
     id: 17,
@@ -328,15 +328,15 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     batch: "Batch 02",
     originalCategorySlug: "retail-ecommerce",
     originalCategoryName: "Retail & Ecommerce",
-    targetCategorySlug: "business-management-software",
-    targetCategoryName: "Business Management Software",
+    targetCategorySlug: "retail-ecommerce",
+    targetCategoryName: "Retail & Ecommerce",
     productType: "business_management_software",
     scores: { design: 23, functionality: 23, completeness: 18, originality: 13, commercial: 14, total: 91 },
     decision: "RECLASSIFY",
-    analysisReasoning: "Complete apparel merchandising platform with size/color SKU matrix, designer season collections, and return/exchange ledger.",
+    analysisReasoning: "Complete apparel merchandising platform with size/color SKU matrix, designer season collections, and return/exchange ledger. Operational software within Retail & Ecommerce.",
     salvageableAssets: ["Size x Color variant matrix", "Seasonal collection manager", "Garment exchange workflow"],
-    issuesFound: ["Back-office merchandising system rather than customer-facing boutique"],
-    recommendedAction: "Reclassify into Business Management Software under Apparel Merchandising & Inventory."
+    issuesFound: ["Back-office merchandising system classified as business_management_software"],
+    recommendedAction: "Retain in Retail & Ecommerce category with product type 'business_management_software'."
   },
   {
     id: 18,
@@ -346,15 +346,15 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     batch: "Batch 02",
     originalCategorySlug: "retail-ecommerce",
     originalCategoryName: "Retail & Ecommerce",
-    targetCategorySlug: "business-management-software",
-    targetCategoryName: "Business Management Software",
+    targetCategorySlug: "retail-ecommerce",
+    targetCategoryName: "Retail & Ecommerce",
     productType: "business_management_software",
     scores: { design: 23, functionality: 23, completeness: 18, originality: 13, commercial: 14, total: 91 },
     decision: "RECLASSIFY",
-    analysisReasoning: "High-grade electronics management suite with serialized IMEI tracking, manufacturer warranty ledger, and repair service job cards.",
+    analysisReasoning: "High-grade electronics management suite with serialized IMEI tracking, manufacturer warranty ledger, and repair service job cards. Retained within Retail & Ecommerce.",
     salvageableAssets: ["IMEI/Serial lookup scanner simulator", "Warranty period tracker", "Repair job card workflow"],
-    issuesFound: ["High complexity operational tool misplaced in consumer ecommerce category"],
-    recommendedAction: "Reclassify into Business Management Software as Serialized Hardware & Service ERP."
+    issuesFound: ["High-complexity hardware tool designated as business_management_software"],
+    recommendedAction: "Retain in Retail & Ecommerce category with product type 'business_management_software'."
   },
   {
     id: 19,
@@ -364,15 +364,15 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     batch: "Batch 02",
     originalCategorySlug: "retail-ecommerce",
     originalCategoryName: "Retail & Ecommerce",
-    targetCategorySlug: "business-management-software",
-    targetCategoryName: "Business Management Software",
+    targetCategorySlug: "retail-ecommerce",
+    targetCategoryName: "Retail & Ecommerce",
     productType: "business_management_software",
     scores: { design: 22, functionality: 23, completeness: 18, originality: 13, commercial: 14, total: 90 },
     decision: "RECLASSIFY",
-    analysisReasoning: "Fast grocery checkout with simulated barcode scan, weight-based tare calculation, perishable expiry tracking, and supplier restocking POs.",
+    analysisReasoning: "Fast supermarket checkout with barcode scan simulation, weight tare calculation, perishable expiry tracking, and supplier restocking POs. Retained within Retail & Ecommerce.",
     salvageableAssets: ["Weight tare calculator", "Barcode audio beeper simulation", "Perishable shelf-life audit board"],
-    issuesFound: ["Operational supermarket management suite categorized as general ecommerce"],
-    recommendedAction: "Reclassify into Business Management Software under Supermarket POS & Inventory."
+    issuesFound: ["Supermarket POS and inventory designated as business_management_software"],
+    recommendedAction: "Retain in Retail & Ecommerce category with product type 'business_management_software'."
   },
   {
     id: 20,
@@ -382,15 +382,15 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     batch: "Batch 02",
     originalCategorySlug: "retail-ecommerce",
     originalCategoryName: "Retail & Ecommerce",
-    targetCategorySlug: "business-management-software",
-    targetCategoryName: "Business Management Software",
+    targetCategorySlug: "retail-ecommerce",
+    targetCategoryName: "Retail & Ecommerce",
     productType: "business_management_software",
     scores: { design: 23, functionality: 23, completeness: 19, originality: 13, commercial: 14, total: 92 },
     decision: "RECLASSIFY",
-    analysisReasoning: "Bespoke furniture retail platform featuring room collection sets, material & finish swatch selectors, quotation builder, and 2-man delivery scheduling.",
+    analysisReasoning: "Bespoke furniture retail platform featuring room collection sets, material & finish swatch selectors, quotation builder, and 2-man delivery scheduling. Retained within Retail & Ecommerce.",
     salvageableAssets: ["Finish swatch selector", "Quotation builder modal", "Two-man white-glove delivery scheduler"],
-    issuesFound: ["Back-office quotation and dispatch tool categorized as retail"],
-    recommendedAction: "Reclassify into Business Management Software as Furniture Quotation & Delivery ERP."
+    issuesFound: ["Back-office quotation and dispatch tool classified as business_management_software"],
+    recommendedAction: "Retain in Retail & Ecommerce category with product type 'business_management_software'."
   },
   {
     id: 21,
@@ -400,15 +400,15 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     batch: "Batch 02",
     originalCategorySlug: "retail-ecommerce",
     originalCategoryName: "Retail & Ecommerce",
-    targetCategorySlug: "business-management-software",
-    targetCategoryName: "Business Management Software",
+    targetCategorySlug: "retail-ecommerce",
+    targetCategoryName: "Retail & Ecommerce",
     productType: "business_management_software",
     scores: { design: 24, functionality: 24, completeness: 19, originality: 13, commercial: 14, total: 94 },
     decision: "RECLASSIFY",
-    analysisReasoning: "Remarkable bullion and jewellery retail suite featuring a live daily gold rate board, wastage & making charge calculations, and government HUID hallmarking verification.",
+    analysisReasoning: "Remarkable bullion and jewellery retail suite featuring a live daily gold rate board, wastage & making charge calculations, and government HUID hallmarking verification. Retained within Retail & Ecommerce.",
     salvageableAssets: ["Live bullion rate recalculation ticker", "HUID hallmarking certificate modal", "Wastage and making charge breakdown"],
-    issuesFound: ["High-value enterprise bullion operations misplaced in consumer retail category"],
-    recommendedAction: "Reclassify into Business Management Software as Bullion & Fine Jewellery POS."
+    issuesFound: ["High-value bullion operations classified as business_management_software"],
+    recommendedAction: "Retain in Retail & Ecommerce category with product type 'business_management_software'."
   },
   {
     id: 22,
@@ -418,15 +418,15 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     batch: "Batch 02",
     originalCategorySlug: "retail-ecommerce",
     originalCategoryName: "Retail & Ecommerce",
-    targetCategorySlug: "business-management-software",
-    targetCategoryName: "Business Management Software",
+    targetCategorySlug: "retail-ecommerce",
+    targetCategoryName: "Retail & Ecommerce",
     productType: "business_management_software",
     scores: { design: 23, functionality: 23, completeness: 19, originality: 13, commercial: 14, total: 92 },
     decision: "RECLASSIFY",
-    analysisReasoning: "Highly compliant pharmacy dispensary system with Schedule H1 prescription enforcement, batch-wise strip/tablet unit conversion, and expired batch quarantine.",
+    analysisReasoning: "Highly compliant pharmacy dispensary system with Schedule H1 prescription enforcement, batch-wise strip/tablet unit conversion, and expired batch quarantine. Retained within Retail & Ecommerce.",
     salvageableAssets: ["Rx prescription requirement gate", "Strip vs. loose tablet unit converter", "Batch expiry quarantine manager"],
-    issuesFound: ["Clinical dispensary system misplaced in consumer retail"],
-    recommendedAction: "Reclassify into Business Management Software as Pharmacy Dispensary & Compliance Suite."
+    issuesFound: ["Clinical dispensary system designated as business_management_software"],
+    recommendedAction: "Retain in Retail & Ecommerce category with product type 'business_management_software'."
   },
   {
     id: 23,
@@ -490,15 +490,15 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     batch: "Batch 02",
     originalCategorySlug: "retail-ecommerce",
     originalCategoryName: "Retail & Ecommerce",
-    targetCategorySlug: "business-management-software",
-    targetCategoryName: "Business Management Software",
+    targetCategorySlug: "retail-ecommerce",
+    targetCategoryName: "Retail & Ecommerce",
     productType: "business_management_software",
     scores: { design: 23, functionality: 23, completeness: 18, originality: 14, commercial: 14, total: 92 },
     decision: "RECLASSIFY",
-    analysisReasoning: "B2B wholesale trading suite with tiered quantity pricing, client trade credit limits, proforma invoices, and pallet logistics estimators.",
+    analysisReasoning: "B2B wholesale trading suite with tiered quantity pricing, client trade credit limits, proforma invoices, and pallet logistics estimators. Retained within Retail & Ecommerce.",
     salvageableAssets: ["Tiered quantity price matrix", "Trade credit limit approval badge", "Proforma invoice generator"],
-    issuesFound: ["B2B enterprise portal miscategorized as retail"],
-    recommendedAction: "Reclassify into Business Management Software as B2B Wholesale & Trade Credit Portal."
+    issuesFound: ["B2B enterprise portal correctly typed as business_management_software"],
+    recommendedAction: "Retain in Retail & Ecommerce category with product type 'business_management_software'."
   },
   {
     id: 27,
@@ -508,15 +508,15 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     batch: "Batch 02",
     originalCategorySlug: "retail-ecommerce",
     originalCategoryName: "Retail & Ecommerce",
-    targetCategorySlug: "business-management-software",
-    targetCategoryName: "Business Management Software",
+    targetCategorySlug: "retail-ecommerce",
+    targetCategoryName: "Retail & Ecommerce",
     productType: "business_management_software",
     scores: { design: 25, functionality: 25, completeness: 19, originality: 14, commercial: 14, total: 97 },
     decision: "RECLASSIFY",
-    analysisReasoning: "A masterpiece of warehouse management! Interactive 4-aisle bin locator grid, wave picking status board, cycle count audits, and automatic stock reorder triggers.",
+    analysisReasoning: "A masterpiece of warehouse management! Interactive 4-aisle bin locator grid, wave picking status board, cycle count audits, and automatic stock reorder triggers. Retained in Retail & Ecommerce.",
     salvageableAssets: ["Visual 4-aisle warehouse bin grid", "Wave picking status dispatch board", "Cycle count discrepancy logger"],
-    issuesFound: ["Pure industrial logistics software placed in consumer retail"],
-    recommendedAction: "Reclassify into Business Management Software as the flagship Enterprise WMS & Supply Chain OS."
+    issuesFound: ["Industrial inventory suite designated as business_management_software"],
+    recommendedAction: "Retain in Retail & Ecommerce category with product type 'business_management_software'."
   },
   {
     id: 28,
@@ -526,15 +526,15 @@ export const PORTFOLIO_AUDIT_DATA: DemoAuditRecord[] = [
     batch: "Batch 02",
     originalCategorySlug: "retail-ecommerce",
     originalCategoryName: "Retail & Ecommerce",
-    targetCategorySlug: "business-management-software",
-    targetCategoryName: "Business Management Software",
+    targetCategorySlug: "retail-ecommerce",
+    targetCategoryName: "Retail & Ecommerce",
     productType: "business_management_software",
     scores: { design: 24, functionality: 24, completeness: 19, originality: 14, commercial: 14, total: 95 },
     decision: "RECLASSIFY",
-    analysisReasoning: "Comprehensive reverse logistics engine! Customer RMA claim submission, photographic proof review, return authorization approval, courier reverse pickup, and instant refund credit.",
+    analysisReasoning: "Comprehensive reverse logistics engine! Customer RMA claim submission, photographic proof review, return authorization approval, courier reverse pickup, and instant refund credit. Retained in Retail & Ecommerce.",
     salvageableAssets: ["RMA photo inspection gallery", "Reverse courier AWB generator", "Store credit refund processor"],
-    issuesFound: ["Internal operations suite miscategorized as retail"],
-    recommendedAction: "Reclassify into Business Management Software as Reverse Logistics & RMA Platform."
+    issuesFound: ["Reverse logistics operations designated as business_management_software"],
+    recommendedAction: "Retain in Retail & Ecommerce category with product type 'business_management_software'."
   },
 
   // --- PILOT: MAISON EMBER (Rule 10 Preservation) ---
