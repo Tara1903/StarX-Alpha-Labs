@@ -618,7 +618,7 @@ export function LuxeDiningExperienceApp({ product }: { product: DemoProductDefin
         const filter = ctx.createBiquadFilter();
 
         osc.type = "sine";
-        osc.frequency.setValueAtTime(174, ctx.currentTime); // 174 Hz solfeggio frequency: deep relaxation & sanctuary
+        osc.frequency.setValueAtTime(174, ctx.currentTime); // 174 Hz warm sine tone: subtle demonstration soundscape (non-clinical)
 
         filter.type = "lowpass";
         filter.frequency.setValueAtTime(280, ctx.currentTime);
@@ -734,7 +734,7 @@ export function LuxeDiningExperienceApp({ product }: { product: DemoProductDefin
             LIVE VERIFIED RUNTIME · CAT-01 #161
           </span>
           <span className="hidden md:inline-block px-2 py-0.5 rounded bg-[#1C1C26] text-[10px] text-[#D4AF37] border border-[#D4AF37]/30">
-            Three Michelin Stars
+            Fictional Demonstration Concept · Haute Gastronomie
           </span>
         </div>
 
@@ -747,7 +747,7 @@ export function LuxeDiningExperienceApp({ product }: { product: DemoProductDefin
                 ? "bg-[#D4AF37]/20 border-[#D4AF37] text-[#F3E5AB]"
                 : "bg-[#14141E] border-[#2A2A38] text-[#8C8C9E] hover:text-white"
             }`}
-            title="Toggle meditative ambient soundscape"
+            title="Toggle gentle 174Hz warm ambient synthesizer tone (Demonstration soundscape)"
           >
             {!state.isAudioMuted ? <Volume2 className="w-3 h-3 text-[#D4AF37]" /> : <VolumeX className="w-3 h-3" />}
             <span>{!state.isAudioMuted ? "Audio: 174Hz Ambient" : "Ambient Audio: Off"}</span>
@@ -796,8 +796,8 @@ export function LuxeDiningExperienceApp({ product }: { product: DemoProductDefin
                   <h1 className="text-xl sm:text-2xl font-serif tracking-[0.25em] text-[#FFF8E7] uppercase">
                     A U R E L I A
                   </h1>
-                  <p className="text-[10px] tracking-[0.3em] font-mono text-[#D4AF37] uppercase">
-                    Trois Étoiles Michelin · Paris
+                  <p className="text-[10px] tracking-[0.25em] font-mono text-[#D4AF37] uppercase">
+                    Fictional Demonstration Concept · Haute Gastronomie Paris
                   </p>
                 </div>
               </div>
@@ -851,7 +851,7 @@ export function LuxeDiningExperienceApp({ product }: { product: DemoProductDefin
                   <Star className="w-3 h-3 fill-current" />
                   <Star className="w-3 h-3 fill-current" />
                 </div>
-                <span>Three Michelin Stars · Guide Michelin 2024</span>
+                <span>Conceptual Three-Star Demonstration Brand · Illustrative Accolades</span>
               </div>
 
               <h2 className="text-4xl sm:text-6xl md:text-7xl font-serif text-[#FFFBF0] tracking-wide leading-[1.15]">
@@ -1095,6 +1095,10 @@ export function LuxeDiningExperienceApp({ product }: { product: DemoProductDefin
                 <p className="text-sm text-[#A0A0B5] max-w-xl">
                   Curated by Head Sommelier Jean-Baptiste Laurent, featuring 3,800 hand-numbered bottles resting in 14th-century temperature-controlled stone vaults.
                 </p>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#101018] border border-[#D4AF37]/30 text-[11px] font-mono text-[#D4AF37] mt-2">
+                  <Info className="w-3.5 h-3.5 shrink-0" />
+                  <span>Curated 8-Bottle Reserve Showcase · Representing 3,800-Bottle Illustrative Cellar Inventory (Demonstration Sommelier Ratings)</span>
+                </div>
               </div>
 
               {/* Category Filter Pills */}
@@ -1332,6 +1336,10 @@ export function LuxeDiningExperienceApp({ product }: { product: DemoProductDefin
               <p className="text-sm text-[#A0A0B5]">
                 Reservations are reviewed and personally coordinated by Head Maitre d'hôtel Alexandre Valmont.
               </p>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-[#101018] border border-[#D4AF37]/30 text-[11px] font-mono text-[#D4AF37]">
+                <Info className="w-3.5 h-3.5 shrink-0" />
+                <span>Demonstration Booking Engine · Inquiries are logged in session state and reflected on the Maitre d' Operations Desk</span>
+              </div>
             </div>
 
             {submittedReservation ? (
@@ -1625,12 +1633,12 @@ export function LuxeDiningExperienceApp({ product }: { product: DemoProductDefin
               <div className="flex items-center gap-3">
                 <UtensilsCrossed className="w-4 h-4 text-[#D4AF37]" />
                 <span className="font-serif text-sm tracking-widest text-[#FFF8E7]">A U R E L I A</span>
-                <span>· 18 Place Vendôme, 75001 Paris, France</span>
+                <span>· 18 Place Vendôme, 75001 Paris, France (Fictional Demonstration Address)</span>
               </div>
               <div className="flex items-center gap-6">
                 <span>Dinner Service: 19:00 — 23:30</span>
                 <span>Strict Formal Dress Code</span>
-                <span className="text-[#D4AF37]">Guide Michelin 2024</span>
+                <span className="text-[#D4AF37]">Conceptual Portfolio Model</span>
               </div>
             </div>
           </footer>
@@ -1647,6 +1655,9 @@ export function LuxeDiningExperienceApp({ product }: { product: DemoProductDefin
               <div className="flex items-center gap-2 text-xs font-mono text-[#D4AF37] uppercase tracking-widest">
                 <Settings className="w-4 h-4" />
                 <span>Maitre d'hôtel Operations & Floor Pacing</span>
+                <span className="ml-2 px-2 py-0.5 rounded text-[10px] bg-[#161622] text-[#A0A0B5] border border-[#2A2A38]">
+                  Demonstration Operations Data
+                </span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-serif text-[#FFF8E7] mt-1">
                 VIP Concierge & Cellar Allocations Desk

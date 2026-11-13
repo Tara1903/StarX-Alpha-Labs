@@ -485,11 +485,11 @@ export function GrandPalaceGuestPortalApp({ product }: { product: DemoProductDef
                   Grand Palace Hotel & Resort
                 </h1>
                 <span className="px-2 py-0.5 rounded-full bg-[#1E293B] text-[10px] font-mono text-[#38BDF8]">
-                  Verified In-Stay
+                  Verified In-Stay (Simulation)
                 </span>
               </div>
               <p className="text-xs font-mono text-slate-400">
-                {state.suiteNumber} · Welcome, {state.guestName}
+                {state.suiteNumber} · Fictional Guest: {state.guestName}
               </p>
             </div>
           </div>
@@ -512,6 +512,7 @@ export function GrandPalaceGuestPortalApp({ product }: { product: DemoProductDef
             <button
               onClick={handleUnlockDoor}
               disabled={state.isDoorUnlocked}
+              title="Simulated NFC Keyless Entry · Demonstration State"
               className={`px-3 py-1.5 rounded-xl border text-xs font-mono font-medium transition-all flex items-center gap-2 ${
                 state.isDoorUnlocked
                   ? "bg-[#10B981] text-black border-[#10B981] animate-pulse"
@@ -519,7 +520,7 @@ export function GrandPalaceGuestPortalApp({ product }: { product: DemoProductDef
               }`}
             >
               <KeyRound className="w-3.5 h-3.5" />
-              <span>{state.isDoorUnlocked ? "Door Unlocked (4s)" : "Tap NFC Digital Key"}</span>
+              <span>{state.isDoorUnlocked ? "Door Unlocked (Relocks in 4s)" : "Simulate NFC Key Tap"}</span>
             </button>
           </div>
         </div>
@@ -1293,12 +1294,12 @@ export function GrandPalaceGuestPortalApp({ product }: { product: DemoProductDef
 
             <div className="p-6 bg-[#081324] border-t border-[#1E293B] flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-xs font-mono text-slate-400">
-                Payment on file: <span className="text-white font-medium">Amex Centurion **** 9801</span>
+                Payment on file: <span className="text-white font-medium">Amex Centurion **** 9801 (Demo Sandbox)</span>
               </div>
               <button
                 onClick={() => {
                   alert(
-                    `Express Checkout Transmitted!\n\nThank you, Lord & Lady Sterling.\nYour final folio invoice of $${totalFolio.toLocaleString()} has been charged to Amex **** 9801 and dispatched to your email.`
+                    `Demonstration Checkout Simulation Complete!\n\nThank you, Lord & Lady Sterling.\nYour demonstration folio balance of $${totalFolio.toLocaleString()} has been finalized in session sandbox (Simulated settlement - zero actual financial charge applied).`
                   );
                 }}
                 className="px-6 py-2.5 rounded-xl bg-[#38BDF8] hover:bg-[#7DD3FC] text-black font-semibold text-xs font-mono uppercase tracking-wider transition-colors shadow-lg"
@@ -1317,9 +1318,14 @@ export function GrandPalaceGuestPortalApp({ product }: { product: DemoProductDef
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
           <div className="pb-4 border-b border-[#1E293B] flex justify-between items-center">
             <div>
-              <span className="text-xs font-mono text-[#38BDF8] uppercase tracking-widest">
-                Front Office Management
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono text-[#38BDF8] uppercase tracking-widest">
+                  Front Office Management
+                </span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-[#162744] text-slate-300 border border-[#234273]">
+                  Demonstration Operational Telemetry
+                </span>
+              </div>
               <h2 className="text-2xl font-serif text-white font-medium mt-1">
                 Front Desk & Butler Dispatch Operations
               </h2>
@@ -1336,7 +1342,7 @@ export function GrandPalaceGuestPortalApp({ product }: { product: DemoProductDef
             <div className="p-4 rounded-xl bg-[#0A162B] border border-[#1E293B]">
               <span className="text-[10px] font-mono text-slate-400 uppercase">Suite Occupancy</span>
               <p className="text-2xl font-serif text-white mt-1">88 / 94 Keys</p>
-              <span className="text-[10px] text-[#10B981] font-mono mt-1 block">93.6% Occupancy</span>
+              <span className="text-[10px] text-[#10B981] font-mono mt-1 block">93.6% Occupancy (Demo Data)</span>
             </div>
             <div className="p-4 rounded-xl bg-[#0A162B] border border-[#1E293B]">
               <span className="text-[10px] font-mono text-slate-400 uppercase">Active Butler Dispatches</span>

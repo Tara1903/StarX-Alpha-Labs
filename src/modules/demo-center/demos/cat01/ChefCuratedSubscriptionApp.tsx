@@ -32,6 +32,7 @@ import {
   Fish,
   Wheat,
   TrendingUp,
+  Info,
 } from "lucide-react";
 
 // =============================================================================
@@ -636,6 +637,10 @@ export function ChefCuratedSubscriptionApp({ product }: { product: DemoProductDe
             <p className="text-xs text-emerald-200/70">
               Step {state.quizStep} of 3 · Calibrate your weekly box to your personal fitness and biological objectives.
             </p>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-[#162E22] border border-[#234F37] text-[10px] font-mono text-emerald-300">
+              <Info className="w-3.5 h-3.5 shrink-0" />
+              <span>Illustrative Dietary Preferences & Personalization (Non-Clinical Guidance)</span>
+            </div>
           </div>
 
           <div className="rounded-2xl bg-[#0D1C15] border border-[#1C2E24] p-6 sm:p-10 space-y-8 shadow-2xl">
@@ -870,6 +875,10 @@ export function ChefCuratedSubscriptionApp({ product }: { product: DemoProductDe
             <p className="text-xs text-emerald-200/70 mt-1">
               Transparent caloric and nutrient aggregation across your active weekly deliveries.
             </p>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded bg-[#162E22] border border-[#234F37] text-[10px] font-mono text-emerald-300 mt-2">
+              <Info className="w-3.5 h-3.5 shrink-0" />
+              <span>Illustrative Nutritional Calculator · Sample Dietary Reference Data (Non-Clinical Estimation)</span>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -937,9 +946,14 @@ export function ChefCuratedSubscriptionApp({ product }: { product: DemoProductDe
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
           <div className="pb-4 border-b border-[#1C2E24] flex justify-between items-center">
             <div>
-              <span className="text-xs font-mono text-[#10B981] uppercase tracking-widest">
-                Culinary Operations Cockpit
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono text-[#10B981] uppercase tracking-widest">
+                  Culinary Operations Cockpit
+                </span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-[#162E22] text-emerald-300 border border-[#234F37]">
+                  Demonstration Production Data
+                </span>
+              </div>
               <h2 className="text-2xl font-serif text-white font-medium mt-1">
                 Central Commissary Batch Manifest
               </h2>
@@ -956,7 +970,7 @@ export function ChefCuratedSubscriptionApp({ product }: { product: DemoProductDe
             <div className="p-4 rounded-xl bg-[#0D1C15] border border-[#1C2E24]">
               <span className="text-[10px] font-mono text-emerald-300/60 uppercase">Active Subscribers</span>
               <p className="text-2xl font-serif text-white mt-1">1,248 Members</p>
-              <span className="text-[10px] text-[#10B981] font-mono mt-1 block">96.4% Retention Rate</span>
+              <span className="text-[10px] text-[#10B981] font-mono mt-1 block">96.4% Retention (Sample)</span>
             </div>
             <div className="p-4 rounded-xl bg-[#0D1C15] border border-[#1C2E24]">
               <span className="text-[10px] font-mono text-emerald-300/60 uppercase">This Sunday Prep Batch</span>
@@ -971,7 +985,7 @@ export function ChefCuratedSubscriptionApp({ product }: { product: DemoProductDe
             <div className="p-4 rounded-xl bg-[#0D1C15] border border-[#1C2E24]">
               <span className="text-[10px] font-mono text-emerald-300/60 uppercase">Weekly Run Rate</span>
               <p className="text-2xl font-serif text-white mt-1">$124,600</p>
-              <span className="text-[10px] text-[#10B981] font-mono mt-1 block">Stripe Recurring Active</span>
+              <span className="text-[10px] text-[#10B981] font-mono mt-1 block">Simulated Stripe Recurring Engine</span>
             </div>
           </div>
 

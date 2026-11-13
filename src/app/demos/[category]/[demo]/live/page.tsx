@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { DemoRuntimeDispatcher } from "@/modules/demo-center/runtime/DemoRuntimeDispatcher";
-import { resolvePublishedForgeProduct } from "@/lib/forge/runtimeResolver";
+import { resolveLiveDemoProduct } from "@/lib/forge/runtimeResolver";
 
 export const revalidate = 60;
 
@@ -14,7 +14,7 @@ interface LiveDemoPageProps {
 
 export async function generateMetadata({ params }: LiveDemoPageProps): Promise<Metadata> {
   const resolvedParams = await params;
-  const product = await resolvePublishedForgeProduct(resolvedParams.category, resolvedParams.demo);
+  const product = await resolveLiveDemoProduct(resolvedParams.category, resolvedParams.demo);
 
   if (!product) {
     return { title: "Demo Under Development — StarX Alpha Labs" };
@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: LiveDemoPageProps): Promise<M
 
 export default async function LiveDemoPage({ params }: LiveDemoPageProps) {
   const resolvedParams = await params;
-  const product = await resolvePublishedForgeProduct(resolvedParams.category, resolvedParams.demo);
+  const product = await resolveLiveDemoProduct(resolvedParams.category, resolvedParams.demo);
 
   if (!product) {
     notFound();

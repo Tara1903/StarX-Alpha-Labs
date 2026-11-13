@@ -159,14 +159,27 @@ export function DemoDetailClient({ demo, relatedDemos }: DemoDetailClientProps) 
 
               {/* Action Buttons Group */}
               <div className="pt-2 flex flex-wrap gap-3">
-                {/* 1. View Live Demo or Under Development notice */}
-                {demo.availabilityStatus === "Live Demo" ? (
+                {/* 1. View Live Demo or Interactive Sandbox */}
+                {demo.availabilityStatus === "Live Demo" || [
+                  "luxe-dining-brand-experience",
+                  "grand-palace-hotel-guest-portal",
+                  "chef-curated-food-subscription",
+                  "food-delivery-management",
+                  "qsr-management",
+                  "ecommerce-storefront",
+                  "multi-vendor-marketplace",
+                  "online-fashion-boutique"
+                ].includes(demo.slug) ? (
                   <Link
                     href={`/demos/${demo.categorySlug}/${demo.slug}/live`}
                     className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#1769AA] to-[#1F7ECB] hover:from-[#1E7ECA] hover:to-[#32A9E8] text-white font-bold text-sm shadow-xl shadow-[#1769AA]/40 flex items-center gap-2 border border-[#32A9E8]/50 transition-all"
                   >
                     <ExternalLink className="w-4 h-4 text-[#73D8FF]" />
-                    <span>Launch Live Demo Environment</span>
+                    <span>
+                      {demo.availabilityStatus === "Live Demo"
+                        ? "Launch Live Demo Environment"
+                        : "Launch Interactive Sandbox"}
+                    </span>
                   </Link>
                 ) : (
                   <span

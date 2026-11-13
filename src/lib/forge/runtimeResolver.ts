@@ -6,6 +6,8 @@ import { getPublishedCatalogSlugsFast, getPublishedForgeDemoFast } from "./store
 import type { ForgeDemoRecord } from "./types";
 import type { DemoArchetype, DemoProductDefinition } from "@/modules/demo-center/types";
 import { DEMO_CATEGORIES } from "@/modules/demo-center/registry";
+import { getDemoBySlug } from "@/data/demos";
+import type { DemoModel } from "@/types/demo";
 
 /**
  * Converts a Forge demo record into a DemoProductDefinition compatible
@@ -95,3 +97,116 @@ export const getPublishedCatalogSlugSet = cache(async (): Promise<Set<string>> =
     return new Set();
   }
 });
+
+/**
+ * Converts a canonical DemoModel from the 240-catalogue into a DemoProductDefinition
+ * suitable for the DemoRuntimeDispatcher.
+ */
+export function canonicalDemoToProductDefinition(demo: DemoModel): DemoProductDefinition {
+  const d = demo as any;
+  return {
+    id: demo.id,
+    slug: demo.slug,
+    name: demo.name,
+    categoryNumber: demo.categoryNumber,
+    categoryName: demo.categoryName,
+    categorySlug: demo.categorySlug,
+    archetype: (d.archetype || "analytics-canvas") as DemoArchetype,
+    productType: demo.productType,
+    tagline: demo.shortDescription || demo.categoryName,
+    shortDescription: demo.shortDescription,
+    fullDescription: demo.fullDescription,
+    suitableFor: demo.suitableFor,
+    generationStatus: (demo.generationStatus as any) || "draft",
+    qaStatus: (demo.qaStatus as any) || "not_run",
+    publishingStatus: (demo.publishingStatus as any) || "unpublished",
+    previewRoute: `/admin/forge/preview/${demo.slug}`,
+    publicRoute: `/demos/${demo.categorySlug}/${demo.slug}`,
+    brand: {
+      primary: "#087BFF",
+      secondary: "#0A1940",
+      accent: "#00D9FF",
+      bg: "#030B24",
+      surface: "#0A1940",
+      border: "rgba(0,217,255,0.22)",
+      text: "#F8FAFC",
+      mutedText: "#94A3B8",
+      fontHeadline: "sans",
+    },
+    workflows: (d.workflowSteps || d.modules || []).map((w: any, idx: number) => ({
+      id: `wf-${idx + 1}`,
+      title: typeof w === "string" ? w : w?.title || w?.name || `Workflow ${idx + 1}`,
+      description: typeof w === "string" ? w : w?.description || "",
+    })),
+    features: demo.mainFeatures || [],
+    techStack: demo.techStack || ["Next.js 16", "React 19", "Tailwind CSS v4"],
+    indicativePrice: demo.indicativeStartingPrice || "₹95,000",
+    indicativePriceUsd: demo.indicativePriceUsd || "$1,150",
+    estimatedTime: demo.estimatedDevelopmentTime || "3-4 weeks",
+    initialData: {},
+  };
+}
+
+/**
+ * Resolves a product for /live interactive sandbox routes.
+ * 1. Checks published forge database records first.
+ * 2. If unpublished or draft, falls back to canonical catalogue definition to allow
+ *    the DemoRuntimeDispatcher to render bespoke implementations or honest pending views,
+ *    without mutating the administrative publishing_status.
+ */
+export const resolveLiveDemoProduct = cache(
+  async (categorySlug: string, slug: string): Promise<DemoProductDefinition | null> => {
+    // 1. Published forge record from DB
+    const published = await resolvePublishedForgeProduct(categorySlug, slug);
+    if (published) return published;
+
+    // 2. Canonical catalog definition
+    const canonical = getDemoBySlug(slug);
+    if (canonical && canonical.categorySlug === categorySlug) {
+      return canonicalDemoToProductDefinition(canonical);
+    }
+
+    // 3. Protected Pilot fallback (Maison Ember)
+    if (slug === "restaurant-management-pilot" && categorySlug === "food-hospitality") {
+      return {
+        id: 9999,
+        slug: "restaurant-management-pilot",
+        name: "Maison Ember Pilot",
+        categoryNumber: 1,
+        categoryName: "Food & Hospitality",
+        categorySlug: "food-hospitality",
+        archetype: "analytics-canvas",
+        productType: "Pilot Reference Application",
+        tagline: "Fine Dining Management System",
+        shortDescription: "Restaurant management reference pilot.",
+        fullDescription: "Reference implementation for fine dining operations.",
+        suitableFor: "Fine Dining Restaurants",
+        generationStatus: "published",
+        qaStatus: "passed",
+        publishingStatus: "published",
+        previewRoute: "/admin/forge/preview/restaurant-management-pilot",
+        publicRoute: "/demos/food-hospitality/restaurant-management-pilot",
+        brand: {
+          primary: "#C49A45",
+          secondary: "#1A1510",
+          accent: "#E2BD68",
+          bg: "#0D0A08",
+          surface: "#1A1510",
+          border: "rgba(196,154,69,0.25)",
+          text: "#FAF5EE",
+          mutedText: "#A89F91",
+          fontHeadline: "serif",
+        },
+        workflows: [],
+        features: [],
+        techStack: ["Next.js 16", "React 19"],
+        indicativePrice: "₹1,50,000",
+        indicativePriceUsd: "$1,800",
+        estimatedTime: "4 weeks",
+        initialData: {},
+      };
+    }
+
+    return null;
+  }
+);
