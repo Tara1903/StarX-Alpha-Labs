@@ -130,6 +130,7 @@ export function toDemoModel(prod: DemoProductDefinition, isPublishedOverride = f
     videoThumbnail: prod.thumbnail || `/images/demos/${prod.categorySlug}/${prod.slug}-thumb.webp`,
     videoDuration: "Planned Walkthrough",
     productType: prod.productType || "Web Application",
+    standardProductType: prod.standardProductType,
     searchKeywords: keywords,
     thumbnail: prod.thumbnail || `/images/demos/${prod.categorySlug}/${prod.slug}-thumb.webp`,
     generationStatus: prod.generationStatus || "draft",

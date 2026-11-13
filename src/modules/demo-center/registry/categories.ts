@@ -133,6 +133,17 @@ export const MASTER_DEMO_CATEGORIES: DemoCategoryDefinition[] = [
     count: 13,
     highlights: ["Metered SaaS Subscriptions & MRR", "Multi-Pipeline B2B CRM", "AI RAG Bot & Automation Flows", "API Portals & IT Asset Control"],
   },
+  {
+    number: 13,
+    name: "Business Management Software",
+    slug: "business-management-software",
+    tagline: "Enterprise ERP, multi-store POS, inventory WMS, supply chain & back-office operations",
+    description: "Enterprise operational software suites engineered for back-office control, retail POS chains, wholesale inventory, warehouse distribution, and cross-departmental business management.",
+    iconName: "Briefcase",
+    gradient: "from-blue-600/20 via-cyan-600/10 to-transparent",
+    count: 16,
+    highlights: ["Enterprise Back-Office ERP", "Multi-Store Retail & POS", "Inventory & Stock WMS", "Returns, Procurement & Audits"],
+  },
 ];
 
 export const DEMO_CATEGORIES = MASTER_DEMO_CATEGORIES;

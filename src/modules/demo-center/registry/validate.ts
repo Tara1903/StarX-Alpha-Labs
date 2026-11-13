@@ -29,8 +29,8 @@ export function validateMasterCatalogue(
 ): CatalogueValidationResult {
   const errors: string[] = [];
 
-  if (categories.length !== 12) {
-    errors.push(`Expected 12 categories, found ${categories.length}.`);
+  if (categories.length < 12 || categories.length > 13) {
+    errors.push(`Expected 12 to 13 categories, found ${categories.length}.`);
   }
 
   if (demos.length !== 160) {

@@ -1,10 +1,11 @@
-import type { DemoArchetype, DemoBrandConfig, DemoProductDefinition } from "../../types";
+import type { DemoArchetype, DemoBrandConfig, DemoProductDefinition, DemoProductType } from "../../types";
 
 export interface CanonicalCatalogSpec {
   id: number;
   name: string;
   slug?: string;
   productType: string;
+  standardProductType?: DemoProductType;
   archetype?: DemoArchetype;
   shortDescription: string;
   fullDescription: string;
@@ -56,6 +57,7 @@ export function buildCategoryCatalogue(
       categorySlug: meta.categorySlug,
       archetype: spec.archetype || meta.defaultArchetype,
       productType: spec.productType,
+      standardProductType: spec.standardProductType,
       tagline: spec.shortDescription,
       shortDescription: spec.shortDescription,
       fullDescription: spec.fullDescription,

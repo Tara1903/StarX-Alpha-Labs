@@ -38,6 +38,17 @@ export interface DemoWorkflowSpec {
   description: string;
 }
 
+export type DemoProductType =
+  | "business_website"
+  | "ecommerce_website"
+  | "web_application"
+  | "marketplace"
+  | "native_android_app"
+  | "native_ios_app"
+  | "pwa"
+  | "business_management_software"
+  | "digital_ecosystem";
+
 export interface DemoProductDefinition {
   id: number;
   slug: string;
@@ -47,6 +58,7 @@ export interface DemoProductDefinition {
   categorySlug: string;
   archetype: DemoArchetype;
   productType?: string;
+  standardProductType?: DemoProductType;
   tagline: string;
   shortDescription: string;
   fullDescription: string;

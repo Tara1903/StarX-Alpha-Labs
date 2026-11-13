@@ -11,6 +11,7 @@ import type {
   ForgeSettings,
 } from "@/lib/forge/types";
 import { ForgeOverviewTab } from "./ForgeOverviewTab";
+import { ForgeAuditTab } from "./ForgeAuditTab";
 import { ForgeCatalogueTab } from "./ForgeCatalogueTab";
 import { ForgeGeneratorTab } from "./ForgeGeneratorTab";
 import { ForgeWorkspaceTab } from "./ForgeWorkspaceTab";
@@ -34,6 +35,7 @@ import {
 
 type ForgeSubTab =
   | "overview"
+  | "audit"
   | "catalogue"
   | "generator"
   | "workspace"
@@ -261,6 +263,7 @@ export function StarXForgeWorkspace({ onShowToast }: StarXForgeWorkspaceProps) {
 
   const tabs: { id: ForgeSubTab; label: string; icon: any }[] = [
     { id: "overview", label: "Overview", icon: LayoutDashboard },
+    { id: "audit", label: "Portfolio Audit & Restructuring", icon: ShieldCheck },
     { id: "catalogue", label: "Demo Catalogue", icon: Layers },
     { id: "generator", label: "New Demo Generator", icon: PlusCircle },
     { id: "workspace", label: "Generation Workspace", icon: Cpu },
@@ -367,6 +370,10 @@ export function StarXForgeWorkspace({ onShowToast }: StarXForgeWorkspaceProps) {
             setSubTab(tab as ForgeSubTab);
           }}
         />
+      )}
+
+      {subTab === "audit" && (
+        <ForgeAuditTab onShowToast={notify} />
       )}
 
       {subTab === "catalogue" && (

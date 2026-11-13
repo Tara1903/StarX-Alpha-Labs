@@ -1,6 +1,16 @@
 export type DemoAvailabilityStatus = "Live Demo" | "Coming Soon" | "Under Development" | "Planned" | "Offline Ready";
 export type DemoPlatform = "Website" | "Web App" | "Mobile App";
 export type DemoDevType = "Web App" | "Mobile App" | "Website" | "Cloud ERP" | "AI Microservice" | "SaaS Platform";
+export type DemoProductType =
+  | "business_website"
+  | "ecommerce_website"
+  | "web_application"
+  | "marketplace"
+  | "native_android_app"
+  | "native_ios_app"
+  | "pwa"
+  | "business_management_software"
+  | "digital_ecosystem";
 
 export interface DemoRoleAccount {
   role: "admin" | "customer" | "staff" | "vendor" | "delivery" | "teacher" | "student" | "manager";
@@ -50,6 +60,7 @@ export interface DemoModel {
   videoThumbnail: string;
   videoDuration: string;
   productType?: string;
+  standardProductType?: DemoProductType;
   searchKeywords?: string[];
   thumbnail?: string;
   generationStatus?: string;

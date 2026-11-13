@@ -45,14 +45,14 @@ export function IndustriesSection() {
 
         {/* 12 Industry Cards (2 rows of 6 on desktop) */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {DEMO_CATEGORIES.map((cat) => {
+          {DEMO_CATEGORIES.slice(0, 12).map((cat) => {
             const meta = industriesMeta[cat.number] || industriesMeta[5];
             return (
-              <Link key={cat.slug} href={`/demos/${cat.slug}`}>
+              <Link key={cat.slug} href={`/demos/${cat.slug}`} className="block h-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#00D9FF]/50 rounded-2xl">
                 <Card3DTilt
                   glowColor={meta.glow}
                   maxTilt={10}
-                  className={`p-4 rounded-2xl bg-[#0A1940] border ${meta.border} transition-all flex flex-col justify-between space-y-4 h-full group`}
+                  className={`p-4 rounded-2xl bg-[#0A1940] border ${meta.border} transition-all flex flex-col justify-between space-y-4 h-full group cursor-pointer`}
                   style={{ boxShadow: `0 4px 20px rgba(0,0,0,0.4)` }}
                 >
                   <div className="flex justify-between items-start">
