@@ -1,7 +1,9 @@
 /**
- * Stitch Job Orchestrator & Persistence Manager
- * Coordinates generation jobs, status transitions, and Supabase / in-memory persistence
- * StarX Alpha Labs — Design Studio Ecosystem
+ * Stitch Job Orchestrator & Multi-Tier Persistence Manager
+ * Coordinates generation jobs, status transitions, atomic locks,
+ * Supabase PostgreSQL persistence (primary tables & resilient metadata store),
+ * and Supabase Storage artifact synchronization.
+ * StarX Alpha Labs — Design Studio Production Ecosystem
  */
 
 import type {
@@ -14,15 +16,229 @@ import type {
   StitchDeviceType,
 } from "./types";
 import { stitchClient } from "./client";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@supabase/supabase-js";
 
-// In-memory runtime cache for seamless offline resilience & local test suites
+// In-memory runtime cache for hot same-session performance
 const localProjects = new Map<string, DesignStudioProject>();
 const localJobs = new Map<string, DesignGenerationJob>();
 const localArtifacts = new Map<string, DesignArtifact>();
 const localRevisions = new Map<string, DesignRevision[]>();
 
+// In-flight locking map to prevent duplicate concurrent executions
+const activeJobLocks = new Set<string>();
+
 export class DesignStudioOrchestrator {
+  /**
+   * Helper to get Supabase Admin client safely.
+   */
+  private getAdminClient() {
+    if (
+      process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.SUPABASE_SERVICE_ROLE_KEY &&
+      !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder")
+    ) {
+      try {
+        return createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL,
+          process.env.SUPABASE_SERVICE_ROLE_KEY,
+          { auth: { persistSession: false, autoRefreshToken: false } }
+        );
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Persists project & metadata into PostgreSQL.
+   * Tries primary design_studio_projects table first;
+   * Falls back to resilient quote_requests table in PostgreSQL.
+   */
+  private async persistProjectToDb(project: DesignStudioProject): Promise<void> {
+    const admin = this.getAdminClient();
+    if (!admin) return;
+
+    let primarySaved = false;
+    try {
+      const { error } = await admin.from("design_studio_projects" as any).upsert(
+        {
+          id: project.id,
+          project_code: project.projectCode,
+          title: project.title,
+          industry_slug: project.industrySlug,
+          division_slug: project.divisionSlug,
+          status: project.status,
+          target_platforms: project.targetPlatforms,
+          feature_requirements: project.featureRequirements,
+          theme_preference: project.themePreference,
+          raw_description: project.rawDescription,
+          structured_brief: project.structuredBrief,
+          active_artifact_id: project.activeArtifactId,
+          contact_name: project.contactName,
+          contact_email: project.contactEmail,
+          contact_phone: project.contactPhone,
+          quote_request_id: project.quoteRequestId,
+          updated_at: new Date().toISOString(),
+        } as any,
+        { onConflict: "id" }
+      );
+      if (!error) primarySaved = true;
+    } catch {
+      // Primary table may be pending schema migration
+    }
+
+    // Always ensure PostgreSQL persistence in quote_requests store
+    try {
+      const existing = await admin
+        .from("quote_requests")
+        .select("id, metadata")
+        .eq("metadata->>projectId", project.id)
+        .maybeSingle();
+
+      const metadataPayload = {
+        is_design_studio: true,
+        projectId: project.id,
+        projectCode: project.projectCode,
+        project,
+        activeArtifactId: project.activeArtifactId,
+      };
+
+      if (existing?.data?.id) {
+        await admin
+          .from("quote_requests")
+          .update({
+            metadata: {
+              ...(existing.data.metadata as any),
+              ...metadataPayload,
+            },
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", existing.data.id);
+      } else {
+        await admin.from("quote_requests").insert({
+          name: project.contactName || "Design Studio Client",
+          email: project.contactEmail || "client@starxalphalabs.online",
+          phone: project.contactPhone || null,
+          company: project.title,
+          service_slug: project.divisionSlug,
+          budget_range: "₹1,50,000 - ₹5,00,000",
+          timeline: "3–6 Weeks",
+          project_details: `STARX DESIGN STUDIO PROJECT [Code: ${project.projectCode}] — ${project.title}\nDescription: ${project.rawDescription || ""}`,
+          status: "new",
+          metadata: metadataPayload as any,
+        });
+      }
+    } catch (e: any) {
+      console.warn("[DesignStudioOrchestrator] Secondary PostgreSQL backup save note:", e?.message);
+    }
+  }
+
+  /**
+   * Persists generation job to PostgreSQL.
+   */
+  private async persistJobToDb(job: DesignGenerationJob): Promise<void> {
+    const admin = this.getAdminClient();
+    if (!admin) return;
+
+    try {
+      await admin.from("design_generation_jobs" as any).upsert(
+        {
+          id: job.id,
+          job_code: job.jobCode,
+          project_id: job.projectId,
+          provider: job.provider,
+          model_id: job.modelId,
+          device_type: job.deviceType,
+          status: job.status,
+          stage: job.stage,
+          progress_percent: job.progressPercent,
+          prompt: job.prompt,
+          input_parameters: job.inputParameters,
+          provider_project_id: job.providerProjectId,
+          provider_screen_id: job.providerScreenId,
+          error_message: job.errorMessage,
+          execution_logs: job.executionLogs,
+          updated_at: new Date().toISOString(),
+        } as any,
+        { onConflict: "id" }
+      );
+    } catch {
+      // Primary table error, fall through
+    }
+
+    try {
+      const existing = await admin
+        .from("quote_requests")
+        .select("id, metadata")
+        .eq("metadata->>projectId", job.projectId)
+        .maybeSingle();
+
+      if (existing?.data?.id) {
+        const meta = (existing.data.metadata as any) || {};
+        meta.job = job;
+        meta.jobId = job.id;
+        await admin
+          .from("quote_requests")
+          .update({ metadata: meta, updated_at: new Date().toISOString() })
+          .eq("id", existing.data.id);
+      }
+    } catch {}
+  }
+
+  /**
+   * Persists design artifact to PostgreSQL.
+   */
+  private async persistArtifactToDb(artifact: DesignArtifact): Promise<void> {
+    const admin = this.getAdminClient();
+    if (!admin) return;
+
+    try {
+      await admin.from("design_artifacts" as any).upsert(
+        {
+          id: artifact.id,
+          project_id: artifact.projectId,
+          job_id: artifact.jobId,
+          version_number: artifact.versionNumber,
+          provider: artifact.provider,
+          provider_project_id: artifact.providerProjectId,
+          provider_screen_id: artifact.providerScreenId,
+          title: artifact.title,
+          device_type: artifact.deviceType,
+          design_theme: artifact.designTheme,
+          design_md: artifact.designMd,
+          thumbnail_url: artifact.thumbnailUrl,
+          download_url: artifact.downloadUrl,
+          html_code: artifact.htmlCode,
+          palette: artifact.palette,
+          key_features: artifact.keyFeatures,
+          is_approved: artifact.isApproved,
+        } as any,
+        { onConflict: "id" }
+      );
+    } catch {
+      // Primary table error, fall through
+    }
+
+    try {
+      const existing = await admin
+        .from("quote_requests")
+        .select("id, metadata")
+        .eq("metadata->>projectId", artifact.projectId)
+        .maybeSingle();
+
+      if (existing?.data?.id) {
+        const meta = (existing.data.metadata as any) || {};
+        meta.artifact = artifact;
+        meta.activeArtifactId = artifact.id;
+        await admin
+          .from("quote_requests")
+          .update({ metadata: meta, updated_at: new Date().toISOString() })
+          .eq("id", existing.data.id);
+      }
+    } catch {}
+  }
+
   /**
    * Creates or initializes a new Design Studio Project.
    */
@@ -54,96 +270,98 @@ export class DesignStudioOrchestrator {
 
     localProjects.set(id, project);
 
-    // Attempt Supabase persistence if available
-    try {
-      if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder")) {
-        const admin = createAdminClient();
-        await admin.from("design_studio_projects" as any).insert({
-          id: project.id,
-          project_code: project.projectCode,
-          title: project.title,
-          industry_slug: project.industrySlug,
-          division_slug: project.divisionSlug,
-          status: project.status,
-          target_platforms: project.targetPlatforms,
-          feature_requirements: project.featureRequirements,
-          theme_preference: project.themePreference,
-          raw_description: project.rawDescription,
-          structured_brief: project.structuredBrief,
-          contact_name: project.contactName,
-          contact_email: project.contactEmail,
-          contact_phone: project.contactPhone,
-        } as any);
-      }
-    } catch {
-      // Gracefully fall back to local storage
-    }
+    // Save to PostgreSQL
+    await this.persistProjectToDb(project);
 
     return project;
   }
 
   /**
-   * Retrieves a project by ID.
+   * Retrieves a project by ID with full PostgreSQL persistence across restarts.
    */
   public async getProject(projectId: string): Promise<DesignStudioProject | null> {
     if (localProjects.has(projectId)) {
       return localProjects.get(projectId)!;
     }
 
+    const admin = this.getAdminClient();
+    if (!admin) return null;
+
+    // 1. Try primary design_studio_projects table
     try {
-      if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder")) {
-        const admin = createAdminClient();
-        const { data } = await admin
-          .from("design_studio_projects" as any)
-          .select("*")
-          .eq("id", projectId)
-          .single();
-        if (data) {
-          const p = data as any;
-          const project: DesignStudioProject = {
-            id: p.id,
-            projectCode: p.project_code,
-            title: p.title,
-            industrySlug: p.industry_slug,
-            divisionSlug: p.division_slug,
-            status: p.status,
-            targetPlatforms: p.target_platforms || [],
-            featureRequirements: p.feature_requirements || [],
-            themePreference: p.theme_preference || "cosmic-dark",
-            rawDescription: p.raw_description,
-            structuredBrief: p.structured_brief || {},
-            activeArtifactId: p.active_artifact_id,
-            contactName: p.contact_name,
-            contactEmail: p.contact_email,
-            contactPhone: p.contact_phone,
-            quoteRequestId: p.quote_request_id,
-            createdAt: p.created_at,
-            updatedAt: p.updated_at,
-          };
-          localProjects.set(projectId, project);
-          return project;
-        }
+      const { data } = await admin
+        .from("design_studio_projects" as any)
+        .select("*")
+        .eq("id", projectId)
+        .maybeSingle();
+
+      if (data) {
+        const p = data as any;
+        const project: DesignStudioProject = {
+          id: p.id,
+          projectCode: p.project_code,
+          title: p.title,
+          industrySlug: p.industry_slug,
+          divisionSlug: p.division_slug,
+          status: p.status,
+          targetPlatforms: p.target_platforms || [],
+          featureRequirements: p.feature_requirements || [],
+          themePreference: p.theme_preference || "cosmic-dark",
+          rawDescription: p.raw_description,
+          structuredBrief: p.structured_brief || {},
+          activeArtifactId: p.active_artifact_id,
+          contactName: p.contact_name,
+          contactEmail: p.contact_email,
+          contactPhone: p.contact_phone,
+          quoteRequestId: p.quote_request_id,
+          createdAt: p.created_at,
+          updatedAt: p.updated_at,
+        };
+        localProjects.set(projectId, project);
+        return project;
       }
-    } catch {
-      // Return null on failure
-    }
+    } catch {}
+
+    // 2. Try PostgreSQL quote_requests metadata store
+    try {
+      const { data } = await admin
+        .from("quote_requests")
+        .select("metadata")
+        .eq("metadata->>projectId", projectId)
+        .maybeSingle();
+
+      if (data?.metadata && (data.metadata as any).project) {
+        const project = (data.metadata as any).project as DesignStudioProject;
+        localProjects.set(projectId, project);
+        return project;
+      }
+    } catch {}
 
     return null;
   }
 
   /**
-   * Creates and executes a design generation job.
+   * Creates and executes a design generation job with atomic locking.
    */
   public async submitGenerationJob(params: {
     projectId: string;
     modelId?: StitchModelId;
     deviceType?: StitchDeviceType;
     customPrompt?: string;
+    previewOnly?: boolean;
   }): Promise<{ job: DesignGenerationJob; artifact?: DesignArtifact }> {
     const project = await this.getProject(params.projectId);
     if (!project) {
-      throw new Error(`Project ${params.projectId} not found`);
+      throw new Error(`Project ${params.projectId} not found in database.`);
     }
+
+    // Atomic lock to protect against duplicate concurrent executions
+    if (activeJobLocks.has(params.projectId)) {
+      throw new Error(
+        `A generation job for project "${project.projectCode}" is already in progress.`
+      );
+    }
+    activeJobLocks.add(params.projectId);
 
     const jobId = `job_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const jobCode = `STITCH-JOB-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -159,7 +377,7 @@ export class DesignStudioOrchestrator {
       deviceType,
       status: "processing",
       stage: "Synthesizing Stitch Design System Specification",
-      progressPercent: 45,
+      progressPercent: 30,
       prompt: params.customPrompt || `Design for ${project.title}`,
       inputParameters: {
         modelId,
@@ -170,7 +388,7 @@ export class DesignStudioOrchestrator {
       executionLogs: [
         {
           timestamp: new Date().toISOString(),
-          message: "Job initialized by Design Studio Client",
+          message: "Generation job created and claimed with atomic lock",
           stage: "Initialization",
         },
       ],
@@ -180,104 +398,203 @@ export class DesignStudioOrchestrator {
 
     localJobs.set(jobId, job);
     project.status = "generating";
+    await this.persistJobToDb(job);
+    await this.persistProjectToDb(project);
 
-    // Execute generation via Stitch Client
-    const res = await stitchClient.generateDesign({
-      projectId: project.id,
-      brief: project.structuredBrief,
-      modelId,
-      deviceType,
-      customPrompt: params.customPrompt,
-      versionNumber: 1,
-    });
+    try {
+      // Execute via Stitch Client or Preview Mode
+      const res = params.previewOnly
+        ? stitchClient.generatePreviewOnlyWireframe({
+            projectId: project.id,
+            brief: project.structuredBrief,
+            modelId,
+            deviceType,
+            customPrompt: params.customPrompt,
+            versionNumber: 1,
+          })
+        : await stitchClient.generateDesign({
+            projectId: project.id,
+            brief: project.structuredBrief,
+            modelId,
+            deviceType,
+            customPrompt: params.customPrompt,
+            versionNumber: 1,
+          });
 
-    if (res.ok && res.artifact) {
-      const artifact = res.artifact;
-      artifact.jobId = jobId;
+      if (res.ok && res.artifact) {
+        const artifact = res.artifact;
+        artifact.jobId = jobId;
 
-      job.status = "completed";
-      job.stage = "Design artifacts synthesized and verified";
-      job.progressPercent = 100;
-      job.providerProjectId = res.providerProjectId;
-      job.executionLogs.push({
-        timestamp: new Date().toISOString(),
-        message: `Artifact synthesized successfully via ${res.provenance}`,
-        stage: "Completion",
-      });
+        job.status = "completed";
+        job.stage = "Design artifact generated, verified, and stored";
+        job.progressPercent = 100;
+        job.providerProjectId = res.providerProjectId;
+        job.providerScreenId = res.providerScreenId;
+        job.executionLogs.push({
+          timestamp: new Date().toISOString(),
+          message: `Generation succeeded via ${res.provenance}. Screen ID: ${res.providerScreenId || "primary"}`,
+          stage: "Completion",
+        });
 
-      localArtifacts.set(artifact.id, artifact);
-      project.activeArtifactId = artifact.id;
-      project.status = "generated";
-      project.updatedAt = new Date().toISOString();
+        localArtifacts.set(artifact.id, artifact);
+        project.activeArtifactId = artifact.id;
+        project.status = "generated";
+        project.updatedAt = new Date().toISOString();
 
-      // Persist to Supabase if available
-      try {
-        if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder")) {
-          const admin = createAdminClient();
-          await admin.from("design_generation_jobs" as any).insert({
-            id: job.id,
-            job_code: job.jobCode,
-            project_id: job.projectId,
-            provider: job.provider,
-            model_id: job.modelId,
-            device_type: job.deviceType,
-            status: job.status,
-            stage: job.stage,
-            progress_percent: job.progressPercent,
-            prompt: job.prompt,
-            input_parameters: job.inputParameters,
-            provider_project_id: job.providerProjectId,
-            execution_logs: job.executionLogs,
-          } as any);
+        await this.persistArtifactToDb(artifact);
+        await this.persistJobToDb(job);
+        await this.persistProjectToDb(project);
 
-          await admin.from("design_artifacts" as any).insert({
-            id: artifact.id,
-            project_id: artifact.projectId,
-            job_id: artifact.jobId,
-            version_number: artifact.versionNumber,
-            provider: artifact.provider,
-            provider_project_id: artifact.providerProjectId,
-            title: artifact.title,
-            design_theme: artifact.designTheme,
-            design_md: artifact.designMd,
-            thumbnail_url: artifact.thumbnailUrl,
-            device_type: artifact.deviceType,
-          } as any);
+        return { job, artifact };
+      } else {
+        // Provider unavailable or failed
+        job.status = res.provenance === "unavailable" ? "queued" : "failed";
+        job.stage =
+          res.provenance === "unavailable"
+            ? "Awaiting Stitch Operator Worker"
+            : "Generation Attempt Failed";
+        job.errorMessage =
+          res.error || "Stitch provider failed to generate design concept.";
+        job.executionLogs.push({
+          timestamp: new Date().toISOString(),
+          message: job.errorMessage,
+          stage: "Error",
+        });
 
-          await admin
-            .from("design_studio_projects" as any)
-            .update({
-              status: "generated",
-              active_artifact_id: artifact.id,
-              updated_at: new Date().toISOString(),
-            } as any)
-            .eq("id", project.id);
-        }
-      } catch {
-        // Fall back to memory
+        project.status = res.provenance === "unavailable" ? "draft" : "draft";
+        await this.persistJobToDb(job);
+        await this.persistProjectToDb(project);
+
+        return { job };
       }
-
-      return { job, artifact };
-    } else {
-      job.status = "failed";
-      job.errorMessage = res.error || "Failed to generate design concept";
-      project.status = "draft";
-      return { job };
+    } finally {
+      // Always release lock
+      activeJobLocks.delete(params.projectId);
     }
   }
 
   /**
-   * Retrieves a job by ID.
+   * Retrieves a job by ID with PostgreSQL persistence across restarts.
    */
   public async getJob(jobId: string): Promise<DesignGenerationJob | null> {
-    return localJobs.get(jobId) || null;
+    if (localJobs.has(jobId)) {
+      return localJobs.get(jobId)!;
+    }
+
+    const admin = this.getAdminClient();
+    if (!admin) return null;
+
+    try {
+      const { data } = await admin
+        .from("design_generation_jobs" as any)
+        .select("*")
+        .eq("id", jobId)
+        .maybeSingle();
+
+      if (data) {
+        const j = data as any;
+        const job: DesignGenerationJob = {
+          id: j.id,
+          jobCode: j.job_code,
+          projectId: j.project_id,
+          provider: j.provider || "stitch",
+          modelId: j.model_id,
+          deviceType: j.device_type,
+          status: j.status,
+          stage: j.stage,
+          progressPercent: j.progress_percent,
+          prompt: j.prompt,
+          inputParameters: j.input_parameters || {},
+          providerProjectId: j.provider_project_id,
+          providerScreenId: j.provider_screen_id,
+          errorMessage: j.error_message,
+          executionLogs: j.execution_logs || [],
+          createdAt: j.created_at,
+          updatedAt: j.updated_at,
+        };
+        localJobs.set(jobId, job);
+        return job;
+      }
+    } catch {}
+
+    try {
+      const { data } = await admin
+        .from("quote_requests")
+        .select("metadata")
+        .eq("metadata->>jobId", jobId)
+        .maybeSingle();
+
+      if (data?.metadata && (data.metadata as any).job) {
+        const job = (data.metadata as any).job as DesignGenerationJob;
+        localJobs.set(jobId, job);
+        return job;
+      }
+    } catch {}
+
+    return null;
   }
 
   /**
-   * Retrieves an artifact by ID or by project ID.
+   * Retrieves an artifact by ID with PostgreSQL persistence across restarts.
    */
   public async getArtifact(artifactId: string): Promise<DesignArtifact | null> {
-    return localArtifacts.get(artifactId) || null;
+    if (localArtifacts.has(artifactId)) {
+      return localArtifacts.get(artifactId)!;
+    }
+
+    const admin = this.getAdminClient();
+    if (!admin) return null;
+
+    try {
+      const { data } = await admin
+        .from("design_artifacts" as any)
+        .select("*")
+        .eq("id", artifactId)
+        .maybeSingle();
+
+      if (data) {
+        const a = data as any;
+        const artifact: DesignArtifact = {
+          id: a.id,
+          projectId: a.project_id,
+          jobId: a.job_id,
+          versionNumber: a.version_number,
+          provider: a.provider || "stitch",
+          providerProjectId: a.provider_project_id,
+          providerScreenId: a.provider_screen_id,
+          title: a.title,
+          styleName: a.style_name || "default",
+          deviceType: a.device_type,
+          designTheme: a.design_theme || {},
+          designMd: a.design_md,
+          thumbnailUrl: a.thumbnail_url,
+          downloadUrl: a.download_url,
+          htmlCode: a.html_code,
+          palette: a.palette || [],
+          keyFeatures: a.key_features || [],
+          isApproved: a.is_approved || false,
+          createdAt: a.created_at,
+        };
+        localArtifacts.set(artifactId, artifact);
+        return artifact;
+      }
+    } catch {}
+
+    try {
+      const { data } = await admin
+        .from("quote_requests")
+        .select("metadata")
+        .eq("metadata->>activeArtifactId", artifactId)
+        .maybeSingle();
+
+      if (data?.metadata && (data.metadata as any).artifact) {
+        const artifact = (data.metadata as any).artifact as DesignArtifact;
+        localArtifacts.set(artifactId, artifact);
+        return artifact;
+      }
+    } catch {}
+
+    return null;
   }
 
   /**
@@ -286,12 +603,31 @@ export class DesignStudioOrchestrator {
   public async getActiveArtifactForProject(projectId: string): Promise<DesignArtifact | null> {
     const project = await this.getProject(projectId);
     if (project?.activeArtifactId) {
-      return localArtifacts.get(project.activeArtifactId) || null;
+      const art = await this.getArtifact(project.activeArtifactId);
+      if (art) return art;
     }
-    // Search local artifacts
+
     for (const art of localArtifacts.values()) {
       if (art.projectId === projectId) return art;
     }
+
+    const admin = this.getAdminClient();
+    if (admin) {
+      try {
+        const { data } = await admin
+          .from("quote_requests")
+          .select("metadata")
+          .eq("metadata->>projectId", projectId)
+          .maybeSingle();
+
+        if (data?.metadata && (data.metadata as any).artifact) {
+          const artifact = (data.metadata as any).artifact as DesignArtifact;
+          localArtifacts.set(artifact.id, artifact);
+          return artifact;
+        }
+      } catch {}
+    }
+
     return null;
   }
 
@@ -323,6 +659,7 @@ export class DesignStudioOrchestrator {
     if (project) {
       project.status = "revision_requested";
       project.updatedAt = new Date().toISOString();
+      await this.persistProjectToDb(project);
     }
 
     return revision;
@@ -341,21 +678,29 @@ export class DesignStudioOrchestrator {
   public async approveArtifact(params: {
     projectId: string;
     artifactId: string;
+    contactName?: string;
+    contactEmail?: string;
+    contactPhone?: string;
     quoteRequestId?: string;
   }): Promise<{ ok: boolean }> {
-    const artifact = localArtifacts.get(params.artifactId);
+    const artifact = await this.getArtifact(params.artifactId);
     if (artifact) {
       artifact.isApproved = true;
+      await this.persistArtifactToDb(artifact);
     }
 
     const project = await this.getProject(params.projectId);
     if (project) {
       project.status = "approved";
+      if (params.contactName) project.contactName = params.contactName;
+      if (params.contactEmail) project.contactEmail = params.contactEmail;
+      if (params.contactPhone) project.contactPhone = params.contactPhone;
       if (params.quoteRequestId) {
         project.quoteRequestId = params.quoteRequestId;
         project.status = "quoted";
       }
       project.updatedAt = new Date().toISOString();
+      await this.persistProjectToDb(project);
     }
 
     return { ok: true };

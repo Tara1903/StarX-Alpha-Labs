@@ -35,6 +35,7 @@ export const TriggerGenerationSchema = z.object({
   modelId: StitchModelIdSchema.default("GEMINI_3_8_FLASH"),
   deviceType: StitchDeviceTypeSchema.default("DESKTOP"),
   customPrompt: z.string().optional(),
+  previewOnly: z.boolean().optional(),
 });
 
 export const CreateRevisionSchema = z.object({

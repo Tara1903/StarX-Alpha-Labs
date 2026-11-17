@@ -9,7 +9,10 @@
     "start": "next start",
     "lint": "eslint src/",
     "type-check": "tsc --noEmit",
-    "bootstrap-owner": "node scripts/bootstrap-owner.js"
+    "bootstrap-owner": "node scripts/bootstrap-owner.js",
+    "stitch:worker": "node scripts/stitch-worker.mjs",
+    "stitch:worker:once": "node scripts/stitch-worker.mjs --once",
+    "stitch:status": "node scripts/stitch-worker.mjs --status"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

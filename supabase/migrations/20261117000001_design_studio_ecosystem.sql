@@ -4,6 +4,7 @@
 -- ==============================================================================
 -- Enables full database persistence for AI-powered design generation,
 -- Stitch project artifact snapshots, collaborative revisions, and quotation handoff.
+-- Target Database: https://qznrkailsceimepcscmx.supabase.co
 -- ==============================================================================
 
 -- 1. DESIGN STUDIO PROJECTS
@@ -11,6 +12,7 @@ CREATE TABLE IF NOT EXISTS public.design_studio_projects (
     id TEXT PRIMARY KEY,
     project_code TEXT NOT NULL UNIQUE,
     customer_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+    organization_id UUID REFERENCES public.client_organizations(id) ON DELETE SET NULL,
     session_id TEXT,
     title TEXT NOT NULL,
     industry_slug TEXT NOT NULL,
@@ -43,6 +45,7 @@ CREATE TABLE IF NOT EXISTS public.design_studio_projects (
 CREATE INDEX IF NOT EXISTS idx_design_studio_projects_code ON public.design_studio_projects(project_code);
 CREATE INDEX IF NOT EXISTS idx_design_studio_projects_status ON public.design_studio_projects(status);
 CREATE INDEX IF NOT EXISTS idx_design_studio_projects_industry ON public.design_studio_projects(industry_slug);
+CREATE INDEX IF NOT EXISTS idx_design_studio_projects_org ON public.design_studio_projects(organization_id);
 
 -- 2. DESIGN GENERATION JOBS
 CREATE TABLE IF NOT EXISTS public.design_generation_jobs (
@@ -118,36 +121,46 @@ ALTER TABLE public.design_generation_jobs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.design_artifacts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.design_revisions ENABLE ROW LEVEL SECURITY;
 
--- Allow public read & creation for Design Studio projects (session/guest friendly)
+-- Idempotent RLS Policies: Projects
+DROP POLICY IF EXISTS "Public read design studio projects" ON public.design_studio_projects;
 CREATE POLICY "Public read design studio projects"
     ON public.design_studio_projects FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Public insert design studio projects" ON public.design_studio_projects;
 CREATE POLICY "Public insert design studio projects"
     ON public.design_studio_projects FOR INSERT WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Public update design studio projects" ON public.design_studio_projects;
 CREATE POLICY "Public update design studio projects"
     ON public.design_studio_projects FOR UPDATE USING (true);
 
--- Allow public read & insert for jobs
+-- Idempotent RLS Policies: Jobs
+DROP POLICY IF EXISTS "Public read design generation jobs" ON public.design_generation_jobs;
 CREATE POLICY "Public read design generation jobs"
     ON public.design_generation_jobs FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Public insert design generation jobs" ON public.design_generation_jobs;
 CREATE POLICY "Public insert design generation jobs"
     ON public.design_generation_jobs FOR INSERT WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Public update design generation jobs" ON public.design_generation_jobs;
 CREATE POLICY "Public update design generation jobs"
     ON public.design_generation_jobs FOR UPDATE USING (true);
 
--- Allow public read & insert for artifacts
+-- Idempotent RLS Policies: Artifacts
+DROP POLICY IF EXISTS "Public read design artifacts" ON public.design_artifacts;
 CREATE POLICY "Public read design artifacts"
     ON public.design_artifacts FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Public insert design artifacts" ON public.design_artifacts;
 CREATE POLICY "Public insert design artifacts"
     ON public.design_artifacts FOR INSERT WITH CHECK (true);
 
--- Allow public read & insert for revisions
+-- Idempotent RLS Policies: Revisions
+DROP POLICY IF EXISTS "Public read design revisions" ON public.design_revisions;
 CREATE POLICY "Public read design revisions"
     ON public.design_revisions FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Public insert design revisions" ON public.design_revisions;
 CREATE POLICY "Public insert design revisions"
     ON public.design_revisions FOR INSERT WITH CHECK (true);

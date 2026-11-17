@@ -1,6 +1,10 @@
 /**
  * Google Stitch Client
- * Supports both direct remote HTTP bridge (STITCH_MCP_URL) and verified Stitch MCP catalog
+ * Supports:
+ *   1. Direct MCP Stdio Execution (STITCH_API_KEY) via DirectStitchProvider
+ *   2. Authenticated HTTP Bridge (STITCH_MCP_URL & STITCH_API_KEY)
+ *   3. Explicit Provider-Unavailable State (No silent fake fallbacks)
+ *   4. Dedicated Disclaimed Architecture Concept Wireframe (Preview Only)
  * StarX Alpha Labs — Design Studio Ecosystem
  */
 
@@ -14,6 +18,7 @@ import type {
 import { VERIFIED_STITCH_PROJECTS_CATALOG } from "./catalog";
 import { getClosestVerifiedArchetype } from "./capabilities";
 import { convertStitchProjectToArtifact } from "./artifacts";
+import { directStitchProvider } from "./directProvider";
 
 export interface StitchGenerationRequest {
   projectId: string;
@@ -26,10 +31,11 @@ export interface StitchGenerationRequest {
 
 export interface StitchGenerationResponse {
   ok: boolean;
-  provenance: "live_bridge" | "verified_catalog";
-  providerProjectId: string;
-  artifact: DesignArtifact;
-  rawProject: StitchProject;
+  provenance: "live_direct_mcp" | "live_bridge" | "preview_only" | "unavailable";
+  providerProjectId?: string;
+  providerScreenId?: string;
+  artifact?: DesignArtifact;
+  rawProject?: StitchProject;
   error?: string;
 }
 
@@ -40,6 +46,10 @@ export class StitchClient {
   constructor() {
     this.endpoint = process.env.STITCH_MCP_URL || null;
     this.apiKey = process.env.STITCH_API_KEY || null;
+  }
+
+  public isDirectMcpAvailable(): boolean {
+    return directStitchProvider.isAvailable();
   }
 
   public isHttpBridgeAvailable(): boolean {
@@ -66,16 +76,16 @@ export class StitchClient {
           if (data && data.name) return data as StitchProject;
         }
       } catch (err) {
-        console.warn("[StitchClient] HTTP bridge error, falling back to verified catalog:", err);
+        console.warn("[StitchClient] HTTP bridge error:", err);
       }
     }
 
-    // Fallback to verified catalog
     return VERIFIED_STITCH_PROJECTS_CATALOG[providerProjectId] || null;
   }
 
   /**
-   * Generates or synthesizes a design artifact from a customer's structured brief.
+   * Generates a genuine Stitch design artifact from a customer's brief.
+   * If Stitch is not configured/available, returns an explicit unavailable state.
    */
   public async generateDesign(
     request: StitchGenerationRequest
@@ -83,12 +93,40 @@ export class StitchClient {
     const versionNumber = request.versionNumber || 1;
     const deviceType: StitchDeviceType =
       request.deviceType || request.brief.deviceTarget || "DESKTOP";
+    const modelId: StitchModelId = request.modelId || "GEMINI_3_8_FLASH";
 
-    // 1. If HTTP Bridge is available, invoke it directly
+    // 1. Direct MCP Stdio Execution (Highest Fidelity)
+    if (this.isDirectMcpAvailable()) {
+      try {
+        const directRes = await directStitchProvider.generateDesign({
+          projectId: request.projectId,
+          brief: request.brief,
+          modelId,
+          deviceType,
+          customPrompt: request.customPrompt,
+          versionNumber,
+        });
+
+        if (directRes.ok && directRes.artifact) {
+          return {
+            ok: true,
+            provenance: "live_direct_mcp",
+            providerProjectId: directRes.providerProjectId,
+            providerScreenId: directRes.providerScreenId,
+            artifact: directRes.artifact,
+            rawProject: directRes.rawProject,
+          };
+        }
+      } catch (err: any) {
+        console.error("[StitchClient] Direct MCP execution error:", err?.message);
+      }
+    }
+
+    // 2. HTTP Bridge Execution
     if (this.isHttpBridgeAvailable()) {
       try {
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 45000);
+        const timer = setTimeout(() => controller.abort(), 60000);
 
         const res = await fetch(`${this.endpoint?.replace(/\/$/, "")}/generate-design`, {
           method: "POST",
@@ -99,7 +137,7 @@ export class StitchClient {
           body: JSON.stringify({
             projectId: request.projectId,
             prompt: request.customPrompt || this.buildStitchPrompt(request.brief),
-            modelId: request.modelId || "GEMINI_3_8_FLASH",
+            modelId,
             deviceType,
             industry: request.brief.industryName,
             division: request.brief.divisionName,
@@ -133,16 +171,37 @@ export class StitchClient {
             ok: true,
             provenance: "live_bridge",
             providerProjectId: rawProject.name,
+            providerScreenId: data.providerScreenId,
             artifact,
             rawProject,
           };
         }
       } catch (err: any) {
-        console.warn("[StitchClient] Live bridge generation failed or timed out:", err?.message);
+        console.warn("[StitchClient] Live bridge generation failed:", err?.message);
       }
     }
 
-    // 2. Select closest domain archetype from verified catalog
+    // 3. Neither Provider Connection is Available
+    // Strict Honesty: Never pretend a local template is a real Stitch generation
+    return {
+      ok: false,
+      provenance: "unavailable",
+      error:
+        "Google Stitch MCP Provider is not configured or reachable in this environment. The generation job has been queued in PostgreSQL for operator processing.",
+    };
+  }
+
+  /**
+   * Generates a disclaimed local interactive wireframe preview (Preview Only).
+   * Used strictly when a customer explicitly requests an instant architecture wireframe preview.
+   */
+  public generatePreviewOnlyWireframe(
+    request: StitchGenerationRequest
+  ): StitchGenerationResponse {
+    const versionNumber = request.versionNumber || 1;
+    const deviceType: StitchDeviceType =
+      request.deviceType || request.brief.deviceTarget || "DESKTOP";
+
     const archetype = getClosestVerifiedArchetype(
       request.brief.industrySlug,
       request.brief.divisionSlug
@@ -152,11 +211,10 @@ export class StitchClient {
       VERIFIED_STITCH_PROJECTS_CATALOG[archetype.providerProjectId] ||
       Object.values(VERIFIED_STITCH_PROJECTS_CATALOG)[0];
 
-    // Create tailored customized snapshot inheriting authentic Stitch tokens and specs
     const customizedProject: StitchProject = {
       ...catalogProject,
-      name: catalogProject.name,
-      title: `${request.brief.projectName} (${request.brief.industryName})`,
+      name: `${catalogProject.name}-preview`,
+      title: `${request.brief.projectName} [PREVIEW ONLY: Architectural Wireframe]`,
       deviceType,
       designTheme: {
         ...catalogProject.designTheme,
@@ -173,9 +231,11 @@ export class StitchClient {
       }
     );
 
+    artifact.title = `${request.brief.projectName} [PREVIEW ONLY: Architectural Wireframe]`;
+
     return {
       ok: true,
-      provenance: "verified_catalog",
+      provenance: "preview_only",
       providerProjectId: customizedProject.name,
       artifact,
       rawProject: customizedProject,

@@ -43,12 +43,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { projectId, modelId, deviceType, customPrompt } = parsed.data;
+    const { projectId, modelId, deviceType, customPrompt, previewOnly } = parsed.data;
     const result = await designStudioOrchestrator.submitGenerationJob({
       projectId,
       modelId,
       deviceType,
       customPrompt,
+      previewOnly,
     });
 
     return NextResponse.json({

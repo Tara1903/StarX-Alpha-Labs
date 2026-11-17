@@ -33,6 +33,7 @@ import {
   Eye,
   Sliders,
   Check,
+  AlertTriangle,
   Cpu,
   FileCode,
   Download,
@@ -206,22 +207,53 @@ export function DesignStudioClient() {
       setGenerationStageText("Compiling Stitch Design.md specification & rendering specular surfaces...");
 
       const jobData = await jobRes.json();
-      if (!jobData.ok || !jobData.artifact) {
+      if (jobData.ok && jobData.artifact) {
+        setActiveJob(jobData.job);
+        setActiveArtifact(jobData.artifact);
+        setGenerationProgress(100);
+        setGenerationStageText("Design artifact synthesized and verified via Stitch protocol!");
+        setTimeout(() => setCurrentStep(4), 700);
+      } else if (jobData.job?.status === "queued") {
+        setActiveJob(jobData.job);
+        setGenerationProgress(100);
+        setGenerationStageText("Project stored in PostgreSQL. Queued for Stitch Operator Worker.");
+        setTimeout(() => setCurrentStep(4), 700);
+      } else {
         throw new Error(jobData.error || "Generation job failed to produce artifact");
       }
-
-      setActiveJob(jobData.job);
-      setActiveArtifact(jobData.artifact);
-
-      setGenerationProgress(100);
-      setGenerationStageText("Design artifact synthesized and verified via Stitch protocol!");
-
-      setTimeout(() => {
-        setCurrentStep(4);
-      }, 700);
     } catch (err: any) {
       console.error("[DesignStudio] Generation Error:", err);
-      // Graceful fallback to advance with local fallback
+      setCurrentStep(4);
+    }
+  };
+
+  // Instant Architecture Wireframe (Preview Only)
+  const handleGeneratePreview = async () => {
+    if (!activeProject) return;
+    setCurrentStep(3);
+    setGenerationProgress(50);
+    setGenerationStageText("Synthesizing responsive architectural wireframe...");
+    try {
+      const res = await fetch("/api/design-studio/jobs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projectId: activeProject.id,
+          modelId: modelPreference,
+          deviceType: deviceTarget,
+          previewOnly: true,
+        }),
+      });
+      const data = await res.json();
+      if (data.ok && data.artifact) {
+        setActiveArtifact(data.artifact);
+        setActiveJob(data.job);
+        setGenerationProgress(100);
+        setGenerationStageText("Interactive architecture preview ready!");
+        setTimeout(() => setCurrentStep(4), 500);
+      }
+    } catch (e: any) {
+      console.error("Preview generation error:", e);
       setCurrentStep(4);
     }
   };
@@ -781,9 +813,17 @@ export function DesignStudioClient() {
                   <span className="text-xs font-mono uppercase tracking-widest text-[#00D9FF]">
                     Step 04 / 06 • Design Workspace
                   </span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    Stitch Artifact v{activeArtifact.versionNumber}
-                  </span>
+                  {activeArtifact.title.includes("PREVIEW ONLY") ? (
+                    <span className="text-[10px] font-mono px-2.5 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30 flex items-center gap-1 font-bold">
+                      <AlertTriangle className="w-3 h-3 text-amber-400" />
+                      <span>PREVIEW ONLY • Architectural Concept</span>
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-mono px-2.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1 font-bold">
+                      <Sparkles className="w-3 h-3 text-emerald-400" />
+                      <span>DIRECT STITCH AI ARTIFACT v{activeArtifact.versionNumber}</span>
+                    </span>
+                  )}
                 </div>
                 <h2 className="text-2xl font-black text-white">{activeArtifact.title}</h2>
                 <p className="text-xs text-slate-300 font-mono">
@@ -835,6 +875,17 @@ export function DesignStudioClient() {
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
+                      {activeArtifact.downloadUrl && (
+                        <a
+                          href={activeArtifact.downloadUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-2.5 py-1 text-[11px] font-mono text-[#00C98B] bg-[#00C98B]/10 rounded border border-[#00C98B]/20 flex items-center gap-1 hover:bg-[#00C98B]/20"
+                        >
+                          <Download className="w-3 h-3" />
+                          <span>Download HTML</span>
+                        </a>
+                      )}
                       {activeArtifact.thumbnailUrl && (
                         <button
                           type="button"
@@ -1033,6 +1084,43 @@ export function DesignStudioClient() {
                 className="px-8 py-3 rounded-full text-xs font-extrabold bg-gradient-to-r from-[#00D9FF] to-[#087BFF] hover:brightness-110 text-white shadow-xl flex items-center gap-2 cursor-pointer"
               >
                 <span>Proceed to Review &amp; Revisions</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 4 ALTERNATE: GENERATION QUEUED FOR OPERATOR */}
+        {currentStep === 4 && !activeArtifact && (
+          <div className="p-8 sm:p-12 rounded-3xl bg-[#071638]/90 border border-[#0A1940] space-y-6 shadow-2xl text-center max-w-2xl mx-auto">
+            <div className="w-16 h-16 rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mx-auto text-[#00D9FF]">
+              <Lock className="w-8 h-8" />
+            </div>
+            <div className="space-y-2">
+              <span className="px-3 py-1 rounded-full text-xs font-mono bg-cyan-500/10 text-[#00D9FF] border border-cyan-500/20">
+                PERSISTED IN POSTGRESQL (Job: {activeJob?.jobCode || "QUEUED"})
+              </span>
+              <h2 className="text-2xl font-black text-white">Generation Queued for Stitch Worker</h2>
+              <p className="text-xs text-slate-300">
+                Your project brief <strong>{activeProject?.title}</strong> is securely stored in PostgreSQL.
+                The Stitch execution provider is currently queued for processing by a StarX Operator Worker.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+              <button
+                type="button"
+                onClick={handleGeneratePreview}
+                className="w-full sm:w-auto px-6 py-3 rounded-full text-xs font-extrabold bg-[#0A1940] hover:bg-[#0E2458] border border-[#00D9FF]/40 text-[#00D9FF] flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Eye className="w-4 h-4" />
+                <span>View Instant Architecture Wireframe (Preview Only)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrentStep(5)}
+                className="w-full sm:w-auto px-6 py-3 rounded-full text-xs font-extrabold bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-white flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Proceed to Scoping &amp; Quotation</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
