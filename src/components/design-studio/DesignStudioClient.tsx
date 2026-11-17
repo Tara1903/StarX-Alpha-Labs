@@ -55,6 +55,7 @@ import {
   Copy,
   Wand2,
   ChevronDown,
+  ChevronUp,
   Info,
   Code,
   CheckCircle,
@@ -63,6 +64,7 @@ import {
   Globe,
   SlidersHorizontal,
   ChevronRight,
+  ChevronLeft,
   Plus,
   Palette,
   Terminal,
@@ -363,6 +365,16 @@ export function DesignStudioClient() {
     submittedAt: string;
   } | null>(null);
 
+  // Workspace Modal Controls
+  const [isRevisionModalOpen, setIsRevisionModalOpen] = useState<boolean>(false);
+  const [isApprovalDialogOpen, setIsApprovalDialogOpen] = useState<boolean>(false);
+  const [isBlueprintDrawerOpen, setIsBlueprintDrawerOpen] = useState<boolean>(false);
+  const [isRequirementsDrawerOpen, setIsRequirementsDrawerOpen] = useState<boolean>(false);
+  const [isDesignInfoPanelOpen, setIsDesignInfoPanelOpen] = useState<boolean>(false);
+  const [isFullscreenPreviewOpen, setIsFullscreenPreviewOpen] = useState<boolean>(false);
+  const [revisionTargetScreen, setRevisionTargetScreen] = useState<string>("all");
+  const [canvasZoom, setCanvasZoom] = useState<number>(100);
+
   // Current entity lookups
   const currentDivisionObj = useMemo(() => {
     return getDivisionBySlug(selectedDivision) || DIVISIONS_DATA[0];
@@ -607,7 +619,7 @@ export function DesignStudioClient() {
         body: JSON.stringify({
           projectId: activeProject.id,
           artifactId: activeArtifact.id,
-          notes: textToSubmit,
+          notes: `${revisionTargetScreen !== "all" ? `[Target Screen: ${revisionTargetScreen}] ` : ""}${textToSubmit}`,
           triggerRegeneration: true,
           deviceType: activeViewport,
           modelId: modelPreference,
@@ -620,18 +632,25 @@ export function DesignStudioClient() {
           setRevisionsList((prev) => [...prev, data.revision]);
         }
         if (data.newArtifact) {
-          setActiveArtifact(data.newArtifact);
+          // Re-approval rule: A newly generated revision requires fresh approval!
+          const newArt: DesignArtifact = {
+            ...data.newArtifact,
+            isApproved: false,
+            approvedAt: undefined,
+          };
+          setActiveArtifact(newArt);
           setAllArtifacts((prev) => {
-            const list = prev.filter((a) => a.id !== data.newArtifact.id);
-            return [...list, data.newArtifact];
+            const list = prev.filter((a) => a.id !== newArt.id);
+            return [...list, newArt];
           });
           setRefinementToast(
-            `Success! Version ${data.newArtifact.versionNumber} generated with your updates.`
+            `Success! Version ${newArt.versionNumber} generated. Please review and approve this version.`
           );
         } else {
           setRefinementToast("Revision note logged for StarX engineering review.");
         }
         setRefinementPrompt("");
+        setIsRevisionModalOpen(false);
       } else {
         setRefinementToast(data.error || "Revision could not be generated.");
       }
@@ -641,6 +660,39 @@ export function DesignStudioClient() {
     } finally {
       setIsRefining(false);
       setTimeout(() => setRefinementToast(null), 4500);
+    }
+  };
+
+  const currentScreenIndex = useMemo(() => {
+    if (!activeArtifact || allArtifacts.length === 0) return 0;
+    const idx = allArtifacts.findIndex((a) => a.id === activeArtifact.id);
+    return idx >= 0 ? idx : 0;
+  }, [activeArtifact, allArtifacts]);
+
+  const handlePrevScreen = () => {
+    if (allArtifacts.length <= 1) return;
+    const prevIdx = (currentScreenIndex - 1 + allArtifacts.length) % allArtifacts.length;
+    setActiveArtifact(allArtifacts[prevIdx]);
+  };
+
+  const handleNextScreen = () => {
+    if (allArtifacts.length <= 1) return;
+    const nextIdx = (currentScreenIndex + 1) % allArtifacts.length;
+    setActiveArtifact(allArtifacts[nextIdx]);
+  };
+
+  const handleDownloadArtifactFile = () => {
+    if (!activeArtifact) return;
+    if (activeArtifact.htmlCode) {
+      const blob = new Blob([activeArtifact.htmlCode], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${brandName || projectName || "StarX-Design"}-v${activeArtifact.versionNumber || 1}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } else {
+      handleDownloadSummary();
     }
   };
 
@@ -744,6 +796,7 @@ export function DesignStudioClient() {
         setAllArtifacts((prev) =>
           prev.map((a) => (a.id === data.artifact.id ? data.artifact : a))
         );
+        setIsApprovalDialogOpen(false);
         setApprovalToast(`Design version v${data.artifact.versionNumber || 1} approved!`);
         setTimeout(() => setApprovalToast(null), 4000);
       }
@@ -2054,84 +2107,261 @@ export function DesignStudioClient() {
                 {/* Hero Workspace Canvas */}
                 {activeArtifact && (
                   <div className="space-y-6">
-                    {/* Workspace Command Bar */}
-                    <div className="p-4 rounded-2xl bg-[#0A1940] border border-white/10 flex flex-wrap items-center justify-between gap-4 shadow-xl">
-                      <div className="flex items-center gap-3">
-                        <span className="w-3 h-3 rounded-full bg-[#00C98B] animate-pulse" />
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h2 className="text-sm font-bold text-white">
-                              {activeArtifact.title || brandName || projectName}
+                    {/* ================================================================ */}
+                    {/* PRODUCT HEADER (Section 4.1) */}
+                    {/* ================================================================ */}
+                    <div className="p-6 sm:p-8 rounded-3xl bg-[#0A1940] border border-white/10 shadow-2xl space-y-5">
+                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 pb-5 border-b border-white/10">
+                        <div className="space-y-2">
+                          <div className="flex flex-wrap items-center gap-3">
+                            <span className="w-2.5 h-2.5 rounded-full bg-[#00C98B] animate-pulse" />
+                            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                              {brandName || projectName || activeProject?.title || "StarX Project"}
                             </h2>
-                            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#030B24] text-[#00D9FF] border border-white/10 font-bold">
+                            <span className="text-xs font-mono px-3 py-1 rounded-full bg-[#030B24] text-[#00D9FF] border border-[#00D9FF]/40 font-bold shadow-sm">
                               v{activeArtifact.versionNumber || 1}
                             </span>
-                            {activeArtifact.isApproved && (
-                              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#00C98B]/20 text-[#00C98B] border border-[#00C98B]/40 flex items-center gap-1 font-bold">
-                                <CheckCircle className="w-3 h-3" />
-                                <span>Approved</span>
+                            {activeArtifact.isApproved ? (
+                              <span className="text-xs font-mono px-3.5 py-1 rounded-full bg-[#00C98B]/20 text-[#00C98B] border border-[#00C98B]/50 flex items-center gap-1.5 font-bold shadow-sm">
+                                <CheckCircle className="w-3.5 h-3.5" />
+                                <span>Approved Reference</span>
+                              </span>
+                            ) : (
+                              <span className="text-xs font-mono px-3.5 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/40 flex items-center gap-1.5 font-bold shadow-sm">
+                                <Clock className="w-3.5 h-3.5" />
+                                <span>Awaiting Approval</span>
                               </span>
                             )}
                           </div>
-                          <span className="text-[10px] font-mono text-slate-400">
-                            Provider: {activeArtifact.provider} • Screen: {activeArtifact.providerScreenId || "Primary"}
-                          </span>
+                          <p className="text-xs sm:text-sm text-[#C8D5EF] max-w-3xl leading-relaxed">
+                            {rawDescription || coreProblem || "Custom full-stack technology architecture synthesized with Google Stitch MCP."}
+                          </p>
+                        </div>
+
+                        {/* Fast Actions in Header */}
+                        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                          {!activeArtifact.isApproved ? (
+                            <button
+                              type="button"
+                              onClick={() => setIsApprovalDialogOpen(true)}
+                              className="px-5 py-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-[#00C98B] border border-[#00C98B]/60 font-bold text-xs flex items-center gap-2 cursor-pointer shadow-lg transition-all"
+                            >
+                              <ThumbsUp className="w-4 h-4" />
+                              <span>Approve v{activeArtifact.versionNumber || 1}</span>
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setReviewModalOpen(true)}
+                              className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-black font-extrabold text-xs shadow-xl hover:brightness-110 flex items-center gap-2 cursor-pointer transition-all"
+                            >
+                              <Briefcase className="w-4 h-4" />
+                              <span>Build This With StarX</span>
+                            </button>
+                          )}
                         </div>
                       </div>
 
-                      {/* Screen Navigation Tabs (when multiple revisions exist) */}
-                      {allArtifacts.length > 1 && (
+                      {/* Product Metadata Badges Grid */}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs font-mono">
+                        <div className="p-3 rounded-xl bg-[#030B24] border border-white/5 space-y-1">
+                          <span className="text-[10px] uppercase text-slate-400 block font-bold">Division</span>
+                          <span className="text-white font-bold truncate block">{currentDivisionObj.name}</span>
+                        </div>
+                        <div className="p-3 rounded-xl bg-[#030B24] border border-white/5 space-y-1">
+                          <span className="text-[10px] uppercase text-slate-400 block font-bold">Industry</span>
+                          <span className="text-white font-bold truncate block">{currentIndustryObj.name}</span>
+                        </div>
+                        <div className="p-3 rounded-xl bg-[#030B24] border border-white/5 space-y-1">
+                          <span className="text-[10px] uppercase text-slate-400 block font-bold">Category</span>
+                          <span className="text-white font-bold truncate block">{productCategory || "Web/App"}</span>
+                        </div>
+                        <div className="p-3 rounded-xl bg-[#030B24] border border-white/5 space-y-1">
+                          <span className="text-[10px] uppercase text-slate-400 block font-bold">Plan</span>
+                          <span className="text-[#00D9FF] font-bold truncate block">{currentPlan.name} ({currentPlan.code})</span>
+                        </div>
+                        <div className="p-3 rounded-xl bg-[#030B24] border border-white/5 space-y-1">
+                          <span className="text-[10px] uppercase text-slate-400 block font-bold">Complexity</span>
+                          <span className="text-[#00C98B] font-bold truncate block">{complexityData.score}/10 Score</span>
+                        </div>
+                        <div className="p-3 rounded-xl bg-[#030B24] border border-white/5 space-y-1">
+                          <span className="text-[10px] uppercase text-slate-400 block font-bold">Screens</span>
+                          <span className="text-white font-bold truncate block">{allArtifacts.length || 1} Generated</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ================================================================ */}
+                    {/* WORKSPACE COMMAND BAR */}
+                    {/* ================================================================ */}
+                    <div className="p-4 rounded-2xl bg-[#0A1940] border border-white/10 flex flex-wrap items-center justify-between gap-4 shadow-xl">
+                      {/* Left: Screen Navigation & Version Pills */}
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={handlePrevScreen}
+                          disabled={allArtifacts.length <= 1}
+                          className="p-2 rounded-xl bg-[#030B24] hover:bg-white/10 text-slate-300 disabled:opacity-30 cursor-pointer border border-white/5"
+                          title="Previous Screen"
+                        >
+                          <ChevronLeft className="w-4 h-4" />
+                        </button>
+
                         <div className="flex items-center gap-1.5 bg-[#030B24] p-1 rounded-xl border border-white/10">
-                          <span className="text-[10px] font-mono text-slate-500 px-2">Screens:</span>
-                          {allArtifacts.map((art) => {
-                            const isSelected = art.id === activeArtifact.id;
+                          {allArtifacts.length > 1 ? (
+                            allArtifacts.map((art, idx) => {
+                              const isSelected = art.id === activeArtifact.id;
+                              return (
+                                <button
+                                  key={art.id}
+                                  type="button"
+                                  onClick={() => setActiveArtifact(art)}
+                                  className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                                    isSelected
+                                      ? "bg-[#087BFF] text-white shadow-md"
+                                      : "text-slate-400 hover:text-white"
+                                  }`}
+                                >
+                                  v{art.versionNumber || idx + 1}
+                                </button>
+                              );
+                            })
+                          ) : (
+                            <span className="text-xs font-mono text-[#00D9FF] px-3 py-1 font-bold">
+                              Screen 1 of 1 (v{activeArtifact.versionNumber || 1})
+                            </span>
+                          )}
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={handleNextScreen}
+                          disabled={allArtifacts.length <= 1}
+                          className="p-2 rounded-xl bg-[#030B24] hover:bg-white/10 text-slate-300 disabled:opacity-30 cursor-pointer border border-white/5"
+                          title="Next Screen"
+                        >
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      {/* Middle: Viewport Switcher & Zoom Controls */}
+                      <div className="flex items-center gap-3">
+                        {/* Viewport Switcher */}
+                        <div className="flex items-center gap-1 bg-[#030B24] p-1 rounded-xl border border-white/10">
+                          {[
+                            { id: "DESKTOP" as StitchDeviceType, icon: Laptop, label: "1440px" },
+                            { id: "TABLET" as StitchDeviceType, icon: Tablet, label: "768px" },
+                            { id: "MOBILE" as StitchDeviceType, icon: Smartphone, label: "390px" },
+                          ].map((vp) => {
+                            const Icon = vp.icon;
+                            const isCurrent = activeViewport === vp.id;
                             return (
                               <button
-                                key={art.id}
+                                key={vp.id}
                                 type="button"
-                                onClick={() => setActiveArtifact(art)}
-                                className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
-                                  isSelected
-                                    ? "bg-[#087BFF] text-white shadow"
+                                onClick={() => setActiveViewport(vp.id)}
+                                className={`px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                                  isCurrent
+                                    ? "bg-[#087BFF] text-white shadow-md"
                                     : "text-slate-400 hover:text-white"
                                 }`}
                               >
-                                v{art.versionNumber || 1}
+                                <Icon className="w-3.5 h-3.5" />
+                                <span className="hidden sm:inline">{vp.label}</span>
                               </button>
                             );
                           })}
                         </div>
-                      )}
 
-                      {/* Viewport Switcher Controls */}
-                      <div className="flex items-center gap-1.5 bg-[#030B24] p-1 rounded-xl border border-white/10">
-                        {[
-                          { id: "DESKTOP" as StitchDeviceType, icon: Laptop, label: "1440px" },
-                          { id: "TABLET" as StitchDeviceType, icon: Tablet, label: "768px" },
-                          { id: "MOBILE" as StitchDeviceType, icon: Smartphone, label: "390px" },
-                        ].map((vp) => {
-                          const Icon = vp.icon;
-                          const isCurrent = activeViewport === vp.id;
-                          return (
-                            <button
-                              key={vp.id}
-                              type="button"
-                              onClick={() => setActiveViewport(vp.id)}
-                              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                                isCurrent
-                                  ? "bg-[#087BFF] text-white shadow-md"
-                                  : "text-slate-400 hover:text-white"
-                              }`}
-                            >
-                              <Icon className="w-3.5 h-3.5" />
-                              <span>{vp.label}</span>
-                            </button>
-                          );
-                        })}
+                        {/* Zoom Controls */}
+                        <div className="hidden md:flex items-center gap-1 bg-[#030B24] p-1 rounded-xl border border-white/10">
+                          <button
+                            type="button"
+                            onClick={() => setCanvasZoom((prev) => Math.max(50, prev - 25))}
+                            className="p-1.5 text-slate-400 hover:text-white cursor-pointer"
+                            title="Zoom Out"
+                          >
+                            <ZoomOut className="w-3.5 h-3.5" />
+                          </button>
+                          <span className="text-[10px] font-mono text-white px-1.5 font-bold">{canvasZoom}%</span>
+                          <button
+                            type="button"
+                            onClick={() => setCanvasZoom((prev) => Math.min(150, prev + 25))}
+                            className="p-1.5 text-slate-400 hover:text-white cursor-pointer"
+                            title="Zoom In"
+                          >
+                            <ZoomIn className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        {/* Fullscreen Button */}
+                        <button
+                          type="button"
+                          onClick={() => setIsFullscreenPreviewOpen(true)}
+                          className="p-2 rounded-xl bg-[#030B24] hover:bg-white/10 text-slate-300 border border-white/10 cursor-pointer"
+                          title="Fullscreen Lightbox Preview"
+                        >
+                          <Maximize2 className="w-4 h-4" />
+                        </button>
                       </div>
 
-                      {/* Quick CTAs */}
-                      <div className="flex items-center gap-2">
+                      {/* Right: Actions */}
+                      <div className="flex flex-wrap items-center gap-2">
+                        {/* Request Changes CTA */}
+                        <button
+                          type="button"
+                          onClick={() => setIsRevisionModalOpen(true)}
+                          className="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 text-xs font-mono flex items-center gap-1.5 border border-white/10 cursor-pointer"
+                        >
+                          <Wand2 className="w-3.5 h-3.5 text-[#00D9FF]" />
+                          <span>Request Changes</span>
+                        </button>
+
+                        {/* Design Info Panel Toggle */}
+                        <button
+                          type="button"
+                          onClick={() => setIsDesignInfoPanelOpen(!isDesignInfoPanelOpen)}
+                          className={`px-3 py-2 rounded-xl text-xs font-mono flex items-center gap-1.5 border cursor-pointer transition-all ${
+                            isDesignInfoPanelOpen
+                              ? "bg-[#087BFF]/20 border-[#00D9FF] text-[#00D9FF]"
+                              : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
+                          }`}
+                        >
+                          <Info className="w-3.5 h-3.5" />
+                          <span>Design Info</span>
+                        </button>
+
+                        {/* View Design Blueprint */}
+                        <button
+                          type="button"
+                          onClick={() => setIsBlueprintDrawerOpen(true)}
+                          className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-mono border border-white/10 cursor-pointer"
+                          title="View Google Stitch Design Blueprint"
+                        >
+                          <Code className="w-3.5 h-3.5" />
+                        </button>
+
+                        {/* Review Requirements */}
+                        <button
+                          type="button"
+                          onClick={() => setIsRequirementsDrawerOpen(true)}
+                          className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-mono border border-white/10 cursor-pointer"
+                          title="Review Requirements Context"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                        </button>
+
+                        {/* Download Artifact */}
+                        <button
+                          type="button"
+                          onClick={handleDownloadArtifactFile}
+                          className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-mono border border-white/10 cursor-pointer"
+                          title="Download HTML / Summary"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                        </button>
+
+                        {/* Share */}
                         <button
                           type="button"
                           onClick={() => {
@@ -2141,39 +2371,20 @@ export function DesignStudioClient() {
                               setTimeout(() => setShareToast(null), 3000);
                             }
                           }}
-                          className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-mono flex items-center gap-1.5 cursor-pointer"
-                          title="Share Design Link"
+                          className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-mono border border-white/10 cursor-pointer"
+                          title="Share Link"
                         >
                           <Share2 className="w-3.5 h-3.5" />
-                          <span className="hidden sm:inline">Share</span>
                         </button>
 
-                        {/* Edit Contact Information CTA */}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const el = document.getElementById("contact-information-section");
-                            if (el) el.scrollIntoView({ behavior: "smooth" });
-                          }}
-                          className="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-mono flex items-center gap-1.5 border border-white/10 cursor-pointer"
-                        >
-                          <User className="w-3.5 h-3.5 text-[#00D9FF]" />
-                          <span>Edit Contact Info</span>
-                        </button>
-
-                        {/* Version-Specific Design Approval CTA */}
+                        {/* Approval Toggle */}
                         {!activeArtifact.isApproved ? (
                           <button
                             type="button"
-                            onClick={handleApproveDesign}
-                            disabled={isApprovingDesign}
-                            className="px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-[#00C98B] border border-[#00C98B]/50 font-bold text-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                            onClick={() => setIsApprovalDialogOpen(true)}
+                            className="px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-[#00C98B] border border-[#00C98B]/50 font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-md"
                           >
-                            {isApprovingDesign ? (
-                              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                            ) : (
-                              <ThumbsUp className="w-3.5 h-3.5" />
-                            )}
+                            <ThumbsUp className="w-3.5 h-3.5" />
                             <span>Approve v{activeArtifact.versionNumber || 1}</span>
                           </button>
                         ) : (
@@ -2186,8 +2397,18 @@ export function DesignStudioClient() {
                         {/* Build This With StarX CTA */}
                         <button
                           type="button"
-                          onClick={() => setReviewModalOpen(true)}
-                          className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-black font-extrabold text-xs shadow-lg hover:brightness-110 flex items-center gap-1.5 cursor-pointer"
+                          onClick={() => {
+                            if (!activeArtifact.isApproved) {
+                              setIsApprovalDialogOpen(true);
+                            } else {
+                              setReviewModalOpen(true);
+                            }
+                          }}
+                          className={`px-4 py-2 rounded-xl font-extrabold text-xs shadow-lg flex items-center gap-1.5 cursor-pointer transition-all ${
+                            activeArtifact.isApproved
+                              ? "bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-black hover:brightness-110"
+                              : "bg-white/10 text-slate-400 hover:text-white border border-white/10"
+                          }`}
                         >
                           <Briefcase className="w-3.5 h-3.5" />
                           <span>Build This With StarX</span>
@@ -2195,8 +2416,114 @@ export function DesignStudioClient() {
                       </div>
                     </div>
 
-                    {/* Sandboxed Viewport Chassis */}
-                    <div className="relative mx-auto flex justify-center py-2">
+                    {/* ================================================================ */}
+                    {/* POST-APPROVAL SUCCESS BANNER (Section 6.2) */}
+                    {/* ================================================================ */}
+                    {activeArtifact.isApproved && (
+                      <div className="p-6 rounded-2xl bg-gradient-to-r from-[#00C98B]/20 via-[#071638] to-[#087BFF]/20 border border-[#00C98B]/40 flex flex-wrap items-center justify-between gap-4 shadow-xl">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 text-[#00C98B]">
+                            <CheckCircle className="w-5 h-5" />
+                            <h3 className="text-base sm:text-lg font-black text-white">Your Design Has Been Approved!</h3>
+                          </div>
+                          <p className="text-xs sm:text-sm text-[#C8D5EF] max-w-xl">
+                            Your design direction is ready. You can now take the next step and discuss bringing your solution to life with StarX Alpha Labs.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setReviewModalOpen(true)}
+                          className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-black font-extrabold text-sm shadow-xl hover:brightness-110 flex items-center gap-2 cursor-pointer"
+                        >
+                          <Briefcase className="w-4 h-4" />
+                          <span>Build This With StarX</span>
+                        </button>
+                      </div>
+                    )}
+
+                    {/* ================================================================ */}
+                    {/* COLLAPSIBLE DESIGN INFORMATION PANEL (Section 4.1) */}
+                    {/* ================================================================ */}
+                    {isDesignInfoPanelOpen && (
+                      <div className="p-6 rounded-2xl bg-[#030B24] border border-[#00D9FF]/30 space-y-5 shadow-2xl">
+                        <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                          <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#00D9FF] flex items-center gap-2">
+                            <Info className="w-4 h-4" />
+                            <span>Design Information &amp; Brand Tokens</span>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setIsDesignInfoPanelOpen(false)}
+                            className="text-slate-400 hover:text-white text-xs font-mono cursor-pointer"
+                          >
+                            Close ✕
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs font-mono">
+                          {/* Design Summary */}
+                          <div className="p-4 rounded-xl bg-[#0A1940] border border-white/5 space-y-2">
+                            <span className="text-[10px] uppercase font-bold text-slate-400 block">Design Summary</span>
+                            <p className="text-[#C8D5EF] leading-relaxed text-[11px]">
+                              {activeArtifact.designMd || "Synthesized full-stack architecture tailored for high conversion, responsive ergonomics, and enterprise resilience."}
+                            </p>
+                          </div>
+
+                          {/* Brand Colours */}
+                          <div className="p-4 rounded-xl bg-[#0A1940] border border-white/5 space-y-2">
+                            <span className="text-[10px] uppercase font-bold text-slate-400 block">Brand Palette</span>
+                            <div className="space-y-1.5">
+                              <div className="flex items-center justify-between">
+                                <span className="text-slate-400">Primary:</span>
+                                <span className="flex items-center gap-1.5 text-white font-bold">
+                                  <span className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: palettePrimary }} />
+                                  <span>{palettePrimary}</span>
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-slate-400">Accent:</span>
+                                <span className="flex items-center gap-1.5 text-white font-bold">
+                                  <span className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: paletteAccent }} />
+                                  <span>{paletteAccent}</span>
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-slate-400">Background:</span>
+                                <span className="flex items-center gap-1.5 text-white font-bold">
+                                  <span className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: paletteBg }} />
+                                  <span>{paletteBg}</span>
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Typography & Style */}
+                          <div className="p-4 rounded-xl bg-[#0A1940] border border-white/5 space-y-2">
+                            <span className="text-[10px] uppercase font-bold text-slate-400 block">Typography &amp; Style</span>
+                            <div className="space-y-1 text-slate-300 text-[11px]">
+                              <div>Heading: <strong className="text-white">Inter &amp; Orbitron</strong></div>
+                              <div>Body: <strong className="text-white">Inter Clean</strong></div>
+                              <div>Visual Style: <strong className="text-[#00D9FF]">{themePreference || "Cosmic Dark"}</strong></div>
+                            </div>
+                          </div>
+
+                          {/* Key Interface Decisions */}
+                          <div className="p-4 rounded-xl bg-[#0A1940] border border-white/5 space-y-2">
+                            <span className="text-[10px] uppercase font-bold text-slate-400 block">Key Architecture</span>
+                            <div className="space-y-1 text-slate-300 text-[11px]">
+                              <div>Platforms: <strong className="text-white">{platformTargets.join(", ")}</strong></div>
+                              <div>Provider: <strong className="text-white">{activeArtifact.provider}</strong></div>
+                              <div>Screen ID: <strong className="text-[#00D9FF]">{activeArtifact.providerScreenId || "Default"}</strong></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ================================================================ */}
+                    {/* SANDBOXED VIEWPORT CHASSIS */}
+                    {/* ================================================================ */}
+                    <div className="relative mx-auto flex justify-center py-2 overflow-x-auto">
                       <div
                         className={`border border-white/15 rounded-3xl bg-[#030B24] shadow-2xl overflow-hidden transition-all duration-300 ${
                           activeViewport === "MOBILE"
@@ -2216,37 +2543,46 @@ export function DesignStudioClient() {
                           <div className="text-[10px] font-mono text-slate-400 bg-[#030B24] px-4 py-0.5 rounded-full border border-white/5 truncate max-w-xs sm:max-w-md">
                             https://demo.starxalphalabs.online/{currentIndustryObj.slug}/{brandName || "preview"}
                           </div>
-                          <div className="text-[10px] font-mono text-[#00D9FF]">
-                            {activeViewport}
+                          <div className="flex items-center gap-2 text-[10px] font-mono text-[#00D9FF]">
+                            <span>{activeViewport}</span>
+                            {canvasZoom !== 100 && <span className="text-slate-400">({canvasZoom}%)</span>}
                           </div>
                         </div>
 
-                        {/* Rendered Design Artifact */}
-                        {activeArtifact.htmlCode ? (
-                          <iframe
-                            srcDoc={activeArtifact.htmlCode}
-                            title={activeArtifact.title || "Stitch Demo Canvas"}
-                            className="w-full min-h-[750px] border-0 bg-transparent"
-                            sandbox="allow-scripts allow-same-origin"
-                          />
-                        ) : activeArtifact.thumbnailUrl ? (
-                          <div className="p-4 flex items-center justify-center">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={activeArtifact.thumbnailUrl}
-                              alt={activeArtifact.title || "Design Screenshot"}
-                              className="max-w-full rounded-2xl shadow-xl"
+                        {/* Rendered Design Artifact with Canvas Zoom */}
+                        <div
+                          style={{
+                            transform: canvasZoom !== 100 ? `scale(${canvasZoom / 100})` : undefined,
+                            transformOrigin: "top center",
+                            transition: "transform 0.2s ease-in-out",
+                          }}
+                        >
+                          {activeArtifact.htmlCode ? (
+                            <iframe
+                              srcDoc={activeArtifact.htmlCode}
+                              title={activeArtifact.title || "Stitch Demo Canvas"}
+                              className="w-full min-h-[750px] border-0 bg-transparent"
+                              sandbox="allow-scripts allow-same-origin"
                             />
-                          </div>
-                        ) : (
-                          <div className="p-16 text-center space-y-4">
-                            <Sparkles className="w-10 h-10 text-[#00D9FF] mx-auto animate-pulse" />
-                            <h3 className="text-lg font-bold text-white">Stitch Architectural Screen Ready</h3>
-                            <p className="text-xs text-slate-400 max-w-md mx-auto">
-                              Artifact registered in PostgreSQL storage. Use natural language refinement below to iterate on layout.
-                            </p>
-                          </div>
-                        )}
+                          ) : activeArtifact.thumbnailUrl ? (
+                            <div className="p-4 flex items-center justify-center">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={activeArtifact.thumbnailUrl}
+                                alt={activeArtifact.title || "Design Screenshot"}
+                                className="max-w-full rounded-2xl shadow-xl"
+                              />
+                            </div>
+                          ) : (
+                            <div className="p-16 text-center space-y-4">
+                              <Sparkles className="w-10 h-10 text-[#00D9FF] mx-auto animate-pulse" />
+                              <h3 className="text-lg font-bold text-white">Stitch Architectural Screen Ready</h3>
+                              <p className="text-xs text-slate-400 max-w-md mx-auto">
+                                Artifact registered in PostgreSQL storage. Use natural language refinement below to iterate on layout.
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -2257,9 +2593,18 @@ export function DesignStudioClient() {
                           <Wand2 className="w-3.5 h-3.5" />
                           Collaborative Refinement with Google Stitch
                         </span>
-                        <span className="text-[10px] font-mono text-slate-400">
-                          Powered by Stitch edit_screens MCP
-                        </span>
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setIsRevisionModalOpen(true)}
+                            className="text-[10px] font-mono text-[#00D9FF] hover:underline cursor-pointer"
+                          >
+                            Open Detailed Revision Interface ↗
+                          </button>
+                          <span className="text-[10px] font-mono text-slate-400 hidden sm:inline">
+                            Powered by Stitch edit_screens MCP
+                          </span>
+                        </div>
                       </div>
 
                       <div className="flex gap-2">
@@ -2290,9 +2635,11 @@ export function DesignStudioClient() {
                       {/* Quick Suggestion Pills */}
                       <div className="flex flex-wrap gap-2 pt-1">
                         {[
+                          "Make the dashboard cleaner",
+                          "Use a lighter colour palette",
+                          "Improve the mobile navigation",
+                          "Make the product cards more premium",
                           "Add a high-contrast KPI metric bar",
-                          "Insert an automated WhatsApp direct chat button",
-                          "Show customer rating stars and social proof badges",
                           "Switch to high-density tabular data view",
                         ].map((sug) => (
                           <button
@@ -2556,7 +2903,454 @@ export function DesignStudioClient() {
       </main>
 
       {/* ================================================================ */}
-      {/* BUILD THIS WITH STARX & FINAL SUCCESS MODAL */}
+      {/* MODAL 1: REQUEST CHANGES (NATURAL LANGUAGE REVISION) (Section 5) */}
+      {/* ================================================================ */}
+      {isRevisionModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="w-full max-w-xl rounded-3xl bg-[#0A1940] border border-[#00D9FF]/40 p-6 sm:p-8 space-y-6 shadow-2xl relative my-8">
+            <button
+              type="button"
+              onClick={() => setIsRevisionModalOpen(false)}
+              className="absolute top-6 right-6 text-slate-400 hover:text-white text-xl cursor-pointer"
+            >
+              &times;
+            </button>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-[#00D9FF]">
+                <Wand2 className="w-5 h-5" />
+                <span className="text-xs font-mono font-bold uppercase tracking-wider">
+                  Section 5 • Natural-Language Design Revision
+                </span>
+              </div>
+              <h3 className="text-2xl font-black text-white tracking-tight">
+                Request Design Changes
+              </h3>
+              <p className="text-xs sm:text-sm text-[#C8D5EF] leading-relaxed">
+                Describe what you&apos;d like to change in plain English. Google Stitch MCP will synthesize an updated layout while preserving previous versions.
+              </p>
+            </div>
+
+            {/* Screen Target Selector (When multiple screens exist) */}
+            {allArtifacts.length > 1 && (
+              <div className="space-y-1.5">
+                <label className="text-xs font-mono text-slate-300">Target Screen</label>
+                <select
+                  value={revisionTargetScreen}
+                  onChange={(e) => setRevisionTargetScreen(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#030B24] border border-white/10 text-xs text-white focus:outline-none focus:border-[#00D9FF] cursor-pointer"
+                >
+                  <option value="all">Apply to All Screens (Entire Experience)</option>
+                  {allArtifacts.map((art, idx) => (
+                    <option key={art.id} value={art.id}>
+                      Screen {idx + 1}: {art.title || `Version ${art.versionNumber}`} ({art.providerScreenId || "Screen"})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Prompt Textarea */}
+            <div className="space-y-2">
+              <label className="text-xs font-mono text-slate-300 flex justify-between">
+                <span>Requested Modifications</span>
+                <span className="text-slate-500">{refinementPrompt.length} chars</span>
+              </label>
+              <textarea
+                value={refinementPrompt}
+                onChange={(e) => setRefinementPrompt(e.target.value)}
+                rows={4}
+                placeholder="e.g. 'Make the dashboard cleaner with a lighter background', 'Add a high-contrast KPI metric card for monthly recurring revenue', 'Make the product cards more premium with subtle borders'..."
+                className="w-full px-4 py-3 rounded-xl bg-[#030B24] border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00D9FF] leading-relaxed"
+              />
+            </div>
+
+            {/* Quick Suggestion Pills */}
+            <div className="space-y-1.5">
+              <span className="text-[10px] font-mono uppercase text-slate-400 block font-bold">
+                Quick Architectural Suggestions:
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  "Make the dashboard cleaner",
+                  "Use a lighter colour palette",
+                  "Improve the mobile navigation",
+                  "Make the product cards more premium",
+                  "Add a more detailed analytics screen",
+                  "Simplify the hero section",
+                  "Add a high-contrast KPI metric bar",
+                  "Switch to high-density tabular data view",
+                ].map((sug) => (
+                  <button
+                    key={sug}
+                    type="button"
+                    onClick={() => setRefinementPrompt((prev) => (prev ? `${prev}. ${sug}` : sug))}
+                    className="text-[10px] font-mono px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5 cursor-pointer transition-all"
+                  >
+                    + {sug}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Re-approval Notice */}
+            <div className="p-3.5 rounded-xl bg-[#030B24] border border-amber-500/30 text-amber-300 text-xs space-y-1">
+              <div className="font-bold flex items-center gap-1.5">
+                <AlertTriangle className="w-3.5 h-3.5" />
+                <span>Approval Rule Notice</span>
+              </div>
+              <p className="text-[11px] text-slate-300 leading-relaxed">
+                Generating a new revision creates Version {((activeArtifact?.versionNumber || 1) + 1)}. Previously approved versions remain preserved in history, but the newly generated version will require fresh approval before submitting an enquiry.
+              </p>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setIsRevisionModalOpen(false)}
+                className="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-mono cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleRefineDesign()}
+                disabled={isRefining || !refinementPrompt.trim()}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-black font-extrabold text-xs shadow-lg hover:brightness-110 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {isRefining ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                <span>Generate Revision</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================================================================ */}
+      {/* MODAL 2: APPROVE YOUR DESIGN CONFIRMATION DIALOG (Section 6.1) */}
+      {/* ================================================================ */}
+      {isApprovalDialogOpen && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="w-full max-w-lg rounded-3xl bg-[#0A1940] border border-emerald-500/40 p-6 sm:p-8 space-y-6 shadow-2xl relative my-8">
+            <button
+              type="button"
+              onClick={() => setIsApprovalDialogOpen(false)}
+              className="absolute top-6 right-6 text-slate-400 hover:text-white text-xl cursor-pointer"
+            >
+              &times;
+            </button>
+
+            <div className="space-y-2">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-[#00C98B]">
+                <ThumbsUp className="w-6 h-6" />
+              </div>
+              <h3 className="text-2xl font-black text-white tracking-tight">
+                Approve Your Design
+              </h3>
+              <p className="text-xs sm:text-sm text-[#C8D5EF] leading-relaxed">
+                You&apos;re happy with this design direction and would like StarX Alpha Labs to consider it as the reference for your proposed project.
+              </p>
+            </div>
+
+            {/* Scope Recap */}
+            <div className="p-4 rounded-2xl bg-[#030B24] border border-white/10 space-y-2.5 text-xs font-mono">
+              <div className="text-[10px] uppercase font-bold text-[#00D9FF] tracking-wider pb-1 border-b border-white/5">
+                Approval Scope Snapshot
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Product Name:</span>
+                <span className="text-white font-bold">{brandName || projectName || "StarX Project"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Approved Version:</span>
+                <span className="text-[#00C98B] font-bold">v{activeArtifact?.versionNumber || 1}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Generated Screens:</span>
+                <span className="text-white font-bold">{allArtifacts.length || 1} Screen(s)</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Selected Division:</span>
+                <span className="text-white">{currentDivisionObj.name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Selected Plan:</span>
+                <span className="text-white">{currentPlan.name} ({currentPlan.code})</span>
+              </div>
+              <div className="pt-1.5 border-t border-white/5">
+                <span className="text-slate-400 block text-[10px] uppercase">Design Summary:</span>
+                <p className="text-[#C8D5EF] text-[11px] leading-relaxed mt-0.5 line-clamp-2">
+                  {activeArtifact?.designMd || "Google Stitch synthesized architectural layout and interactive responsive components."}
+                </p>
+              </div>
+            </div>
+
+            {/* Dialog Actions */}
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setIsApprovalDialogOpen(false)}
+                className="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-mono cursor-pointer"
+              >
+                Go Back
+              </button>
+              <button
+                type="button"
+                onClick={handleApproveDesign}
+                disabled={isApprovingDesign}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#00C98B] to-[#087BFF] text-black font-extrabold text-xs shadow-xl hover:brightness-110 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {isApprovingDesign ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
+                <span>Approve Design</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================================================================ */}
+      {/* MODAL 3: VIEW DESIGN BLUEPRINT (Section 4.1) */}
+      {/* ================================================================ */}
+      {isBlueprintDrawerOpen && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="w-full max-w-3xl rounded-3xl bg-[#0A1940] border border-[#00D9FF]/40 p-6 sm:p-8 space-y-5 shadow-2xl relative my-8">
+            <button
+              type="button"
+              onClick={() => setIsBlueprintDrawerOpen(false)}
+              className="absolute top-6 right-6 text-slate-400 hover:text-white text-xl cursor-pointer"
+            >
+              &times;
+            </button>
+
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-[#00D9FF]">
+                <Code className="w-4 h-4" />
+                <span className="text-xs font-mono font-bold uppercase tracking-wider">
+                  Google Stitch Design Blueprint
+                </span>
+              </div>
+              <h3 className="text-2xl font-black text-white">Compiled Prompt Directive</h3>
+              <p className="text-xs text-[#C8D5EF]">
+                This is the exact structured prompt synthesized from your 7-stage configuration that drives Google Stitch MCP.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-[#030B24] border border-white/10 max-h-96 overflow-y-auto font-mono text-xs text-slate-300 whitespace-pre-wrap leading-relaxed">
+              {promptBlueprint.prompt}
+            </div>
+
+            <div className="flex justify-between items-center pt-2">
+              <span className="text-[11px] font-mono text-slate-400">
+                Model: {modelPreference} • Version: {promptBlueprint.version}
+              </span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (typeof window !== "undefined") {
+                      navigator.clipboard.writeText(promptBlueprint.prompt);
+                      setShareToast("Blueprint copied to clipboard!");
+                      setTimeout(() => setShareToast(null), 3000);
+                    }
+                  }}
+                  className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-mono flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy Blueprint</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsBlueprintDrawerOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-mono cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================================================================ */}
+      {/* MODAL 4: REVIEW REQUIREMENTS CONTEXT (Section 4.1) */}
+      {/* ================================================================ */}
+      {isRequirementsDrawerOpen && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="w-full max-w-2xl rounded-3xl bg-[#0A1940] border border-white/15 p-6 sm:p-8 space-y-5 shadow-2xl relative my-8">
+            <button
+              type="button"
+              onClick={() => setIsRequirementsDrawerOpen(false)}
+              className="absolute top-6 right-6 text-slate-400 hover:text-white text-xl cursor-pointer"
+            >
+              &times;
+            </button>
+
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-[#00D9FF]">
+                <FileText className="w-4 h-4" />
+                <span className="text-xs font-mono font-bold uppercase tracking-wider">
+                  Requirements Discovery Brief
+                </span>
+              </div>
+              <h3 className="text-2xl font-black text-white">Project Scope Review</h3>
+              <p className="text-xs text-[#C8D5EF]">
+                Synthesized from your interactive discovery answers across Stages 1 through 5.
+              </p>
+            </div>
+
+            <div className="space-y-4 max-h-96 overflow-y-auto pr-1 text-xs font-mono">
+              <div className="p-4 rounded-xl bg-[#030B24] border border-white/5 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400">Problem &amp; Objectives</span>
+                <p className="text-white leading-relaxed">{rawDescription || coreProblem || "Custom software development."}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 rounded-xl bg-[#030B24] border border-white/5 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-400">Target Platforms</span>
+                  <p className="text-white font-bold">{platformTargets.join(", ")}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-[#030B24] border border-white/5 space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-400">Complexity Score</span>
+                  <p className="text-[#00C98B] font-bold">{complexityData.score}/10 Deterministic</p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[#030B24] border border-white/5 space-y-1.5">
+                <span className="text-[10px] uppercase font-bold text-slate-400">Selected Features &amp; Capabilities</span>
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {selectedFeatures.map((f) => (
+                    <span key={f} className="px-2 py-0.5 rounded-md bg-white/5 text-slate-300 border border-white/5 text-[11px]">
+                      {f}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {selectedAddonIds.length > 0 && (
+                <div className="p-4 rounded-xl bg-[#030B24] border border-white/5 space-y-1.5">
+                  <span className="text-[10px] uppercase font-bold text-slate-400">Configured Add-ons</span>
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {selectedAddonIds.map((a) => (
+                      <span key={a} className="px-2 py-0.5 rounded-md bg-[#087BFF]/20 text-[#00D9FF] border border-[#00D9FF]/20 text-[11px]">
+                        {a}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => setIsRequirementsDrawerOpen(false)}
+                className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-mono cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================================================================ */}
+      {/* MODAL 5: FULLSCREEN LIGHTBOX PREVIEW (Section 4.1) */}
+      {/* ================================================================ */}
+      {isFullscreenPreviewOpen && activeArtifact && (
+        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-lg flex flex-col p-4 sm:p-6 overflow-hidden">
+          {/* Lightbox Chrome Header */}
+          <div className="flex items-center justify-between pb-3 border-b border-white/10 shrink-0">
+            <div className="flex items-center gap-3">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#00C98B] animate-pulse" />
+              <h3 className="text-sm font-bold text-white">
+                {activeArtifact.title || brandName || projectName} (v{activeArtifact.versionNumber || 1})
+              </h3>
+              {activeArtifact.isApproved && (
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#00C98B]/20 text-[#00C98B] border border-[#00C98B]/40 font-bold">
+                  Approved Reference
+                </span>
+              )}
+            </div>
+
+            {/* Viewport switch in lightbox */}
+            <div className="flex items-center gap-1 bg-[#030B24] p-1 rounded-xl border border-white/10">
+              {[
+                { id: "DESKTOP" as StitchDeviceType, icon: Laptop, label: "1440px" },
+                { id: "TABLET" as StitchDeviceType, icon: Tablet, label: "768px" },
+                { id: "MOBILE" as StitchDeviceType, icon: Smartphone, label: "390px" },
+              ].map((vp) => {
+                const Icon = vp.icon;
+                const isCurrent = activeViewport === vp.id;
+                return (
+                  <button
+                    key={vp.id}
+                    type="button"
+                    onClick={() => setActiveViewport(vp.id)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                      isCurrent
+                        ? "bg-[#087BFF] text-white shadow-md"
+                        : "text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    <span>{vp.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsFullscreenPreviewOpen(false)}
+              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white cursor-pointer"
+              title="Close Fullscreen"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Lightbox Content Area */}
+          <div className="grow overflow-auto flex items-center justify-center py-4">
+            <div
+              className={`border border-white/15 rounded-3xl bg-[#030B24] shadow-2xl overflow-hidden transition-all duration-300 ${
+                activeViewport === "MOBILE"
+                  ? "w-[390px] h-[844px]"
+                  : activeViewport === "TABLET"
+                  ? "w-[768px] h-[1024px]"
+                  : "w-full max-w-7xl h-[85vh]"
+              }`}
+            >
+              {activeArtifact.htmlCode ? (
+                <iframe
+                  srcDoc={activeArtifact.htmlCode}
+                  title="Fullscreen Canvas"
+                  className="w-full h-full border-0 bg-transparent"
+                  sandbox="allow-scripts allow-same-origin"
+                />
+              ) : activeArtifact.thumbnailUrl ? (
+                <div className="p-4 flex items-center justify-center h-full">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={activeArtifact.thumbnailUrl}
+                    alt="Design Screenshot"
+                    className="max-h-full rounded-2xl shadow-xl object-contain"
+                  />
+                </div>
+              ) : (
+                <div className="p-16 text-center space-y-4">
+                  <Sparkles className="w-10 h-10 text-[#00D9FF] mx-auto animate-pulse" />
+                  <h3 className="text-lg font-bold text-white">Full-Screen Preview Ready</h3>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================================================================ */}
+      {/* MODAL 6: BUILD THIS WITH STARX & FINAL CONFIRMATION SCREEN */}
+      {/* Sections 7 & 8                                                   */}
       {/* ================================================================ */}
       {reviewModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
@@ -2572,137 +3366,162 @@ export function DesignStudioClient() {
               &times;
             </button>
 
-            {/* CASE 1: FINAL SUCCESS SCREEN */}
+            {/* ============================================================ */}
+            {/* CASE 1: FINAL CUSTOMER CONFIRMATION SCREEN (Section 8)       */}
+            {/* ============================================================ */}
             {enquirySuccessData ? (
               <div className="space-y-6 text-left">
-                {/* Heading & Supporting Text */}
-                <div className="text-center space-y-2">
-                  <div className="w-16 h-16 rounded-full bg-[#00C98B]/20 border border-[#00C98B]/40 flex items-center justify-center mx-auto text-[#00C98B]">
+                {/* Visual Treatment: Success Tag & Heading */}
+                <div className="text-center space-y-2.5">
+                  <div className="w-16 h-16 rounded-full bg-[#00C98B]/20 border border-[#00C98B]/40 flex items-center justify-center mx-auto text-[#00C98B] shadow-[0_0_30px_rgba(0,201,139,0.3)]">
                     <CheckCircle className="w-8 h-8" />
+                  </div>
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#00C98B]/15 border border-[#00C98B]/30 text-[#00C98B] text-xs font-mono font-bold uppercase tracking-wider">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>ENQUIRY SUCCESSFULLY SUBMITTED</span>
                   </div>
                   <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
                     Thank You! Your Project Enquiry Has Been Received.
                   </h2>
-                  <p className="text-sm text-[#C8D5EF]">
+                  <p className="text-sm text-[#C8D5EF] font-medium">
                     Your idea is one step closer to becoming reality.
+                  </p>
+                  <p className="text-xs text-slate-300 max-w-lg mx-auto leading-relaxed">
+                    Thank you for choosing StarX Alpha Labs. We have received your project enquiry and approved design details.
                   </p>
                 </div>
 
-                {/* Section: What's Next? with 3-Step Visual Progress */}
-                <div className="p-6 rounded-2xl bg-[#030B24] border border-white/10 space-y-4">
-                  <div className="space-y-0.5">
-                    <h3 className="text-base font-bold text-white flex items-center gap-2">
-                      <span>What&apos;s Next?</span>
-                    </h3>
-                    <p className="text-xs text-[#00D9FF] font-mono">
+                {/* The Most Important Message: What's Next? */}
+                <div className="p-6 rounded-2xl bg-[#030B24] border border-[#00D9FF]/40 space-y-4 shadow-xl">
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-black text-white">What&apos;s Next?</h3>
+                    <p className="text-sm font-bold text-[#00D9FF]">
                       A StarX representative will contact you directly.
+                    </p>
+                    <p className="text-xs text-slate-300 leading-relaxed">
+                      Our representative will call you using the contact number you provided to understand your requirements, discuss your expectations and guide you through the next steps.
                     </p>
                   </div>
 
-                  {/* 3-Step Progress Timeline */}
-                  <div className="space-y-3 pt-2">
-                    {/* Step 1: Enquiry Received */}
+                  {/* 3 Simple Stages */}
+                  <div className="space-y-3 pt-3 border-t border-white/10">
+                    {/* Stage 1 */}
                     <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-[#00C98B] text-black font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                      <div className="w-6 h-6 rounded-full bg-[#00C98B] text-black font-black text-xs flex items-center justify-center shrink-0 mt-0.5">
                         ✓
                       </div>
                       <div className="space-y-0.5">
-                        <div className="text-xs font-bold text-white">Step 1 — Enquiry Received (Completed)</div>
+                        <div className="text-xs font-bold text-white">01 — Enquiry Received</div>
                         <p className="text-[11px] text-slate-300">
-                          Your project details and approved design have been submitted to our team.
+                          Your project details and approved design have been submitted successfully.
                         </p>
                       </div>
                     </div>
 
-                    {/* Step 2: Our Team Reviews Your Project */}
+                    {/* Stage 2 */}
                     <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-[#087BFF] text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5 animate-pulse">
+                      <div className="w-6 h-6 rounded-full bg-[#087BFF] text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5 animate-pulse">
                         2
                       </div>
                       <div className="space-y-0.5">
-                        <div className="text-xs font-bold text-[#00D9FF]">Step 2 — Our Team Reviews Your Project (In Progress)</div>
+                        <div className="text-xs font-bold text-[#00D9FF]">02 — Our Team Reviews It</div>
                         <p className="text-[11px] text-slate-300">
-                          A StarX technical consultant will review your design, feature requirements, and estimated scope.
+                          Our team will review your requirements, selected features and proposed design.
                         </p>
                       </div>
                     </div>
 
-                    {/* Step 3: We'll Contact You */}
+                    {/* Stage 3 */}
                     <div className="flex items-start gap-3">
-                      <div className="w-6 h-6 rounded-full bg-slate-700 text-slate-300 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                      <div className="w-6 h-6 rounded-full bg-slate-700 text-slate-300 font-black text-xs flex items-center justify-center shrink-0 mt-0.5">
                         3
                       </div>
                       <div className="space-y-0.5">
-                        <div className="text-xs font-bold text-slate-300">Step 3 — We&apos;ll Contact You</div>
+                        <div className="text-xs font-bold text-slate-300">03 — We&apos;ll Contact You</div>
                         <p className="text-[11px] text-slate-300">
-                          Our representative will reach out via <strong className="text-white">{contactPreferredMethod.toUpperCase()}</strong> at <strong className="text-white">{contactPreferredTime}</strong> to discuss timeline, architecture, and exact pricing.
+                          A StarX representative will contact you directly to discuss the project.
                         </p>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Project Details Recap Card */}
+                {/* Reference Information Card */}
                 <div className="p-5 rounded-2xl bg-[#030B24] border border-white/10 space-y-2.5 text-xs font-mono">
                   <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider pb-1 border-b border-white/5">
-                    Project Details Recap
+                    Reference Information
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-slate-400">Enquiry Reference ID:</span>
-                    <span className="text-[#00D9FF] font-bold">{enquirySuccessData.referenceCode}</span>
+                    <span className="text-[#00D9FF] font-bold text-sm">{enquirySuccessData.referenceCode}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-slate-400">Project Name:</span>
                     <span className="text-white font-bold">{projectName || brandName || activeProject?.title || "StarX Project"}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-400">Submitted Date &amp; Time:</span>
+                    <span className="text-slate-400">Submission Date:</span>
                     <span className="text-white">{new Date(enquirySuccessData.submittedAt).toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-400">Contact Number:</span>
-                    <span className="text-white">{contactCountryCode} {contactPhone}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-slate-400">Selected Division:</span>
                     <span className="text-white">{currentDivisionObj.name}</span>
                   </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Selected Solution:</span>
+                    <span className="text-white">{currentPlan.name} ({currentPlan.code})</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">Contact Number:</span>
+                    <span className="text-white">{contactCountryCode} {contactPhone}</span>
+                  </div>
                 </div>
 
-                {/* Reassurance Banner */}
+                {/* Final Reassurance */}
                 <div className="p-4 rounded-xl bg-gradient-to-r from-[#00C98B]/10 to-[#087BFF]/10 border border-[#00C98B]/30 text-xs text-slate-200">
                   💡 <strong>You don&apos;t need to do anything else right now.</strong> Our team will be in touch using the contact details you provided.
                 </div>
 
-                {/* Action Buttons */}
+                {/* Final Buttons */}
                 <div className="flex flex-col sm:flex-row gap-3 pt-2">
                   <Link
                     href="/"
-                    className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-black font-extrabold text-xs shadow-xl hover:brightness-110 text-center"
+                    className="flex-1 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs border border-white/10 text-center flex items-center justify-center gap-2 transition-all"
                   >
-                    Back to Homepage
+                    <span>Back to StarX Alpha Labs</span>
                   </Link>
+
+                  <button
+                    type="button"
+                    onClick={() => setReviewModalOpen(false)}
+                    className="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-black font-extrabold text-xs shadow-xl hover:brightness-110 text-center flex items-center justify-center gap-2 cursor-pointer transition-all"
+                  >
+                    <span>View My Design</span>
+                  </button>
+
                   <button
                     type="button"
                     onClick={handleDownloadSummary}
-                    className="flex-1 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs border border-white/10 flex items-center justify-center gap-2 cursor-pointer"
+                    className="py-3.5 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-xs border border-white/10 flex items-center justify-center gap-1.5 cursor-pointer"
+                    title="Download Project Blueprint"
                   >
                     <Download className="w-3.5 h-3.5 text-[#00D9FF]" />
-                    <span>Download Project Blueprint</span>
                   </button>
                 </div>
               </div>
             ) : (
-              /* CASE 2: REVIEW & SUBMIT SCREEN ("# Build This With StarX") */
+              /* ============================================================ */
+              /* CASE 2: "LET'S BRING YOUR IDEA TO LIFE" ENQUIRY REVIEW (S7)  */
+              /* ============================================================ */
               <div className="space-y-6 text-left">
-                {/* Heading & Supporting Text */}
-                <div className="space-y-1">
-                  <Badge variant="electric">Commercial Conversion</Badge>
-                  <h2 className="text-2xl sm:text-3xl font-black text-white">
-                    Build This With StarX
+                {/* Heading & Supporting Copy */}
+                <div className="space-y-1.5">
+                  <Badge variant="electric">Section 7 • Build This With StarX</Badge>
+                  <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                    Let&apos;s Bring Your Idea to Life
                   </h2>
-                  <p className="text-xs sm:text-sm text-[#C8D5EF]">
-                    Ready to bring your approved design to life? Submit your project enquiry and our representative will contact you directly.
+                  <p className="text-xs sm:text-sm text-[#C8D5EF] leading-relaxed">
+                    Your design is ready. Before submitting your enquiry, let&apos;s make sure we have the right contact information so our team can discuss your project with you. Ready to bring your approved design to life? Submit your project enquiry and our representative will contact you directly.
                   </p>
                 </div>
 
@@ -2712,20 +3531,46 @@ export function DesignStudioClient() {
                     1. Project Summary
                   </div>
                   <div className="flex justify-between">
+                    <span className="text-slate-400">Project Name:</span>
+                    <span className="text-white font-bold">{projectName || brandName || "StarX Project"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Division:</span>
+                    <span className="text-white">{currentDivisionObj.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Industry:</span>
+                    <span className="text-white">{currentIndustryObj.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Solution Category:</span>
+                    <span className="text-white">{productCategory || "Web/App"}</span>
+                  </div>
+                  <div className="flex justify-between">
                     <span className="text-slate-400">Selected Plan:</span>
                     <span className="text-white font-bold">{currentPlan.name} ({currentPlan.code})</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Estimated Investment:</span>
-                    <span className="text-[#00D9FF] font-bold">{formatINR(pricingTotals.totalINR)} / {formatUSD(pricingTotals.totalUSD)}</span>
+                    <span className="text-slate-400">Configured Features:</span>
+                    <span className="text-slate-300 truncate max-w-xs">{selectedFeatures.slice(0, 4).join(", ")}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Delivery Timeline:</span>
-                    <span className="text-white">{currentPlan.timelineWeeks}</span>
+                    <span className="text-slate-400">Complexity Summary:</span>
+                    <span className="text-[#00C98B] font-bold">{complexityData.score}/10 Deterministic Score</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Platforms:</span>
-                    <span className="text-white">{platformTargets.join(", ")}</span>
+                    <span className="text-slate-400">Approved Version:</span>
+                    <span className="text-[#00D9FF] font-bold">v{activeArtifact?.versionNumber || 1}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Generated Screen Count:</span>
+                    <span className="text-white">{allArtifacts.length || 1} Screen(s)</span>
+                  </div>
+                  <div className="pt-1 border-t border-white/5">
+                    <span className="text-slate-400 block text-[10px] uppercase">Requirement Summary:</span>
+                    <p className="text-[#C8D5EF] text-[11px] leading-relaxed line-clamp-2 mt-0.5">
+                      {rawDescription || coreProblem || "Custom full-stack architecture tailored for enterprise scale."}
+                    </p>
                   </div>
                 </div>
 
@@ -2769,11 +3614,11 @@ export function DesignStudioClient() {
                   </div>
                 </div>
 
-                {/* Section 3: Your Contact Information */}
+                {/* Section 3: Customer Contact Details */}
                 <div className="p-4 rounded-2xl bg-[#030B24] border border-white/10 space-y-3 text-xs font-mono">
                   <div className="flex items-center justify-between pb-1 border-b border-white/5">
                     <span className="text-[10px] uppercase font-bold text-[#00D9FF] tracking-wider">
-                      3. Your Contact Information
+                      3. Customer Contact Details
                     </span>
                     <button
                       type="button"
@@ -2798,12 +3643,12 @@ export function DesignStudioClient() {
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-400">Email:</span>
+                        <span className="text-slate-400">Email Address:</span>
                         <span className="text-white font-bold">{contactEmail || <em className="text-red-400">Required</em>}</span>
                       </div>
                       {contactCompany && (
                         <div className="flex justify-between">
-                          <span className="text-slate-400">Company:</span>
+                          <span className="text-slate-400">Company / Organisation:</span>
                           <span className="text-white">{contactCompany}</span>
                         </div>
                       )}
@@ -2814,14 +3659,6 @@ export function DesignStudioClient() {
                       <div className="flex justify-between">
                         <span className="text-slate-400">Preferred Time:</span>
                         <span className="text-white capitalize">{contactPreferredTime}</span>
-                      </div>
-                      <div className="flex justify-between pt-1 border-t border-white/5">
-                        <span className="text-slate-400">Recorded Consent:</span>
-                        <span className={contactConsent ? "text-[#00C98B] font-bold" : "text-red-400 font-bold"}>
-                          {contactConsent
-                            ? `Consent to be contacted recorded on ${contactConsentTimestamp ? new Date(contactConsentTimestamp).toLocaleDateString() : "Today"}`
-                            : "Consent required to submit"}
-                        </span>
                       </div>
                     </div>
                   ) : (
@@ -2871,24 +3708,49 @@ export function DesignStudioClient() {
                         placeholder="Company / Organisation (Optional)"
                         className="w-full px-3 py-2 rounded-xl bg-[#071638] border border-white/10 text-xs text-white"
                       />
-                      <label className="flex items-center gap-2 cursor-pointer pt-1">
-                        <input
-                          type="checkbox"
-                          checked={contactConsent}
-                          onChange={(e) => {
-                            setContactConsent(e.target.checked);
-                            if (e.target.checked && !contactConsentTimestamp) {
-                              setContactConsentTimestamp(new Date().toISOString());
-                            }
-                          }}
-                          className="w-3.5 h-3.5 rounded text-[#00D9FF]"
-                        />
-                        <span className="text-[11px] text-slate-300">
-                          I agree that StarX may contact me regarding this project.
-                        </span>
-                      </label>
                     </div>
                   )}
+
+                  {/* Additional Message / Project Notes */}
+                  <div className="pt-2 border-t border-white/5 space-y-1">
+                    <label className="text-[11px] font-mono text-slate-300">
+                      Additional Message / Project Notes <span className="text-slate-500">(Optional)</span>
+                    </label>
+                    <textarea
+                      value={clientNotes}
+                      onChange={(e) => setClientNotes(e.target.value)}
+                      rows={2}
+                      placeholder="Add any specific questions, tech stack preferences, or launch deadlines for our team..."
+                      className="w-full px-3 py-2 rounded-xl bg-[#071638] border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00D9FF]"
+                    />
+                  </div>
+
+                  {/* Explicit Contact Consent Checkbox (REQUIRED) */}
+                  <div className="p-3.5 rounded-xl bg-[#071638] border border-white/10 space-y-1.5 pt-2">
+                    <label className="flex items-start gap-2.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={contactConsent}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setContactConsent(checked);
+                          if (checked && !contactConsentTimestamp) {
+                            setContactConsentTimestamp(new Date().toISOString());
+                          }
+                          if (contactErrors.consent) setContactErrors((prev) => ({ ...prev, consent: undefined }));
+                        }}
+                        className="mt-0.5 w-4 h-4 rounded text-[#00D9FF] bg-[#030B24] border-white/20 cursor-pointer"
+                      />
+                      <span className="text-xs text-slate-300 leading-relaxed select-none">
+                        I agree that StarX Alpha Labs may contact me using the contact information provided regarding this project enquiry. <strong className="text-red-400">*</strong>
+                      </span>
+                    </label>
+                    {contactConsent && contactConsentTimestamp && (
+                      <p className="text-[10px] text-slate-400 font-mono pl-6">
+                        Consent recorded on {new Date(contactConsentTimestamp).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 {/* Error Banner */}
@@ -2899,13 +3761,13 @@ export function DesignStudioClient() {
                   </div>
                 )}
 
-                {/* Final CTA & Supporting Text */}
+                {/* Submission CTA */}
                 <div className="space-y-3 pt-2">
                   <button
                     type="button"
                     onClick={handleSubmitProjectEnquiry}
                     disabled={isSubmittingEnquiry}
-                    className="w-full py-4 rounded-xl bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-black font-black text-sm shadow-xl hover:brightness-110 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    className="w-full py-4 rounded-xl bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-black font-black text-sm shadow-xl hover:brightness-110 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 transition-all"
                   >
                     {isSubmittingEnquiry ? (
                       <RefreshCw className="w-4 h-4 animate-spin" />
@@ -2915,7 +3777,7 @@ export function DesignStudioClient() {
                     <span>Submit Project Enquiry</span>
                   </button>
                   <p className="text-center text-[11px] text-slate-400 font-mono">
-                    No payment is required at this stage. Our representative will contact you directly to discuss your project.
+                    No payment is required at this stage. Our team will review your requirements and contact you directly.
                   </p>
                 </div>
               </div>
