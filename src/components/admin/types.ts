@@ -23,7 +23,8 @@ export type AdminTabId =
   | "contracts"
   | "invoices"
   | "payments"
-  | "expenses";
+  | "expenses"
+  | "support";
 
 export interface AdminUser {
   id: string;
@@ -31,6 +32,75 @@ export interface AdminUser {
   name: string;
   role: "owner" | "admin" | "editor";
   status: "active" | "suspended";
+}
+
+export type LeadStatus =
+  | "new"
+  | "assigned"
+  | "attempted_contact"
+  | "under_review"
+  | "contacted"
+  | "needs_assessment"
+  | "assessment_complete"
+  | "followup_required"
+  | "demo_scheduled"
+  | "demo_presented"
+  | "quote_prepared"
+  | "quotation_sent"
+  | "negotiation"
+  | "converted"
+  | "not_interested"
+  | "on_hold"
+  | "closed";
+
+export interface ContactHistoryEntry {
+  id: string;
+  date: string;
+  method: "phone" | "whatsapp" | "email" | "in_person";
+  outcome:
+    | "successfully_contacted_interested"
+    | "successfully_contacted_callback"
+    | "successfully_contacted_requirements_changed"
+    | "no_answer_voicemail"
+    | "whatsapp_sent_waiting"
+    | "email_sent_waiting"
+    | "client_unresponsive"
+    | "client_not_interested";
+  notes: string;
+  staffName: string;
+  nextFollowUpDate?: string;
+}
+
+export interface DesignArtifactSnapshot {
+  artifactId?: string;
+  projectId?: string;
+  projectCode?: string;
+  title?: string;
+  versionNumber?: number;
+  provider?: string;
+  styleName?: string;
+  deviceType?: string;
+  thumbnailUrl?: string;
+  downloadUrl?: string;
+  storagePathHtml?: string;
+  storagePathScreenshot?: string;
+  keyFeatures?: string[];
+  palette?: { name: string; hex: string }[];
+  designMd?: string;
+  htmlCode?: string;
+  prompt?: string;
+  isApproved?: boolean;
+}
+
+export interface TechnicalAssessment {
+  feasibility: "high" | "medium" | "complex" | "requires_custom_rnd";
+  recommendedArchitecture: string;
+  recommendedStack: string[];
+  estimatedWeeks: string;
+  riskAnalysis: string;
+  notes: string;
+  assessedBy?: string;
+  assessedAt?: string;
 }
 
 export interface UnifiedLead {
@@ -52,17 +122,7 @@ export interface UnifiedLead {
   agencyTier?: string;
   projectVolume?: string;
   message?: string;
-  status:
-    | "new"
-    | "under_review"
-    | "contacted"
-    | "followup_required"
-    | "demo_scheduled"
-    | "demo_presented"
-    | "quotation_sent"
-    | "converted"
-    | "not_interested"
-    | "closed";
+  status: LeadStatus;
   assignedTo?: string;
   internalNotes: {
     id: string;
@@ -74,6 +134,23 @@ export interface UnifiedLead {
   createdAt: string;
   lastActivityAt: string;
   isDuplicateFlag?: boolean;
+  
+  // Extended Design Studio & Operations Fields
+  enquiryRef?: string;
+  contactProfile?: {
+    preferredMethod?: "phone" | "whatsapp" | "email";
+    bestTimeToReach?: string;
+    countryCode?: string;
+    location?: string;
+    companyName?: string;
+  };
+  designDetails?: DesignArtifactSnapshot;
+  technicalAssessment?: TechnicalAssessment;
+  contactHistory?: ContactHistoryEntry[];
+  lostReason?: string;
+  selectedPlan?: string;
+  featuresList?: string[];
+  rawMetadata?: Record<string, unknown>;
 }
 
 export interface AdminNotification {
@@ -83,4 +160,5 @@ export interface AdminNotification {
   timestamp: string;
   type: "lead" | "demo" | "quote" | "system";
   read: boolean;
+  linkTab?: AdminTabId;
 }

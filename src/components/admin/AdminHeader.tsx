@@ -130,6 +130,10 @@ const TAB_TITLES: Record<AdminTabId, { title: string; subtitle: string }> = {
     title: "Operational Expenses Ledger",
     subtitle: "Approved technology, infrastructure, domain, and operational project costs.",
   },
+  support: {
+    title: "Client Support & Maintenance",
+    subtitle: "Post-launch SLA management, hypercare ticketing, and priority escalation.",
+  },
 };
 
 export function AdminHeader({
