@@ -243,6 +243,44 @@ export class StitchClient {
   }
 
   /**
+   * Executes genuine screen editing on an existing Stitch screen via edit_screens.
+   */
+  public async editDesign(params: {
+    projectId: string;
+    providerProjectId: string;
+    screenId: string;
+    prompt: string;
+    modelId?: StitchModelId;
+    deviceType?: StitchDeviceType;
+    versionNumber?: number;
+    currentArtifact: DesignArtifact;
+  }): Promise<StitchGenerationResponse> {
+    if (this.isDirectMcpAvailable()) {
+      try {
+        const directRes = await directStitchProvider.editDesign(params);
+        if (directRes.ok && directRes.artifact) {
+          return {
+            ok: true,
+            provenance: "live_direct_mcp",
+            providerProjectId: directRes.providerProjectId,
+            providerScreenId: directRes.providerScreenId,
+            artifact: directRes.artifact,
+            rawProject: directRes.rawProject,
+          };
+        }
+      } catch (err: any) {
+        console.error("[StitchClient] Direct MCP edit error:", err?.message);
+      }
+    }
+
+    return {
+      ok: false,
+      provenance: "unavailable",
+      error: "Stitch editing provider is unavailable in this environment.",
+    };
+  }
+
+  /**
    * Helper to construct a Stitch prompt from a structured brief.
    */
   private buildStitchPrompt(brief: DesignStudioBrief): string {

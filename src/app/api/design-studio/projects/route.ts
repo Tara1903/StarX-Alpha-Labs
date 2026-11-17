@@ -6,15 +6,19 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
+    const sessionId = searchParams.get("sessionId");
 
-    if (!id) {
+    if (!id && !sessionId) {
       return NextResponse.json(
-        { ok: false, error: "Missing required project ID" },
+        { ok: false, error: "Missing required project ID or sessionId" },
         { status: 400 }
       );
     }
 
-    const project = await designStudioOrchestrator.getProject(id);
+    const project = id
+      ? await designStudioOrchestrator.getProject(id)
+      : await designStudioOrchestrator.getProjectBySession(sessionId!);
+
     if (!project) {
       return NextResponse.json(
         { ok: false, error: "Project not found" },
@@ -22,7 +26,20 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ ok: true, project });
+    const artifact = project.activeArtifactId
+      ? await designStudioOrchestrator.getArtifact(project.activeArtifactId)
+      : null;
+
+    const allArtifacts = await designStudioOrchestrator.getArtifactsForProject(project.id);
+    const revisions = await designStudioOrchestrator.getRevisions(project.id);
+
+    return NextResponse.json({
+      ok: true,
+      project,
+      activeArtifact: artifact,
+      artifacts: allArtifacts,
+      revisions,
+    });
   } catch (err: any) {
     return NextResponse.json(
       { ok: false, error: err?.message || "Internal server error" },
@@ -43,8 +60,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { brief, contact } = parsed.data;
-    const project = await designStudioOrchestrator.createProject(brief as any, contact);
+    const { brief, contact, sessionId, organizationId } = parsed.data;
+    const finalContact = {
+      ...contact,
+      sessionId: sessionId || contact?.sessionId,
+      organizationId: organizationId || contact?.organizationId,
+    };
+    const project = await designStudioOrchestrator.createProject(brief as any, finalContact);
 
     return NextResponse.json({ ok: true, project }, { status: 201 });
   } catch (err: any) {

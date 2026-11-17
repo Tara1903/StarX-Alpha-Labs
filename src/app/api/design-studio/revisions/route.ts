@@ -36,14 +36,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { projectId, artifactId, notes } = parsed.data;
-    const revision = await designStudioOrchestrator.submitRevision({
+    const { projectId, artifactId, notes, triggerRegeneration, modelId, deviceType } = parsed.data;
+    const result = await designStudioOrchestrator.submitRevision({
       projectId,
       artifactId,
       notes,
+      triggerRegeneration,
+      modelId,
+      deviceType,
     });
 
-    return NextResponse.json({ ok: true, revision }, { status: 201 });
+    return NextResponse.json(
+      { ok: true, revision: result.revision, newArtifact: result.newArtifact },
+      { status: 201 }
+    );
   } catch (err: any) {
     return NextResponse.json(
       { ok: false, error: err?.message || "Internal server error" },

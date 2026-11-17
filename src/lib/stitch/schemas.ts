@@ -24,10 +24,15 @@ export const CreateDesignProjectSchema = z.object({
   contact: z
     .object({
       name: z.string().optional(),
-      email: z.string().email("Invalid email").optional(),
+      email: z.string().email("Invalid email").optional().or(z.literal("")),
       phone: z.string().optional(),
+      organizationId: z.string().optional(),
+      customerId: z.string().optional(),
+      sessionId: z.string().optional(),
     })
     .optional(),
+  sessionId: z.string().optional(),
+  organizationId: z.string().optional(),
 });
 
 export const TriggerGenerationSchema = z.object({
@@ -42,6 +47,9 @@ export const CreateRevisionSchema = z.object({
   projectId: z.string().min(1, "Project ID is required"),
   artifactId: z.string().min(1, "Artifact ID is required"),
   notes: z.string().min(3, "Revision notes must be at least 3 characters").max(1000),
+  triggerRegeneration: z.boolean().default(true),
+  modelId: StitchModelIdSchema.optional(),
+  deviceType: StitchDeviceTypeSchema.optional(),
 });
 
 export const ApproveDesignSchema = z.object({

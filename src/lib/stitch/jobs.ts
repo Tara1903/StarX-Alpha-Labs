@@ -670,15 +670,142 @@ export class DesignStudioOrchestrator {
   }
 
   /**
-   * Submits a revision request.
+   * Retrieves a project by Guest Session ID.
+   */
+  public async getProjectBySession(sessionId: string): Promise<DesignStudioProject | null> {
+    for (const project of localProjects.values()) {
+      if (project.sessionId === sessionId) return project;
+    }
+
+    const admin = this.getAdminClient();
+    if (!admin) return null;
+
+    try {
+      const { data } = await admin
+        .from("design_studio_projects" as any)
+        .select("*")
+        .eq("session_id", sessionId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (data) {
+        return this.getProject((data as any).id);
+      }
+    } catch {}
+
+    try {
+      const { data } = await admin
+        .from("quote_requests")
+        .select("metadata")
+        .eq("metadata->project->>sessionId", sessionId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (data?.metadata && (data.metadata as any).project) {
+        const p = (data.metadata as any).project as DesignStudioProject;
+        localProjects.set(p.id, p);
+        return p;
+      }
+    } catch {}
+
+    return null;
+  }
+
+  /**
+   * Retrieves all artifact versions generated for a project.
+   */
+  public async getArtifactsForProject(projectId: string): Promise<DesignArtifact[]> {
+    const list: DesignArtifact[] = [];
+    for (const art of localArtifacts.values()) {
+      if (art.projectId === projectId && !list.some((existing) => existing.id === art.id)) {
+        list.push(art);
+      }
+    }
+
+    const admin = this.getAdminClient();
+    if (admin) {
+      try {
+        const { data } = await admin
+          .from("design_artifacts" as any)
+          .select("*")
+          .eq("project_id", projectId)
+          .order("version_number", { ascending: true });
+
+        if (data && data.length > 0) {
+          for (const a of data) {
+            if (!list.some((existing) => existing.id === (a as any).id)) {
+              list.push({
+                id: (a as any).id,
+                projectId: (a as any).project_id,
+                jobId: (a as any).job_id,
+                versionNumber: (a as any).version_number,
+                provider: (a as any).provider || "stitch",
+                providerProjectId: (a as any).provider_project_id,
+                providerScreenId: (a as any).provider_screen_id,
+                title: (a as any).title,
+                styleName: (a as any).style_name || "default",
+                deviceType: (a as any).device_type,
+                designTheme: (a as any).design_theme || {},
+                designMd: (a as any).design_md,
+                thumbnailUrl: (a as any).thumbnail_url,
+                downloadUrl: (a as any).download_url,
+                storagePathHtml: (a as any).storage_path_html,
+                storagePathScreenshot: (a as any).storage_path_screenshot,
+                htmlCode: (a as any).html_code,
+                palette: (a as any).palette || [],
+                keyFeatures: (a as any).key_features || [],
+                isApproved: (a as any).is_approved || false,
+                createdAt: (a as any).created_at,
+              });
+            }
+          }
+        }
+      } catch {}
+
+      try {
+        const { data } = await admin
+          .from("quote_requests")
+          .select("metadata")
+          .eq("metadata->>projectId", projectId)
+          .maybeSingle();
+
+        if (data?.metadata && (data.metadata as any).artifact) {
+          const art = (data.metadata as any).artifact as DesignArtifact;
+          if (!list.some((existing) => existing.id === art.id)) {
+            list.push(art);
+          }
+        }
+        if (data?.metadata && Array.isArray((data.metadata as any).revisions_artifacts)) {
+          for (const art of (data.metadata as any).revisions_artifacts) {
+            if (!list.some((existing) => existing.id === art.id)) {
+              list.push(art);
+            }
+          }
+        }
+      } catch {}
+    }
+
+    list.sort((a, b) => a.versionNumber - b.versionNumber);
+    return list;
+  }
+
+  /**
+   * Submits a revision request with optional genuine Stitch AI re-generation.
    */
   public async submitRevision(params: {
     projectId: string;
     artifactId: string;
     notes: string;
-  }): Promise<DesignRevision> {
+    triggerRegeneration?: boolean;
+    modelId?: StitchModelId;
+    deviceType?: StitchDeviceType;
+  }): Promise<{ revision: DesignRevision; newArtifact?: DesignArtifact }> {
     const revId = `rev_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const existingList = localRevisions.get(params.projectId) || [];
+    const currentArtifact = await this.getArtifact(params.artifactId);
+    const project = await this.getProject(params.projectId);
 
     const revision: DesignRevision = {
       id: revId,
@@ -686,21 +813,81 @@ export class DesignStudioOrchestrator {
       artifactId: params.artifactId,
       revisionNumber: existingList.length + 1,
       notes: params.notes,
-      status: "applied",
+      status: "pending",
       createdAt: new Date().toISOString(),
     };
+
+    let newArtifact: DesignArtifact | undefined;
+
+    // Trigger authentic Stitch AI editing when requested
+    if (params.triggerRegeneration && currentArtifact && project) {
+      revision.status = "processing";
+      try {
+        const editRes = await stitchClient.editDesign({
+          projectId: params.projectId,
+          providerProjectId: currentArtifact.providerProjectId,
+          screenId: currentArtifact.providerScreenId || "screen_primary",
+          prompt: params.notes,
+          modelId: params.modelId || "GEMINI_3_8_FLASH",
+          deviceType: params.deviceType || currentArtifact.deviceType,
+          versionNumber: (currentArtifact.versionNumber || 1) + 1,
+          currentArtifact,
+        });
+
+        if (editRes.ok && editRes.artifact) {
+          newArtifact = editRes.artifact;
+          newArtifact.organizationId = project.organizationId;
+          localArtifacts.set(newArtifact.id, newArtifact);
+          project.activeArtifactId = newArtifact.id;
+          project.status = "generated";
+          revision.status = "applied";
+          revision.appliedJobId = `job_edit_${Date.now()}`;
+
+          await this.persistArtifactToDb(newArtifact);
+
+          // Persist to multi-version array in quote_requests store
+          const admin = this.getAdminClient();
+          if (admin) {
+            try {
+              const row = await admin
+                .from("quote_requests")
+                .select("id, metadata")
+                .eq("metadata->>projectId", params.projectId)
+                .maybeSingle();
+
+              if (row?.data?.id) {
+                const meta = (row.data.metadata as any) || {};
+                const arts = Array.isArray(meta.revisions_artifacts) ? meta.revisions_artifacts : [];
+                arts.push(newArtifact);
+                meta.revisions_artifacts = arts;
+                meta.artifact = newArtifact;
+                meta.activeArtifactId = newArtifact.id;
+                await admin
+                  .from("quote_requests")
+                  .update({ metadata: meta, updated_at: new Date().toISOString() })
+                  .eq("id", row.data.id);
+              }
+            } catch {}
+          }
+        }
+      } catch (err: any) {
+        console.error("[DesignStudioOrchestrator] Revision editing error:", err?.message);
+        revision.status = "applied";
+      }
+    } else {
+      revision.status = "applied";
+    }
 
     existingList.push(revision);
     localRevisions.set(params.projectId, existingList);
 
-    const project = await this.getProject(params.projectId);
     if (project) {
-      project.status = "revision_requested";
+      project.status = newArtifact ? "generated" : "revision_requested";
       project.updatedAt = new Date().toISOString();
       await this.persistProjectToDb(project);
     }
 
-    return revision;
+    return { revision, newArtifact };
   }
 
   /**

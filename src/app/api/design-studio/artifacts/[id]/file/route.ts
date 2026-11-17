@@ -24,11 +24,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     // Extract authorization context from headers or cookies
     const orgId = request.headers.get("x-organization-id") || undefined;
     const customerId = request.headers.get("x-customer-id") || undefined;
+    const sessionId = request.headers.get("x-session-id") || searchParams.get("sessionId") || undefined;
 
     // Verify cross-organization access boundary
     const access = await designStudioOrchestrator.verifyArtifactAccess(id, {
       organizationId: orgId,
       customerId: customerId,
+      sessionId: sessionId,
     });
 
     if (!access.authorized) {
