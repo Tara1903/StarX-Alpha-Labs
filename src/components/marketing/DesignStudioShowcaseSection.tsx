@@ -162,7 +162,7 @@ export function DesignStudioShowcaseSection() {
           <div className="w-full lg:w-7/12 space-y-4 text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#087BFF]/20 border border-[#087BFF]/50 text-[#00D9FF] text-xs font-mono font-bold">
               <Cpu className="w-3.5 h-3.5" />
-              <span>Google Stitch MCP Integration Live</span>
+              <span>AI Architecture &amp; Scoping Studio</span>
             </div>
 
             <h3 className="text-2xl sm:text-3xl font-extrabold text-white">

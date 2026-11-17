@@ -109,7 +109,7 @@ export function DesignStudioClient() {
           wireframeType: "Enterprise Operations Cockpit",
           colorPalette: ["#030B24", "#071638", "#00D9FF", "#087BFF", "#E52BFF"],
           featuresIncluded: selectedFeatures,
-          status: "Generated via Stitch MCP Protocol",
+          status: "Interactive Architecture Concept Preview",
           overview: `Tailored architecture for ${currentIndustryObj.name} integrating ${selectedFeatures.slice(0, 3).join(", ")}. Built with strict type safety, zero-latency caching, and responsive glass surfaces.`
         },
         {
@@ -121,7 +121,7 @@ export function DesignStudioClient() {
           wireframeType: "Single-Pane Command Center",
           colorPalette: ["#0A1424", "#0F2038", "#32A9E8", "#1769AA", "#FFFFFF"],
           featuresIncluded: selectedFeatures,
-          status: "Generated via Stitch MCP Protocol",
+          status: "Interactive Architecture Concept Preview",
           overview: `Focused on rapid task completion and sub-second input processing. Optimized for high-throughput daily operations and mobile field workers.`
         }
       ];

@@ -23,7 +23,7 @@ export function HeroSection() {
     { label: "Industry Blueprints", val: "12", icon: "🏢", color: "text-[#873BFF]" },
     { label: "Bespoke Architecture", val: "100%", icon: "⚙️", color: "text-[#E52BFF]" },
     { label: "AI Prototyping", val: "Instant", icon: "⚡", color: "text-[#FF941F]" },
-    { label: "Enterprise SLA", val: "99.9%", icon: "🛡️", color: "text-[#00C98B]" }
+    { label: "IP Ownership", val: "100%", icon: "🛡️", color: "text-[#00C98B]" }
   ];
 
   return (
