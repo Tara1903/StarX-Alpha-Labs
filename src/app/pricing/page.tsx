@@ -64,8 +64,7 @@ export default function PricingPage() {
               </h1>
 
               <p className="text-base sm:text-lg text-[#C8D5EF] max-w-2xl leading-relaxed">
-                Choose from our three dedicated development divisions: Website Development, Mobile App Development,
-                or complete Website + App Combo suites with real savings up to ₹50,000.
+                Choose from our dedicated technology practices across Web, Mobile, Business Management, SaaS, AI, and Custom Enterprise Architecture with transparent milestone pricing.
               </p>
 
               <div className="pt-2 flex flex-wrap gap-4 items-center">
@@ -76,17 +75,17 @@ export default function PricingPage() {
                   className="bg-gradient-to-r from-[#087BFF] to-[#00D9FF] hover:brightness-110 text-white font-bold px-6 py-3 shadow-lg shadow-[#087BFF]/30"
                   leftIcon={<Calculator className="w-4 h-4" />}
                 >
-                  Launch Interactive Project Calculator
+                  Launch Interactive Project Estimator
                 </LinkButton>
 
                 <LinkButton
-                  href="/development-services"
+                  href="/divisions"
                   variant="secondary"
                   size="lg"
                   className="border border-[#00D9FF]/30 bg-[#071638]/70 hover:bg-[#0A1940] text-white px-6 py-3"
                   rightIcon={<ArrowRight className="w-4 h-4 text-[#00D9FF]" />}
                 >
-                  Explore The Three Divisions
+                  Explore All 6 Divisions
                 </LinkButton>
               </div>
             </div>

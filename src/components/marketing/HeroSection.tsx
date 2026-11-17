@@ -19,11 +19,11 @@ import {
 
 export function HeroSection() {
   const stats = [
-    { label: "Demo Models", val: "160+", icon: "🥞", color: "text-[#00D9FF]" },
-    { label: "Solution Modules", val: "50+", icon: "▦", color: "text-[#00D9FF]" },
-    { label: "Industry Categories", val: "12", icon: "🏢", color: "text-[#873BFF]" },
-    { label: "Customizable", val: "100%", icon: "⚙️", color: "text-[#E52BFF]" },
-    { label: "Deployment", val: "1–4 Wks", icon: "⚡", color: "text-[#FF941F]" }
+    { label: "Canonical Divisions", val: "6", icon: "🌐", color: "text-[#00D9FF]" },
+    { label: "Industry Blueprints", val: "12", icon: "🏢", color: "text-[#873BFF]" },
+    { label: "Bespoke Architecture", val: "100%", icon: "⚙️", color: "text-[#E52BFF]" },
+    { label: "AI Prototyping", val: "Instant", icon: "⚡", color: "text-[#FF941F]" },
+    { label: "Enterprise SLA", val: "99.9%", icon: "🛡️", color: "text-[#00C98B]" }
   ];
 
   return (
@@ -48,54 +48,55 @@ export function HeroSection() {
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#00D9FF]/45 bg-[#071638]/90 backdrop-blur-md shadow-[0_0_25px_rgba(0,217,255,0.25)]">
               <span className="text-amber-400 text-sm">👑</span>
               <span className="text-[11px] font-mono font-bold tracking-wider text-slate-200 uppercase">
-                IT | AI | Software | Web | Mobile | Cloud | Enterprise
+                Web • Apps • Business • SaaS • AI • Custom
               </span>
             </div>
 
-            {/* Master Headline matching approved graphic */}
+            {/* Master Headline matching company transformation */}
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.08]">
-              Next-Gen Digital Solutions <br />
+              Build Smarter. <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00D9FF] via-[#087BFF] to-[#E52BFF]">
-                for Every Business
+                Lead Tomorrow.
               </span>
             </h1>
 
             {/* Supporting Copy */}
             <p className="text-base sm:text-lg text-[#C8D5EF] leading-relaxed max-w-xl font-normal">
-              We Design, Develop &amp; Deploy Powerful Websites, Mobile Apps &amp; Complete Digital Solutions
-              that Help Businesses Grow, Automate and Scale Globally.
+              StarX Alpha Labs is a custom-first technology company. We engineer production-grade websites,
+              branded mobile applications, POS/ERP systems, SaaS platforms, and intelligent AI agents for growing enterprises.
             </p>
 
-            {/* Dual Action Buttons matching graphic */}
+            {/* Dual Action Buttons */}
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <Link
-                href="/demos"
-                className="px-8 py-3.5 rounded-full font-extrabold text-sm text-white bg-gradient-to-r from-[#FF941F] via-[#FF35B8] to-[#E52BFF] shadow-[0_0_30px_rgba(255,148,31,0.45)] hover:brightness-110 transition-all flex items-center gap-2"
+                href="/design-studio"
+                className="px-8 py-3.5 rounded-full font-extrabold text-sm text-white bg-gradient-to-r from-[#00D9FF] via-[#087BFF] to-[#E52BFF] shadow-[0_0_30px_rgba(0,217,255,0.4)] hover:brightness-110 transition-all flex items-center gap-2 cursor-pointer"
               >
-                <span>Explore 160+ Demos</span>
+                <Sparkles className="w-4 h-4 text-white" />
+                <span>Launch Design Studio</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                href="/project-calculator"
+                href="/divisions"
                 className="px-7 py-3.5 rounded-full font-bold text-sm text-white bg-[#071638]/90 border border-[#00D9FF]/50 hover:border-[#00D9FF] shadow-[0_0_20px_rgba(0,217,255,0.2)] hover:bg-[#0A1940] transition-all flex items-center gap-2"
               >
-                <span>🚀 Start a Project</span>
+                <span>Explore 6 Divisions</span>
               </Link>
             </div>
 
-            {/* Supporting Highlights matching graphic */}
+            {/* Supporting Highlights */}
             <div className="flex items-center gap-5 text-xs font-mono text-slate-300 pt-2 flex-wrap">
               <span className="flex items-center gap-1.5 text-[#00C98B]">
                 <CheckCircle2 className="w-4 h-4 text-[#00C98B]" />
-                <span className="text-white font-medium">Custom Development</span>
+                <span className="text-white font-medium">100% Custom Engineering</span>
               </span>
               <span className="flex items-center gap-1.5 text-[#00C98B]">
                 <CheckCircle2 className="w-4 h-4 text-[#00C98B]" />
-                <span className="text-white font-medium">Fast Deployment</span>
+                <span className="text-white font-medium">Google Stitch Prototyping</span>
               </span>
               <span className="flex items-center gap-1.5 text-[#00C98B]">
                 <CheckCircle2 className="w-4 h-4 text-[#00C98B]" />
-                <span className="text-white font-medium">Secure &amp; Scalable</span>
+                <span className="text-white font-medium">Full IP Ownership</span>
               </span>
             </div>
           </div>

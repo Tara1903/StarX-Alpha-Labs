@@ -95,18 +95,25 @@ export async function getPublishedDivisions(): Promise<DivisionItem[]> {
       return DIVISIONS_DATA;
     }
 
-    return data.map((row) => ({
-      slug: row.slug,
-      name: row.title,
-      tagline: row.tagline || '',
-      shortDescription: row.short_description || '',
-      badge: row.badge || '',
-      mission: row.mission || '',
-      overview: row.overview || '',
-      capabilities: (row.capabilities as unknown as { title: string; description: string }[]) || [],
-      deliverables: (row.deliverables as unknown as string[]) || [],
-      techStack: (row.tech_stack as unknown as string[]) || [],
-    }));
+    return data.map((row) => {
+      const r = row as Record<string, any>;
+      const fallback = DIVISIONS_DATA.find((d) => d.slug === r.slug) || DIVISIONS_DATA[0];
+      return {
+        slug: r.slug,
+        name: r.title || fallback.name,
+        tagline: r.tagline || fallback.tagline,
+        shortDescription: r.short_description || fallback.shortDescription,
+        badge: r.badge || fallback.badge,
+        mission: r.mission || fallback.mission,
+        overview: r.overview || fallback.overview,
+        indicativePrice: r.indicative_price || fallback.indicativePrice,
+        accentColor: r.accent_color || fallback.accentColor,
+        iconName: r.icon_name || fallback.iconName,
+        capabilities: (r.capabilities as unknown as { title: string; description: string }[]) || fallback.capabilities,
+        deliverables: (r.deliverables as unknown as string[]) || fallback.deliverables,
+        techStack: (r.tech_stack as unknown as string[]) || fallback.techStack,
+      };
+    });
   } catch {
     return DIVISIONS_DATA;
   }
@@ -126,17 +133,22 @@ export async function getDivisionBySlug(slug: string): Promise<DivisionItem | nu
       return DIVISIONS_DATA.find((d) => d.slug === slug) || null;
     }
 
+    const d = data as Record<string, any>;
+    const fallback = DIVISIONS_DATA.find((item) => item.slug === d.slug) || DIVISIONS_DATA[0];
     return {
-      slug: data.slug,
-      name: data.title,
-      tagline: data.tagline || '',
-      shortDescription: data.short_description || '',
-      badge: data.badge || '',
-      mission: data.mission || '',
-      overview: data.overview || '',
-      capabilities: (data.capabilities as unknown as { title: string; description: string }[]) || [],
-      deliverables: (data.deliverables as unknown as string[]) || [],
-      techStack: (data.tech_stack as unknown as string[]) || [],
+      slug: d.slug,
+      name: d.title || fallback.name,
+      tagline: d.tagline || fallback.tagline,
+      shortDescription: d.short_description || fallback.shortDescription,
+      badge: d.badge || fallback.badge,
+      mission: d.mission || fallback.mission,
+      overview: d.overview || fallback.overview,
+      indicativePrice: d.indicative_price || fallback.indicativePrice,
+      accentColor: d.accent_color || fallback.accentColor,
+      iconName: d.icon_name || fallback.iconName,
+      capabilities: (d.capabilities as unknown as { title: string; description: string }[]) || fallback.capabilities,
+      deliverables: (d.deliverables as unknown as string[]) || fallback.deliverables,
+      techStack: (d.tech_stack as unknown as string[]) || fallback.techStack,
     };
   } catch {
     return DIVISIONS_DATA.find((d) => d.slug === slug) || null;
@@ -160,17 +172,27 @@ export async function getPublishedIndustries(): Promise<IndustryItem[]> {
       return INDUSTRIES_DATA;
     }
 
-    return data.map((row) => ({
-      slug: row.slug,
-      name: row.name,
-      badge: row.badge || '',
-      tagline: row.tagline || '',
-      overview: row.overview,
-      challenges: (row.challenges as unknown as string[]) || [],
-      solutions: (row.solutions as unknown as string[]) || [],
-      featuredCapabilities: (row.featured_capabilities as unknown as string[]) || [],
-      recommendedServices: (row.recommended_services as unknown as string[]) || [],
-    }));
+    return data.map((row) => {
+      const r = row as Record<string, any>;
+      const fallback = INDUSTRIES_DATA.find((i) => i.slug === r.slug) || INDUSTRIES_DATA[0];
+      return {
+        number: r.display_order || fallback.number,
+        slug: r.slug,
+        name: r.name || fallback.name,
+        badge: r.badge || fallback.badge,
+        tagline: r.tagline || fallback.tagline,
+        overview: r.overview || fallback.overview,
+        challenges: (r.challenges as unknown as string[]) || fallback.challenges,
+        opportunities: (r.opportunities as unknown as string[]) || fallback.opportunities,
+        solutions: (r.solutions as unknown as string[]) || fallback.solutions,
+        featuredCapabilities: (r.featured_capabilities as unknown as string[]) || fallback.featuredCapabilities,
+        recommendedDivisions: (r.recommended_divisions as unknown as string[]) || fallback.recommendedDivisions,
+        recommendedServices: (r.recommended_services as unknown as string[]) || fallback.recommendedServices,
+        technologies: (r.technologies as unknown as string[]) || fallback.technologies,
+        accentColor: r.accent_color || fallback.accentColor,
+        emoji: r.emoji || fallback.emoji,
+      };
+    });
   } catch {
     return INDUSTRIES_DATA;
   }
@@ -190,16 +212,24 @@ export async function getIndustryBySlug(slug: string): Promise<IndustryItem | nu
       return INDUSTRIES_DATA.find((i) => i.slug === slug) || null;
     }
 
+    const d = data as Record<string, any>;
+    const fallback = INDUSTRIES_DATA.find((i) => i.slug === d.slug) || INDUSTRIES_DATA[0];
     return {
-      slug: data.slug,
-      name: data.name,
-      badge: data.badge || '',
-      tagline: data.tagline || '',
-      overview: data.overview,
-      challenges: (data.challenges as unknown as string[]) || [],
-      solutions: (data.solutions as unknown as string[]) || [],
-      featuredCapabilities: (data.featured_capabilities as unknown as string[]) || [],
-      recommendedServices: (data.recommended_services as unknown as string[]) || [],
+      number: d.display_order || fallback.number,
+      slug: d.slug,
+      name: d.name || fallback.name,
+      badge: d.badge || fallback.badge,
+      tagline: d.tagline || fallback.tagline,
+      overview: d.overview || fallback.overview,
+      challenges: (d.challenges as unknown as string[]) || fallback.challenges,
+      opportunities: (d.opportunities as unknown as string[]) || fallback.opportunities,
+      solutions: (d.solutions as unknown as string[]) || fallback.solutions,
+      featuredCapabilities: (d.featured_capabilities as unknown as string[]) || fallback.featuredCapabilities,
+      recommendedDivisions: (d.recommended_divisions as unknown as string[]) || fallback.recommendedDivisions,
+      recommendedServices: (d.recommended_services as unknown as string[]) || fallback.recommendedServices,
+      technologies: (d.technologies as unknown as string[]) || fallback.technologies,
+      accentColor: d.accent_color || fallback.accentColor,
+      emoji: d.emoji || fallback.emoji,
     };
   } catch {
     return INDUSTRIES_DATA.find((i) => i.slug === slug) || null;

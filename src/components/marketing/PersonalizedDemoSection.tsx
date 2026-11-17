@@ -14,7 +14,7 @@ import {
   PhoneCall,
   Loader2
 } from "lucide-react";
-import { VIDEO_CATEGORIES } from "@/data/videos";
+import { INDUSTRIES_DATA } from "@/data/industries";
 
 export function PersonalizedDemoSection() {
   const [formData, setFormData] = useState({
@@ -23,8 +23,8 @@ export function PersonalizedDemoSection() {
     phone: "",
     email: "",
     city: "",
-    industry: "local-business-growth",
-    solutionType: "Website + App Combo",
+    industry: "retail-commerce",
+    solutionType: "StarX Web — Custom Websites & Web Applications",
     currentWebsite: "",
     primaryGoal: "Generate More Qualified Leads",
     estimatedBudget: "₹50,000 – ₹1,00,000",
@@ -40,16 +40,18 @@ export function PersonalizedDemoSection() {
     whatsappUrl: string;
   } | null>(null);
 
-  const industries = VIDEO_CATEGORIES.map((c) => ({
-    id: c.id,
-    label: c.title,
+  const industries = INDUSTRIES_DATA.map((c) => ({
+    id: c.slug,
+    label: `${c.emoji} ${c.name}`,
   }));
 
   const solutionTypes = [
-    "Professional Business Website",
-    "iOS & Android Mobile App",
-    "Website + App Combo (Best Value)",
-    "Custom Enterprise Software / Portal",
+    "StarX Web — Custom Websites & Web Applications",
+    "StarX Apps — Branded iOS & Android Mobile Apps",
+    "StarX Business — POS, ERP, CRM & Business Software",
+    "StarX SaaS — Subscription Software & Platforms",
+    "StarX AI — AI Agents & Process Automation",
+    "StarX Custom — Bespoke Enterprise Engineering",
   ];
 
   const primaryGoals = [
@@ -127,20 +129,20 @@ export function PersonalizedDemoSection() {
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#00D9FF]/40 bg-[#071638]/90 backdrop-blur-md shadow-[0_0_20px_rgba(0,217,255,0.25)]">
             <Sparkles className="w-4 h-4 text-[#00D9FF]" />
             <span className="text-xs font-mono font-bold tracking-wider text-slate-200 uppercase">
-              100% Free • No Obligation • 24–48h Turnaround
+              Free Technical Consultation • Architectural Roadmap • 24h Response
             </span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
-            Get a Free Personalized Demo <br />
+            Request a Technical Consultation <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00D9FF] via-[#087BFF] to-[#E52BFF]">
-              for Your Exact Business
+              &amp; Custom Project Scope
             </span>
           </h2>
 
           <p className="text-base sm:text-lg text-[#C8D5EF] leading-relaxed">
-            Tell us about your company and goals. Our engineering team will configure a dedicated interactive
-            demonstration featuring your industry workflows, branding preview, and real-time features.
+            Tell us about your company and project objectives. Our solution architects will analyze your requirements,
+            recommend the ideal technology stack, and prepare a detailed feasibility report and milestone quotation.
           </p>
         </div>
 
@@ -153,17 +155,17 @@ export function PersonalizedDemoSection() {
 
             <div className="space-y-2">
               <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#00D9FF]">
-                Request Confirmed
+                Consultation Request Confirmed
               </span>
               <h3 className="text-2xl sm:text-3xl font-extrabold text-white">
-                Your Free Demo Is Being Prepared!
+                Our Solution Architects Are On It!
               </h3>
               <p className="text-sm text-slate-300 max-w-lg mx-auto">
                 Your unique reference ID is{" "}
                 <span className="font-mono font-bold text-white px-2 py-0.5 rounded bg-[#030B24] border border-[#00D9FF]/40">
                   {successResult.requestCode}
                 </span>
-                . Our engineers will review your requirements and dispatch your interactive demo within 24–48 hours.
+                . Our engineering team will review your architectural requirements and dispatch your project scope within 24 hours.
               </p>
             </div>
 

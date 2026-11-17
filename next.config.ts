@@ -60,6 +60,69 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      // Retired public demo marketplace -> redirected to StarX Design Studio
+      {
+        source: "/demos",
+        destination: "/design-studio",
+        permanent: true,
+      },
+      {
+        source: "/demos/:path*",
+        destination: "/design-studio",
+        permanent: true,
+      },
+      // Retired video station
+      {
+        source: "/video-station",
+        destination: "/",
+        permanent: false,
+      },
+      {
+        source: "/video-station/:path*",
+        destination: "/",
+        permanent: false,
+      },
+      // Legacy service routes -> Canonical Divisions
+      {
+        source: "/website-development",
+        destination: "/divisions/starx-web",
+        permanent: true,
+      },
+      {
+        source: "/app-development",
+        destination: "/divisions/starx-apps",
+        permanent: true,
+      },
+      {
+        source: "/website-app-combo",
+        destination: "/divisions/starx-custom",
+        permanent: true,
+      },
+      {
+        source: "/development-services",
+        destination: "/divisions",
+        permanent: true,
+      },
+      // Legacy division aliases
+      {
+        source: "/divisions/starx-digital",
+        destination: "/divisions/starx-web",
+        permanent: true,
+      },
+      {
+        source: "/divisions/starx-systems",
+        destination: "/divisions/starx-business",
+        permanent: true,
+      },
+      {
+        source: "/divisions/starx-ai-solutions",
+        destination: "/divisions/starx-ai",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

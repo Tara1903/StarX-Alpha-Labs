@@ -6,9 +6,19 @@ import { Footer } from "@/components/marketing/Footer";
 import { Container } from "@/components/ui/Container";
 import { Badge } from "@/components/ui/Badge";
 import { LinkButton } from "@/components/ui/LinkButton";
-import { INDUSTRIES_DATA } from "@/data/industries";
-import { SERVICES_DATA } from "@/data/services";
-import { ArrowRight, CheckCircle2, AlertCircle, Sparkles, ShieldCheck } from "lucide-react";
+import { INDUSTRIES_DATA, getIndustryBySlug } from "@/data/industries";
+import { DIVISIONS_DATA, getDivisionBySlug } from "@/data/divisions";
+import { 
+  ArrowRight, 
+  CheckCircle2, 
+  AlertCircle, 
+  Sparkles, 
+  ShieldCheck, 
+  Palette, 
+  Layers, 
+  Zap,
+  ArrowUpRight
+} from "lucide-react";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -22,156 +32,279 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const industry = INDUSTRIES_DATA.find((i) => i.slug === slug);
+  const industry = getIndustryBySlug(slug);
   if (!industry) return { title: "Industry Not Found" };
 
   return {
-    title: `${industry.name} Software & Digital Solutions — StarX Alpha Labs`,
+    title: `${industry.name} Software & Digital Engineering — StarX Alpha Labs`,
     description: industry.overview,
   };
 }
 
 export default async function IndustryDetailPage({ params }: Props) {
   const { slug } = await params;
-  const industry = INDUSTRIES_DATA.find((i) => i.slug === slug);
+  const industry = getIndustryBySlug(slug);
 
   if (!industry) {
     notFound();
   }
 
-  const recommendedServices = SERVICES_DATA.filter((s) =>
-    industry.recommendedServices.includes(s.slug)
-  );
+  const relevantDivisions = (industry.recommendedDivisions || [])
+    .map((divSlug) => getDivisionBySlug(divSlug))
+    .filter(Boolean);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#07111F] text-[#F8FAFC]">
+    <div className="min-h-screen flex flex-col bg-[#030B24] text-white selection:bg-[#087BFF] selection:text-white">
       <Navbar />
 
-      <main className="grow pt-20 sm:pt-24">
-        {/* Industry Header */}
-        <section className="py-20 md:py-24 relative overflow-hidden border-b border-[rgba(130,180,220,0.18)]">
-          <div className="absolute top-0 right-1/4 -z-10 h-96 w-96 rounded-full bg-[#1769AA]/15 blur-[120px]" />
+      <main className="grow pt-24 sm:pt-28">
+        {/* Industry Hero */}
+        <section className="py-20 md:py-28 relative overflow-hidden border-b border-[#0A1940]">
+          {/* Ambient Radial Depth Glow */}
+          <div 
+            className="absolute top-1/4 right-1/4 -z-10 w-[600px] h-[600px] rounded-full blur-[160px] opacity-20 pointer-events-none"
+            style={{ backgroundColor: industry.accentColor }}
+          />
+
           <Container>
             <div className="max-w-4xl space-y-6">
               <div className="flex flex-wrap items-center gap-3">
-                <Link href="/industries" className="text-xs text-slate-400 hover:text-white">
-                  &larr; All Industries
+                <Link href="/industries" className="text-xs text-slate-400 hover:text-[#00D9FF] transition-colors flex items-center gap-1 font-mono">
+                  <span>&larr;</span> All 12 Industries
                 </Link>
                 <span className="text-slate-600">/</span>
-                <Badge variant="corporate" size="sm">{industry.badge}</Badge>
+                <span 
+                  className="px-3 py-1 text-xs font-mono font-bold rounded-full border"
+                  style={{ 
+                    borderColor: `${industry.accentColor}50`, 
+                    color: industry.accentColor,
+                    backgroundColor: `${industry.accentColor}15`
+                  }}
+                >
+                  {industry.badge}
+                </span>
               </div>
 
-              <h1 className="text-display font-extrabold text-white leading-tight">
-                {industry.name}
-              </h1>
+              <div className="flex items-center gap-4">
+                <span className="text-4xl sm:text-5xl">{industry.emoji}</span>
+                <div>
+                  <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+                    {industry.name}
+                  </h1>
+                  <p 
+                    className="text-base sm:text-lg font-semibold mt-1"
+                    style={{ color: industry.accentColor }}
+                  >
+                    {industry.tagline}
+                  </p>
+                </div>
+              </div>
 
-              <p className="text-xl font-medium text-[#32A9E8]">
-                {industry.tagline}
-              </p>
-
-              <p className="text-base text-slate-300 font-light leading-relaxed">
+              <p className="text-base sm:text-lg text-[#C8D5EF] leading-relaxed max-w-3xl">
                 {industry.overview}
               </p>
+
+              {/* Action Buttons */}
+              <div className="pt-4 flex flex-wrap gap-4 items-center">
+                <LinkButton
+                  href={`/get-quote?industry=${industry.slug}`}
+                  variant="primary"
+                  size="lg"
+                  className="bg-gradient-to-r from-[#00D9FF] to-[#087BFF] hover:brightness-110 text-white font-extrabold px-6 shadow-[0_0_25px_rgba(0,217,255,0.3)] rounded-full"
+                  rightIcon={<ArrowRight className="w-4 h-4" />}
+                >
+                  Request Industry Proposal
+                </LinkButton>
+
+                <LinkButton
+                  href={`/design-studio?industry=${industry.slug}`}
+                  variant="outline"
+                  size="lg"
+                  className="border-[#00D9FF]/40 text-[#00D9FF] hover:bg-[#00D9FF]/10 font-bold px-6 rounded-full flex items-center gap-2"
+                >
+                  <Palette className="w-4 h-4" />
+                  <span>Explore Concepts in Design Studio</span>
+                </LinkButton>
+              </div>
             </div>
           </Container>
         </section>
 
-        {/* Challenges vs Solutions */}
-        <section className="py-20 bg-[#0B192B]/80 border-b border-[rgba(130,180,220,0.18)]">
+        {/* Challenges vs Opportunities */}
+        <section className="py-20 bg-[#071638] border-b border-white/5">
           <Container>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
               {/* Challenges */}
-              <div className="space-y-6">
-                <Badge variant="danger">Operational Bottlenecks</Badge>
-                <h2 className="text-2xl font-bold text-white">Industry Friction Points</h2>
-                <div className="space-y-3">
-                  {industry.challenges.map((chal) => (
-                    <div key={chal} className="p-4 rounded-xl bg-[#07111F] border border-[rgba(130,180,220,0.18)] flex items-start gap-3">
-                      <AlertCircle className="w-4 h-4 text-[#DC5454] shrink-0 mt-0.5" />
-                      <span className="text-xs text-slate-200 leading-relaxed">{chal}</span>
-                    </div>
-                  ))}
+              <div className="p-8 rounded-3xl bg-[#030B24]/80 border border-[#0A1940] space-y-6">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400">
+                    <AlertCircle className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white">Critical Industry Friction Points</h3>
                 </div>
+                <ul className="space-y-4">
+                  {industry.challenges.map((challenge) => (
+                    <li key={challenge} className="flex items-start gap-3 text-sm text-[#C8D5EF] leading-relaxed">
+                      <span className="w-2 h-2 rounded-full bg-red-400 mt-2 shrink-0" />
+                      <span>{challenge}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
 
-              {/* Solutions */}
-              <div className="space-y-6">
-                <Badge variant="success">Engineered Solutions</Badge>
-                <h2 className="text-2xl font-bold text-white">The STARX Approach</h2>
-                <div className="space-y-3">
-                  {industry.solutions.map((sol) => (
-                    <div key={sol} className="p-4 rounded-xl bg-[#07111F] border border-[rgba(130,180,220,0.18)] flex items-start gap-3">
-                      <CheckCircle2 className="w-4 h-4 text-[#16866A] shrink-0 mt-0.5" />
-                      <span className="text-xs text-slate-200 leading-relaxed">{sol}</span>
-                    </div>
-                  ))}
+              {/* Opportunities */}
+              <div className="p-8 rounded-3xl bg-[#030B24]/80 border border-[#0A1940] space-y-6">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white">Digital Transformation Opportunities</h3>
                 </div>
+                <ul className="space-y-4">
+                  {industry.opportunities.map((opp) => (
+                    <li key={opp} className="flex items-start gap-3 text-sm text-[#C8D5EF] leading-relaxed">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 mt-2 shrink-0" />
+                      <span>{opp}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           </Container>
         </section>
 
-        {/* Featured Capabilities Matrix */}
-        <section className="py-20 bg-[#F4F8FC] text-[#172B43] theme-corporate-light border-b border-[#DDE7F0]">
-          <Container>
-            <div className="max-w-3xl mb-12 space-y-2">
-              <Badge variant="corporate" dot>Specialized Systems</Badge>
-              <h2 className="text-2xl font-bold text-[#102D50]">Featured Capabilities for {industry.name}</h2>
-              <p className="text-xs text-[#64748B]">Purpose-built modules engineered to resolve sector-specific requirements.</p>
+        {/* Solutions & Capabilities */}
+        <section className="py-20 bg-[#030B24]">
+          <Container className="space-y-12">
+            <div className="text-center space-y-3 max-w-2xl mx-auto">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#00D9FF]">Bespoke Engineering</span>
+              <h2 className="text-3xl font-extrabold text-white tracking-tight">
+                Architectures We Engineer for {industry.name}
+              </h2>
+              <p className="text-sm text-slate-300">
+                Custom platforms built around your real-world business constraints and compliance requirements.
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {industry.featuredCapabilities.map((cap) => (
-                <div key={cap} className="p-5 rounded-xl bg-white border border-[#DDE7F0] shadow-corporate-card flex items-center gap-3">
-                  <ShieldCheck className="w-5 h-5 text-[#1769AA] shrink-0" />
-                  <span className="text-xs font-bold text-[#102D50]">{cap}</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {industry.featuredCapabilities.map((cap, idx) => (
+                <div
+                  key={cap}
+                  className="p-6 rounded-2xl bg-[#071638]/90 border border-[#0A1940] hover:border-[#00D9FF]/50 transition-all duration-300 flex flex-col justify-between space-y-4 shadow-xl"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-mono font-bold text-slate-400">0{idx + 1}</span>
+                      <Zap className="w-4 h-4 text-[#00D9FF]" />
+                    </div>
+                    <h3 className="text-lg font-bold text-white tracking-tight">
+                      {cap}
+                    </h3>
+                  </div>
+                  <div className="text-xs text-slate-400 font-mono">
+                    Production Architecture
+                  </div>
                 </div>
               ))}
             </div>
           </Container>
         </section>
 
-        {/* Recommended Services Grid */}
-        {recommendedServices.length > 0 && (
-          <section className="py-20 bg-[#07111F] border-b border-[rgba(130,180,220,0.18)]">
-            <Container className="space-y-8">
-              <div className="space-y-2">
-                <Badge variant="navy">Architectural Services</Badge>
-                <h2 className="text-2xl font-bold text-white">Recommended Engineering Packages</h2>
+        {/* Relevant Divisions & Tech Stack */}
+        <section className="py-16 bg-[#071638] border-y border-white/5">
+          <Container>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+              {/* Relevant Divisions */}
+              <div className="lg:col-span-7 space-y-5">
+                <h3 className="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
+                  <Layers className="w-5 h-5 text-[#00D9FF]" />
+                  <span>Recommended StarX Divisions</span>
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {relevantDivisions.map((div) => {
+                    if (!div) return null;
+                    return (
+                      <Link
+                        key={div.slug}
+                        href={`/divisions/${div.slug}`}
+                        className="p-4 rounded-2xl bg-[#030B24] border border-[#0A1940] hover:border-[#00D9FF]/50 transition-all group flex flex-col justify-between space-y-2"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-mono font-bold text-[#00D9FF]">{div.name}</span>
+                          <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                        </div>
+                        <p className="text-xs text-slate-300 line-clamp-2">
+                          {div.tagline}
+                        </p>
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {recommendedServices.map((service) => (
-                  <div key={service.slug} className="p-6 rounded-2xl bg-[#0B192B]/80 border border-[rgba(130,180,220,0.18)] hover:border-[#32A9E8] transition-all flex flex-col justify-between space-y-4">
-                    <div className="space-y-2">
-                      <span className="text-[10px] font-mono text-[#32A9E8] uppercase">{service.categoryLabel}</span>
-                      <h3 className="text-base font-bold text-white">{service.title}</h3>
-                      <p className="text-xs text-slate-300 line-clamp-3">{service.shortDescription}</p>
-                    </div>
-                    <div className="pt-2 border-t border-[rgba(130,180,220,0.18)]/70 flex items-center justify-between">
-                      <span className="text-xs font-mono text-[#32A9E8]">From {service.startingPrice}</span>
-                      <Link href={`/services/${service.slug}`} className="text-xs text-white hover:text-[#32A9E8] font-medium flex items-center gap-1">
-                        Review <ArrowRight className="w-3.5 h-3.5" />
-                      </Link>
-                    </div>
-                  </div>
-                ))}
+              {/* Technologies */}
+              <div className="lg:col-span-5 space-y-5">
+                <h3 className="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-[#E52BFF]" />
+                  <span>Engineered With</span>
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {industry.technologies.map((tech) => (
+                    <span
+                      key={tech}
+                      className="px-3 py-1.5 rounded-xl text-xs font-mono font-semibold bg-[#030B24] border border-white/10 text-slate-200"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="p-5 rounded-2xl bg-[#030B24] border border-white/5 space-y-2 mt-4">
+                  <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-[#00C98B]" />
+                    <span>Domain Compliance</span>
+                  </span>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    All software engineered for {industry.name} is designed with relevant compliance, security audits, and dedicated enterprise SLA support.
+                  </p>
+                </div>
               </div>
-            </Container>
-          </section>
-        )}
+            </div>
+          </Container>
+        </section>
 
         {/* Conversion CTA */}
-        <section className="py-20 bg-[#102D50] text-center">
-          <Container className="max-w-2xl space-y-6">
-            <h2 className="text-3xl font-bold text-white">Modernize Your {industry.name} Operations</h2>
-            <p className="text-xs text-slate-300">
-              Schedule a technical consultation to map requirements and timeline with an industry architect.
-            </p>
-            <div className="flex justify-center gap-4">
-              <LinkButton href={`/get-quote?industry=${industry.slug}`} variant="primary" size="lg" rightIcon={<ArrowRight className="w-4 h-4" />}>
-                Request Industry Consultation
-              </LinkButton>
+        <section className="py-24 bg-[#030B24] relative overflow-hidden">
+          <Container>
+            <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-[#071638] via-[#0A1940] to-[#071638] border border-[#00D9FF]/30 text-center space-y-6 shadow-2xl relative overflow-hidden">
+              <div className="max-w-2xl mx-auto space-y-3">
+                <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#00D9FF]">Initiate Engagement</span>
+                <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
+                  Transform Your {industry.name} Operations
+                </h2>
+                <p className="text-sm text-slate-300">
+                  Collaborate directly with our senior software architects to scope, design, and deliver your proprietary technology solution.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap justify-center gap-4 pt-2">
+                <LinkButton
+                  href={`/get-quote?industry=${industry.slug}`}
+                  variant="primary"
+                  size="lg"
+                  className="bg-gradient-to-r from-[#E52BFF] to-[#087BFF] hover:brightness-110 text-white font-extrabold px-8 shadow-xl rounded-full"
+                >
+                  Request Itemized Proposal
+                </LinkButton>
+                <LinkButton
+                  href={`/design-studio?industry=${industry.slug}`}
+                  variant="outline"
+                  size="lg"
+                  className="border-white/20 text-slate-200 hover:text-white hover:bg-white/5 font-semibold px-6 rounded-full"
+                >
+                  Launch Design Studio
+                </LinkButton>
+              </div>
             </div>
           </Container>
         </section>

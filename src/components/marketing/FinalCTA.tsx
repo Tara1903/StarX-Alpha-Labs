@@ -31,19 +31,27 @@ export function FinalCTA() {
 
           <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
             <Link
-              href="/project-calculator"
-              className="px-8 py-4 rounded-full font-extrabold text-sm text-white bg-gradient-to-r from-[#E52BFF] via-[#FF941F] to-[#E52BFF] shadow-[0_0_30px_rgba(229,43,255,0.4)] hover:brightness-110 transition-all flex items-center gap-2"
+              href="/design-studio"
+              className="px-8 py-4 rounded-full font-extrabold text-sm text-white bg-gradient-to-r from-[#00D9FF] via-[#087BFF] to-[#E52BFF] shadow-[0_0_30px_rgba(0,217,255,0.4)] hover:brightness-110 transition-all flex items-center gap-2 cursor-pointer"
             >
-              <span>🚀 Start a Project Today</span>
+              <Sparkles className="w-4 h-4 text-white" />
+              <span>Launch Design Studio</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
             
             <Link
+              href="/project-calculator"
+              className="px-7 py-4 rounded-full font-bold text-sm text-white bg-[#030B24] border border-[#00D9FF]/50 hover:border-[#00D9FF] shadow-[0_0_20px_rgba(0,217,255,0.2)] hover:bg-[#071638] transition-all flex items-center gap-2 cursor-pointer"
+            >
+              <span>Calculate Project Scope &rarr;</span>
+            </Link>
+
+            <Link
               href="/book-consultation"
-              className="px-7 py-4 rounded-full font-bold text-sm text-white bg-[#030B24] border border-[#00D9FF]/50 hover:border-[#00D9FF] shadow-[0_0_20px_rgba(0,217,255,0.2)] hover:bg-[#071638] transition-all flex items-center gap-2"
+              className="px-7 py-4 rounded-full font-medium text-xs text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-colors flex items-center gap-2"
             >
               <Calendar className="w-4 h-4 text-[#00D9FF]" />
-              <span>Schedule a Call</span>
+              <span>Schedule Call</span>
             </Link>
           </div>
         </Card3DTilt>

@@ -39,67 +39,79 @@ export function Footer() {
                 className="text-xs text-[#00D9FF] hover:underline font-semibold flex items-center gap-1"
               >
                 <Calculator className="w-3.5 h-3.5" />
-                <span>Project Calculator &rarr;</span>
+                <span>Custom Estimator &rarr;</span>
               </Link>
               <span className="text-slate-600">&bull;</span>
               <Link
-                href="/demos"
-                className="text-xs text-[#00D9FF] hover:underline font-semibold"
+                href="/design-studio"
+                className="text-xs text-[#00D9FF] hover:underline font-semibold flex items-center gap-1"
               >
-                160+ Demos &rarr;
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Design Studio &rarr;</span>
               </Link>
             </div>
           </div>
 
-          {/* Development Divisions */}
+          {/* Canonical Technology Divisions */}
           <div className="space-y-3">
-            <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-white">Development Divisions</h4>
+            <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-white">Technology Divisions</h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link href="/website-development" className="hover:text-[#00D9FF] transition-colors">
-                  Website Development (W1–W6)
+                <Link href="/divisions/starx-web" className="hover:text-[#00D9FF] transition-colors">
+                  StarX Web — Websites &amp; Web Apps
                 </Link>
               </li>
               <li>
-                <Link href="/app-development" className="hover:text-[#00D9FF] transition-colors">
-                  Mobile App Development (A1–A5)
+                <Link href="/divisions/starx-apps" className="hover:text-[#00D9FF] transition-colors">
+                  StarX Apps — Branded Mobile Apps
                 </Link>
               </li>
               <li>
-                <Link href="/website-app-combo" className="hover:text-[#00D9FF] transition-colors">
-                  Website + App Combo (C1–C5)
+                <Link href="/divisions/starx-business" className="hover:text-[#00D9FF] transition-colors">
+                  StarX Business — POS, ERP &amp; CRM
                 </Link>
               </li>
               <li>
-                <Link href="/development-services" className="hover:text-[#00D9FF] transition-colors font-semibold text-slate-300">
-                  All Divisions Overview &rarr;
+                <Link href="/divisions/starx-saas" className="hover:text-[#00D9FF] transition-colors">
+                  StarX SaaS — Subscription Products
                 </Link>
               </li>
               <li>
-                <Link href="/project-calculator" className="hover:text-[#00D9FF] transition-colors text-[#00D9FF] font-mono">
-                  Interactive Scope Calculator
+                <Link href="/divisions/starx-ai" className="hover:text-[#00D9FF] transition-colors">
+                  StarX AI — Agents &amp; Automation
+                </Link>
+              </li>
+              <li>
+                <Link href="/divisions/starx-custom" className="hover:text-[#00D9FF] transition-colors">
+                  StarX Custom — Enterprise Systems
+                </Link>
+              </li>
+              <li className="pt-1">
+                <Link href="/divisions" className="hover:text-[#00D9FF] transition-colors font-semibold text-[#00D9FF]">
+                  Explore All 6 Divisions &rarr;
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Solutions & Ecosystem */}
+          {/* Solutions & Capabilities */}
           <div className="space-y-3">
-            <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-white">Solutions &amp; Ecosystem</h4>
+            <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-white">Solutions &amp; Capabilities</h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link href="/demos" className="hover:text-[#00D9FF] transition-colors">
-                  160 Enterprise Demos
-                </Link>
-              </li>
-              <li>
-                <Link href="/video-station" className="hover:text-[#00D9FF] transition-colors font-medium text-slate-300">
-                  Video Station (Watch Demos)
+                <Link href="/design-studio" className="hover:text-[#00D9FF] transition-colors font-semibold text-white flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-[#00D9FF]" />
+                  <span>StarX Design Studio</span>
                 </Link>
               </li>
               <li>
                 <Link href="/industries" className="hover:text-[#00D9FF] transition-colors">
-                  12 Industry Categories
+                  12 Industry Transformations
+                </Link>
+              </li>
+              <li>
+                <Link href="/project-calculator" className="hover:text-[#00D9FF] transition-colors font-mono">
+                  Custom Engineering Estimator
                 </Link>
               </li>
               <li>
@@ -127,7 +139,7 @@ export function Footer() {
               </li>
               <li>
                 <Link href="/portfolio" className="hover:text-[#00D9FF] transition-colors text-slate-400">
-                  Selected Work &amp; Blueprints
+                  Architectural Blueprints
                 </Link>
               </li>
             </ul>

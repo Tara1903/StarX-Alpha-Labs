@@ -35,14 +35,13 @@ export function Navbar() {
 
   const navLinks: { label: string; href: string; badge?: string }[] = [
     { label: "Home", href: "/" },
-    { label: "Solutions ▾", href: "/development-services" },
-    { label: "Demo Center", href: "/demos", badge: "160+" },
+    { label: "Divisions", href: "/divisions", badge: "6" },
+    { label: "Design Studio", href: "/design-studio", badge: "AI Studio" },
+    { label: "Industries", href: "/industries", badge: "12" },
     { label: "STARX FLOW", href: "/#flow", badge: "AI OS" },
-    { label: "Video Station", href: "/video-station", badge: "Live" },
+    { label: "Estimator", href: "/project-calculator" },
     { label: "Pricing", href: "/pricing" },
-    { label: "Industries ▾", href: "/industries" },
-    { label: "Ecosystem", href: "/ecosystem" },
-    { label: "Company ▾", href: "/about" },
+    { label: "Company", href: "/about" },
   ];
 
   return (

@@ -2,7 +2,7 @@ import { Navbar } from "@/components/marketing/Navbar";
 import { HeroSection } from "@/components/marketing/HeroSection";
 import { DivisionsSection } from "@/components/marketing/DivisionsSection";
 import { IndustriesSection } from "@/components/marketing/IndustriesSection";
-import { DemoShowcaseSection } from "@/components/marketing/DemoShowcaseSection";
+import { DesignStudioShowcaseSection } from "@/components/marketing/DesignStudioShowcaseSection";
 import { WhyChooseUsSection } from "@/components/marketing/WhyChooseUsSection";
 import { StarxFlowSection } from "@/components/marketing/StarxFlowSection";
 import { PersonalizedDemoSection } from "@/components/marketing/PersonalizedDemoSection";
@@ -34,14 +34,14 @@ export default function HomePage() {
         {/* 1. Hero & 3D Interactive Device Stage & Horizontal Stats Bar */}
         <HeroSection />
 
-        {/* 2. Our Core Solutions (Website, Mobile App, Combo) with 3D Tilt Cards */}
+        {/* 2. Our Six Core Technology Divisions */}
         <DivisionsSection />
 
         {/* 3. Explore Our 12 Industry Solutions Grid */}
         <IndustriesSection />
 
-        {/* 4. 160+ Enterprise Demo Models Showcase */}
-        <DemoShowcaseSection />
+        {/* 4. StarX Design Studio Showcase (AI-Assisted Prototyping) */}
+        <DesignStudioShowcaseSection />
 
         {/* 5. Why Choose STARX ALPHA LABS? (6 Strategic Pillars) */}
         <WhyChooseUsSection />
@@ -49,7 +49,7 @@ export default function HomePage() {
         {/* 6. STARX FLOW — Flagship Independent AI Business Operating System */}
         <StarxFlowSection />
 
-        {/* 7. Get a Free Personalized Demo For Your Business (12-Field Validated Conversion Engine) */}
+        {/* 7. Technical Consultation & Scoping Request (Validated Conversion Engine) */}
         <PersonalizedDemoSection />
 
         {/* 8. Have a Project in Mind? (Final Project CTA) */}

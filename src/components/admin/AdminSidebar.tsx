@@ -557,19 +557,19 @@ export function AdminSidebar({
             <ExternalLink className="w-3 h-3" />
           </Link>
           <Link
-            href="/demos"
+            href="/design-studio"
             target="_blank"
             className="flex items-center gap-1.5 hover:text-[#00D9FF] transition-colors"
           >
-            <span>160+ Demos</span>
+            <span>Design Studio</span>
             <ExternalLink className="w-3 h-3" />
           </Link>
           <Link
-            href="/video-station"
+            href="/divisions"
             target="_blank"
             className="flex items-center gap-1.5 hover:text-[#00D9FF] transition-colors"
           >
-            <span>Videos</span>
+            <span>Divisions</span>
             <ExternalLink className="w-3 h-3" />
           </Link>
         </div>
