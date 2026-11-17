@@ -139,28 +139,42 @@ export class DirectStitchProvider {
           });
         };
 
-        const callTool = async (toolName: string, args: Record<string, any>) => {
-          const result = await sendJsonRpc("tools/call", {
-            name: toolName,
-            arguments: args,
-          });
+        const callTool = async (toolName: string, args: Record<string, any>, retryCount = 0): Promise<any> => {
+          try {
+            const result = await sendJsonRpc("tools/call", {
+              name: toolName,
+              arguments: args,
+            });
 
-          if (result?.isError) {
-            const errDetail = result.content?.map((c: any) => c.text).join(" ") || "Tool execution failed";
-            throw new Error(`Stitch MCP tool "${toolName}" failed: ${errDetail}`);
-          }
+            if (result?.isError) {
+              const errDetail = result.content?.map((c: any) => c.text).join(" ") || "Tool execution failed";
+              if ((errDetail.includes("502") || errDetail.includes("503") || errDetail.includes("temporary error")) && retryCount < 2) {
+                console.log(`[StitchDirectProvider] Upstream transient 502/503 for "${toolName}". Retrying in 3.5s (attempt ${retryCount + 1}/2)...`);
+                await new Promise((r) => setTimeout(r, 3500));
+                return callTool(toolName, args, retryCount + 1);
+              }
+              throw new Error(`Stitch MCP tool "${toolName}" failed: ${errDetail}`);
+            }
 
-          if (result?.content && Array.isArray(result.content)) {
-            const textContent = result.content.find((c: any) => c.type === "text");
-            if (textContent?.text) {
-              try {
-                return JSON.parse(textContent.text);
-              } catch {
-                return textContent.text;
+            if (result?.content && Array.isArray(result.content)) {
+              const textContent = result.content.find((c: any) => c.type === "text");
+              if (textContent?.text) {
+                try {
+                  return JSON.parse(textContent.text);
+                } catch {
+                  return textContent.text;
+                }
               }
             }
+            return result;
+          } catch (err: any) {
+            if ((err.message?.includes("502") || err.message?.includes("503") || err.message?.includes("temporary error")) && retryCount < 2) {
+              console.log(`[StitchDirectProvider] Upstream transient network error for "${toolName}". Retrying in 3.5s (attempt ${retryCount + 1}/2)...`);
+              await new Promise((r) => setTimeout(r, 3500));
+              return callTool(toolName, args, retryCount + 1);
+            }
+            throw err;
           }
-          return result;
         };
 
         // Initialize handshake
@@ -603,3 +617,7 @@ export class DirectStitchProvider {
 }
 
 export const directStitchProvider = new DirectStitchProvider();
+
+export function getDirectStitchProvider(): DirectStitchProvider {
+  return directStitchProvider;
+}

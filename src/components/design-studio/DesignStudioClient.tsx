@@ -8,6 +8,9 @@ import { Badge } from "@/components/ui/Badge";
 import { LinkButton } from "@/components/ui/LinkButton";
 import { DIVISIONS_DATA, getDivisionBySlug } from "@/data/divisions";
 import { INDUSTRIES_DATA, getIndustryBySlug } from "@/data/industries";
+import { CANONICAL_PLANS, GLOBAL_PLAN_ADDONS, getPlanById, getDefaultPlanForDivision } from "@/data/plans";
+import { calculateComplexityScore, recommendPlan, ComplexityFactors } from "@/lib/plans/recommendationEngine";
+import { buildStitchPromptBlueprint } from "@/lib/stitch/blueprints";
 import type {
   StitchDeviceType,
   StitchModelId,
@@ -58,9 +61,31 @@ import {
   SlidersHorizontal,
   ChevronRight,
   Plus,
+  Palette,
+  Terminal,
+  Activity,
+  DollarSign,
+  TrendingUp,
 } from "lucide-react";
 
 const GUEST_SESSION_STORAGE_KEY = "starx_design_studio_guest_session";
+const AUTOSAVE_STORAGE_KEY = "starx_design_studio_state_v2";
+
+export function formatINR(val: number): string {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(val);
+}
+
+export function formatUSD(val: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(val);
+}
 
 function getOrCreateGuestSessionId(): string {
   if (typeof window === "undefined") return "guest_sess_init";
@@ -82,237 +107,317 @@ export function DesignStudioClient() {
 
   const initialDivision = searchParams.get("division") || "starx-web";
   const initialIndustry = searchParams.get("industry") || "retail-commerce";
+  const initialPlan = searchParams.get("plan");
   const queryProjectId = searchParams.get("project");
   const querySessionId = searchParams.get("session");
 
-  // 4 Fluid Stages:
-  // 1: Describe Your Idea (Conversational Requirement Discovery)
-  // 2: AI Requirement Analysis & Brief Review
-  // 3: Live Stitch Telemetry Synthesis
-  // 4: Hero Personalized Demo Presentation Workspace
+  // --------------------------------------------------------------------------
+  // MASTER 8-STEP WORKFLOW STATE
+  // --------------------------------------------------------------------------
+  // 1: Solution Discovery
+  // 2: AI Requirement Discovery
+  // 3: Feature & Complexity Analysis
+  // 4: Plan Selection (Recommendation Engine)
+  // 5: Feature Configuration & Add-ons
+  // 6: Design Personalisation
+  // 7: AI Blueprint & Prompt Engine
+  // 8: Google Stitch Generation Engine & Hero Presentation Workspace
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [sessionId, setSessionId] = useState<string>("");
   const [isRestoringSession, setIsRestoringSession] = useState<boolean>(true);
+  const [restoredBannerOpen, setRestoredBannerOpen] = useState<boolean>(false);
 
-  // Stage 1 Inputs
-  const [selectedIndustry, setSelectedIndustry] = useState<string>(initialIndustry);
+  // STEP 1: SOLUTION DISCOVERY
   const [selectedDivision, setSelectedDivision] = useState<string>(initialDivision);
+  const [selectedIndustry, setSelectedIndustry] = useState<string>(initialIndustry);
+  const [productCategory, setProductCategory] = useState<string>("Bespoke Digital Headquarters");
+  const [platformTargets, setPlatformTargets] = useState<string[]>(["Web Desktop", "Mobile Responsive"]);
+
+  // STEP 2: AI REQUIREMENT DISCOVERY
   const [projectName, setProjectName] = useState<string>("");
-  const [productCategory, setProductCategory] = useState<string>("SaaS Web Application");
   const [rawDescription, setRawDescription] = useState<string>("");
-  const [intendedUsers, setIntendedUsers] = useState<string>(
-    "Customers, Account Managers, Support Staff"
-  );
-  const [platformTargets, setPlatformTargets] = useState<string[]>([
-    "Web Responsive (Desktop & Mobile)",
-  ]);
+  const [coreProblem, setCoreProblem] = useState<string>("");
+  const [intendedUsers, setIntendedUsers] = useState<string>("Consumers & Corporate Decision Makers");
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([
-    "Role-Based Access Control",
-    "Real-Time Data Dashboard",
-    "Customer Account Portal",
-    "Payment Gateway Integration",
+    "Sub-Second Dynamic Navigation",
+    "Real-Time Inquiry Capture",
+    "Verified Security Compliance",
+    "Responsive Multi-Resolution Layout",
   ]);
   const [customFeatureInput, setCustomFeatureInput] = useState<string>("");
-  const [themePreference, setThemePreference] = useState<
-    "cosmic-dark" | "executive-light" | "high-contrast-neon"
-  >("cosmic-dark");
+
+  // STEP 3: COMPLEXITY CALCULATION (Deterministic)
+  const complexityData = useMemo(() => {
+    return calculateComplexityScore({
+      divisionSlug: selectedDivision,
+      platforms: platformTargets,
+      selectedFeatures,
+      rawDescription: `${rawDescription} ${coreProblem}`,
+    });
+  }, [selectedDivision, platformTargets, selectedFeatures, rawDescription, coreProblem]);
+
+  // STEP 4: PLAN RECOMMENDATION
+  const recommendationData = useMemo(() => {
+    return recommendPlan({
+      divisionSlug: selectedDivision as any,
+      industrySlug: selectedIndustry,
+      platforms: platformTargets,
+      selectedFeatures,
+      complexityScore: complexityData.score,
+      complexityFactors: complexityData.factors,
+      rawDescription,
+    });
+  }, [selectedDivision, selectedIndustry, platformTargets, selectedFeatures, complexityData, rawDescription]);
+
+  const [selectedPlanId, setSelectedPlanId] = useState<string>(
+    initialPlan || recommendationData.recommendedPlan.id
+  );
+
+  // Sync selectedPlan when division changes if current selection is invalid
+  useEffect(() => {
+    const plan = getPlanById(selectedPlanId);
+    if (!plan || plan.divisionSlug !== selectedDivision) {
+      setSelectedPlanId(recommendationData.recommendedPlan.id);
+    }
+  }, [selectedDivision, recommendationData.recommendedPlan.id, selectedPlanId]);
+
+  // STEP 5: FEATURE CONFIGURATION & ADDONS
+  const [selectedAddonIds, setSelectedAddonIds] = useState<string[]>([
+    "addon-seo-mastery",
+  ]);
+  const [scopeNotes, setScopeNotes] = useState<string>("");
+
+  // Calculate dynamic authoritative pricing
+  const currentPlan = useMemo(() => {
+    return getPlanById(selectedPlanId) || recommendationData.recommendedPlan;
+  }, [selectedPlanId, recommendationData.recommendedPlan]);
+
+  const pricingTotals = useMemo(() => {
+    const baseINR = currentPlan.priceINR;
+    const baseUSD = currentPlan.priceUSD;
+    let addonsINR = 0;
+    let addonsUSD = 0;
+
+    selectedAddonIds.forEach((addonId) => {
+      const addon = GLOBAL_PLAN_ADDONS.find((a) => a.id === addonId);
+      if (addon) {
+        addonsINR += addon.priceINR;
+        addonsUSD += addon.priceUSD;
+      }
+    });
+
+    return {
+      baseINR,
+      baseUSD,
+      addonsINR,
+      addonsUSD,
+      totalINR: baseINR + addonsINR,
+      totalUSD: baseUSD + addonsUSD,
+    };
+  }, [currentPlan, selectedAddonIds]);
+
+  // STEP 6: DESIGN PERSONALISATION
+  const [brandName, setBrandName] = useState<string>("");
+  const [themePreference, setThemePreference] = useState<string>("cosmic-dark");
+  const [palettePrimary, setPalettePrimary] = useState<string>("#00D9FF");
+  const [paletteAccent, setPaletteAccent] = useState<string>("#087BFF");
+  const [paletteBg, setPaletteBg] = useState<string>("#030B24");
   const [deviceTarget, setDeviceTarget] = useState<StitchDeviceType>("DESKTOP");
-  const [modelPreference, setModelPreference] =
-    useState<StitchModelId>("GEMINI_3_8_FLASH");
-  const [specialInstructions, setSpecialInstructions] = useState<string>("");
+  const [modelPreference, setModelPreference] = useState<StitchModelId>("GEMINI_3_8_FLASH");
 
-  // Stage 2 Synthesized Brief Review
-  const [editableBriefNotes, setEditableBriefNotes] = useState<string>("");
-  const [isEditingBrief, setIsEditingBrief] = useState<boolean>(false);
+  // STEP 7: AI BLUEPRINT
+  const promptBlueprint = useMemo(() => {
+    return buildStitchPromptBlueprint({
+      projectName: brandName || projectName || "StarX Project",
+      divisionSlug: selectedDivision,
+      industrySlug: selectedIndustry,
+      category: productCategory,
+      deviceType: deviceTarget,
+      brandPalette: {
+        primary: palettePrimary,
+        accent: paletteAccent,
+        background: paletteBg,
+      },
+      features: selectedFeatures,
+      userRequirements: `${rawDescription}. Problem Solved: ${coreProblem}. Target Users: ${intendedUsers}.`,
+      stylePreset: themePreference,
+    });
+  }, [
+    brandName,
+    projectName,
+    selectedDivision,
+    selectedIndustry,
+    productCategory,
+    deviceTarget,
+    palettePrimary,
+    paletteAccent,
+    paletteBg,
+    selectedFeatures,
+    rawDescription,
+    coreProblem,
+    intendedUsers,
+    themePreference,
+  ]);
 
-  // Backend Entities
+  // STEP 8: STITCH GENERATION & PRESENTATION WORKSPACE
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [generationProgress, setGenerationProgress] = useState<number>(0);
+  const [generationStageText, setGenerationStageText] = useState<string>("");
   const [activeProject, setActiveProject] = useState<DesignStudioProject | null>(null);
   const [activeJob, setActiveJob] = useState<DesignGenerationJob | null>(null);
   const [activeArtifact, setActiveArtifact] = useState<DesignArtifact | null>(null);
   const [allArtifacts, setAllArtifacts] = useState<DesignArtifact[]>([]);
   const [revisionsList, setRevisionsList] = useState<DesignRevision[]>([]);
-
-  // Generation Telemetry (Stage 3)
-  const [generationProgress, setGenerationProgress] = useState<number>(15);
-  const [generationStageText, setGenerationStageText] = useState<string>(
-    "Compiling Structured Architecture Ontology..."
-  );
-
-  // Stage 4 Workspace State
   const [activeViewport, setActiveViewport] = useState<StitchDeviceType>("DESKTOP");
-  const [previewMode, setPreviewMode] = useState<"render" | "sandbox">("render");
+  const [previewMode, setPreviewMode] = useState<"sandbox" | "visual">("sandbox");
+  const [zoomLevel, setZoomLevel] = useState<number>(100);
   const [lightboxOpen, setLightboxOpen] = useState<boolean>(false);
-  const [lightboxZoom, setLightboxZoom] = useState<number>(1);
   const [briefDrawerOpen, setBriefDrawerOpen] = useState<boolean>(false);
-  const [activeVersionDropdown, setActiveVersionDropdown] = useState<boolean>(false);
-  const [shareToast, setShareToast] = useState<string | null>(null);
-
-  // Refinement Bar (In-Canvas NL Editing)
+  const [quoteModalOpen, setQuoteModalOpen] = useState<boolean>(false);
   const [refinementPrompt, setRefinementPrompt] = useState<string>("");
   const [isRefining, setIsRefining] = useState<boolean>(false);
   const [refinementToast, setRefinementToast] = useState<string | null>(null);
+  const [shareToast, setShareToast] = useState<string | null>(null);
+  const [activeVersionDropdown, setActiveVersionDropdown] = useState<boolean>(false);
 
-  // Conversion / Build With StarX Modal
-  const [quoteModalOpen, setQuoteModalOpen] = useState<boolean>(false);
+  // Client Quote Form State
   const [clientName, setClientName] = useState<string>("");
   const [clientEmail, setClientEmail] = useState<string>("");
   const [clientPhone, setClientPhone] = useState<string>("");
   const [clientCompany, setClientCompany] = useState<string>("");
-  const [clientTimeline, setClientTimeline] = useState<string>("3–5 Weeks");
-  const [clientBudget, setClientBudget] = useState<string>("₹75,000 - ₹2,50,000");
   const [clientNotes, setClientNotes] = useState<string>("");
   const [isSubmittingQuote, setIsSubmittingQuote] = useState<boolean>(false);
-  const [quoteSuccessId, setQuoteSuccessId] = useState<string | null>(null);
+  const [quoteSubmittedCode, setQuoteSubmittedCode] = useState<string | null>(null);
 
-  // Derived Objects
-  const currentIndustryObj = useMemo(() => {
-    return getIndustryBySlug(selectedIndustry) || INDUSTRIES_DATA[0];
-  }, [selectedIndustry]);
-
+  // Current entity lookups
   const currentDivisionObj = useMemo(() => {
     return getDivisionBySlug(selectedDivision) || DIVISIONS_DATA[0];
   }, [selectedDivision]);
 
-  const parsedDesignMd = useMemo(() => {
-    return parseStitchDesignMd(activeArtifact?.designMd);
-  }, [activeArtifact?.designMd]);
+  const currentIndustryObj = useMemo(() => {
+    return getIndustryBySlug(selectedIndustry) || INDUSTRIES_DATA[0];
+  }, [selectedIndustry]);
 
-  const stitchCssVars = useMemo(() => {
-    return getStitchCssVariables(activeArtifact?.designTheme);
-  }, [activeArtifact?.designTheme]);
-
-  // Session Initialization & Restoration
+  // --------------------------------------------------------------------------
+  // INITIALIZATION & SESSION RESTORATION
+  // --------------------------------------------------------------------------
   useEffect(() => {
     const sess = querySessionId || getOrCreateGuestSessionId();
     setSessionId(sess);
 
-    const restoreSession = async () => {
-      try {
-        let endpoint = "";
-        if (queryProjectId) {
-          endpoint = `/api/design-studio/projects?id=${encodeURIComponent(queryProjectId)}`;
-        } else if (sess) {
-          endpoint = `/api/design-studio/projects?sessionId=${encodeURIComponent(sess)}`;
+    // Try restoring state from localStorage
+    try {
+      const saved = localStorage.getItem(AUTOSAVE_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.projectName) setProjectName(parsed.projectName);
+        if (parsed.rawDescription) setRawDescription(parsed.rawDescription);
+        if (parsed.selectedDivision) setSelectedDivision(parsed.selectedDivision);
+        if (parsed.selectedIndustry) setSelectedIndustry(parsed.selectedIndustry);
+        if (parsed.selectedPlanId) setSelectedPlanId(parsed.selectedPlanId);
+        if (parsed.selectedAddonIds) setSelectedAddonIds(parsed.selectedAddonIds);
+        if (parsed.brandName) setBrandName(parsed.brandName);
+        if (parsed.activeArtifact) {
+          setActiveArtifact(parsed.activeArtifact);
+          if (parsed.allArtifacts) setAllArtifacts(parsed.allArtifacts);
+          if (parsed.activeProject) setActiveProject(parsed.activeProject);
+          if (parsed.currentStep) setCurrentStep(parsed.currentStep);
+          setRestoredBannerOpen(true);
         }
-
-        if (endpoint) {
-          const res = await fetch(endpoint);
-          if (res.ok) {
-            const data = await res.json();
-            if (data.ok && data.project) {
-              setActiveProject(data.project);
-              if (data.activeArtifact) {
-                setActiveArtifact(data.activeArtifact);
-                setActiveViewport(data.activeArtifact.deviceType || "DESKTOP");
-                if (data.activeArtifact.htmlCode) {
-                  setPreviewMode("render");
-                }
-              }
-              if (Array.isArray(data.artifacts) && data.artifacts.length > 0) {
-                setAllArtifacts(data.artifacts);
-              } else if (data.activeArtifact) {
-                setAllArtifacts([data.activeArtifact]);
-              }
-              if (Array.isArray(data.revisions)) {
-                setRevisionsList(data.revisions);
-              }
-
-              // If artifact is ready, jump to hero demo workspace
-              if (data.activeArtifact) {
-                setCurrentStep(4);
-              }
-            }
-          }
-        }
-      } catch (err) {
-        console.warn("[DesignStudio] Session restoration skipped:", err);
-      } finally {
-        setIsRestoringSession(false);
       }
-    };
+    } catch (e) {
+      console.warn("[DesignStudio] Failed to parse local state", e);
+    } finally {
+      setIsRestoringSession(false);
+    }
+  }, [querySessionId]);
 
-    restoreSession();
-  }, [queryProjectId, querySessionId]);
-
-  // Sync URL query when active project changes
+  // Auto-save state to localStorage
   useEffect(() => {
-    if (typeof window !== "undefined" && activeProject?.id && sessionId) {
-      const url = new URL(window.location.href);
-      url.searchParams.set("session", sessionId);
-      url.searchParams.set("project", activeProject.id);
-      window.history.replaceState({}, "", url.toString());
-    }
-  }, [activeProject?.id, sessionId]);
+    if (isRestoringSession || typeof window === "undefined") return;
+    try {
+      const stateToSave = {
+        currentStep,
+        selectedDivision,
+        selectedIndustry,
+        productCategory,
+        platformTargets,
+        projectName,
+        rawDescription,
+        coreProblem,
+        intendedUsers,
+        selectedFeatures,
+        selectedPlanId,
+        selectedAddonIds,
+        brandName,
+        themePreference,
+        palettePrimary,
+        paletteAccent,
+        paletteBg,
+        deviceTarget,
+        activeProject,
+        activeArtifact,
+        allArtifacts,
+        updatedAt: Date.now(),
+      };
+      localStorage.setItem(AUTOSAVE_STORAGE_KEY, JSON.stringify(stateToSave));
+    } catch {}
+  }, [
+    currentStep,
+    selectedDivision,
+    selectedIndustry,
+    productCategory,
+    platformTargets,
+    projectName,
+    rawDescription,
+    coreProblem,
+    intendedUsers,
+    selectedFeatures,
+    selectedPlanId,
+    selectedAddonIds,
+    brandName,
+    themePreference,
+    palettePrimary,
+    paletteAccent,
+    paletteBg,
+    deviceTarget,
+    activeProject,
+    activeArtifact,
+    allArtifacts,
+    isRestoringSession,
+  ]);
 
-  // Feature Toggle Helpers
-  const toggleFeature = (feat: string) => {
-    setSelectedFeatures((prev) =>
-      prev.includes(feat) ? prev.filter((f) => f !== feat) : [...prev, feat]
-    );
-  };
-
-  const handleAddCustomFeature = () => {
-    const trimmed = customFeatureInput.trim();
-    if (trimmed && !selectedFeatures.includes(trimmed)) {
-      setSelectedFeatures((prev) => [...prev, trimmed]);
-      setCustomFeatureInput("");
-    }
-  };
-
-  const togglePlatform = (plat: string) => {
-    setPlatformTargets((prev) =>
-      prev.includes(plat) ? prev.filter((p) => p !== plat) : [...prev, plat]
-    );
-  };
-
-  // Stage 1 -> 2: Synthesize AI Design Brief
-  const handleProceedToBrief = () => {
-    const finalTitle =
-      projectName.trim() ||
-      `${currentIndustryObj.name} ${productCategory.replace("Web Application", "").trim()} Platform`;
-    setProjectName(finalTitle);
-
-    const generatedBriefPrompt = [
-      `TARGET ARCHITECTURE: ${finalTitle} (${productCategory})`,
-      `INDUSTRY DOMAIN: ${currentIndustryObj.name} | DIVISION: ${currentDivisionObj.name}`,
-      `INTENDED USER PERSONAS: ${intendedUsers || "General Users, System Administrators"}`,
-      `CORE PURPOSE: ${rawDescription.trim() || `Modern digital system for ${currentIndustryObj.name} with real-time operations, transparent workflows, and optimized client journeys.`}`,
-      `KEY FUNCTIONAL MODULES: ${selectedFeatures.join(", ")}`,
-      `PLATFORMS & VIEWPORTS: ${platformTargets.join(", ")} (Primary Target: ${deviceTarget})`,
-      `AESTHETIC THEME: ${themePreference === "cosmic-dark" ? "Cosmic Liquid Glass (Deep Navy & Neon Accents)" : themePreference === "executive-light" ? "Executive Modern (Clean Slate Monochrome)" : "Cyber Brutalist (Laser Cyan & High Contrast)"}`,
-    ].join("\n\n");
-
-    setEditableBriefNotes(generatedBriefPrompt);
-    setCurrentStep(2);
-  };
-
-  // Stage 2 -> 3: Create Project & Trigger Real Stitch Generation
-  const handleTriggerStitchGeneration = async () => {
-    setCurrentStep(3);
-    setGenerationProgress(20);
-    setGenerationStageText("Compiling Structured Architecture Ontology...");
+  // --------------------------------------------------------------------------
+  // STITCH GENERATION DISPATCHER
+  // --------------------------------------------------------------------------
+  const handleLaunchStitchGeneration = async () => {
+    setIsGenerating(true);
+    setCurrentStep(8);
+    setGenerationProgress(15);
+    setGenerationStageText("Initializing Google Stitch MCP session & secure project envelope...");
 
     try {
-      // 1. Create Project in Backend with Session ID
+      // 1. Initialize or update Design Studio Project
       const projRes = await fetch("/api/design-studio/projects", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-session-id": sessionId,
+        },
         body: JSON.stringify({
           brief: {
             industrySlug: selectedIndustry,
             industryName: currentIndustryObj.name,
             divisionSlug: selectedDivision,
             divisionName: currentDivisionObj.name,
-            projectName: projectName.trim(),
-            description:
-              rawDescription.trim() ||
-              `Personalized demo platform for ${currentIndustryObj.name} designed with Google Stitch.`,
+            projectName: brandName.trim() || projectName.trim() || "StarX Personalized Demo",
+            description: rawDescription.trim() || `Bespoke solution for ${currentIndustryObj.name}.`,
             platformTargets,
             selectedFeatures,
             themePreference,
             deviceTarget,
             modelPreference,
-            specialInstructions: editableBriefNotes || specialInstructions.trim() || undefined,
+            specialInstructions: promptBlueprint.prompt,
           },
           contact: {
             sessionId: sessionId || undefined,
@@ -333,9 +438,9 @@ export function DesignStudioClient() {
       setActiveProject(createdProject);
 
       setGenerationProgress(45);
-      setGenerationStageText("Invoking Google Stitch MCP Protocol & Gemini 3.8 Flash...");
+      setGenerationStageText("Invoking Google Stitch MCP generate_screen_from_text tool with Gemini 3.8 Flash...");
 
-      // 2. Submit Real Generation Job
+      // 2. Dispatch Generation Job with compiled Blueprint Prompt
       const jobRes = await fetch("/api/design-studio/jobs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -343,12 +448,12 @@ export function DesignStudioClient() {
           projectId: createdProject.id,
           modelId: modelPreference,
           deviceType: deviceTarget,
-          customPrompt: `Create an authentic, high-impact ${deviceTarget.toLowerCase()} design for ${createdProject.title}. Requirements: ${editableBriefNotes}`,
+          customPrompt: promptBlueprint.prompt,
         }),
       });
 
-      setGenerationProgress(75);
-      setGenerationStageText("Synthesizing Material You tokens & high-resolution responsive canvas...");
+      setGenerationProgress(80);
+      setGenerationStageText("Synthesizing responsive HTML layout, Material You tokens & component chassis...");
 
       const jobData = await jobRes.json();
       if (jobData.ok && jobData.artifact) {
@@ -358,60 +463,29 @@ export function DesignStudioClient() {
         setActiveViewport(jobData.artifact.deviceType || deviceTarget);
 
         setGenerationProgress(100);
-        setGenerationStageText("Personalized Demo Ready! Entering Presentation Workspace...");
-        setTimeout(() => setCurrentStep(4), 700);
+        setGenerationStageText("Personalized Demo Generation Complete! Entering Interactive Workspace...");
       } else if (jobData.job?.status === "queued") {
         setActiveJob(jobData.job);
         setGenerationProgress(100);
         setGenerationStageText("Project queued in PostgreSQL for persistent processing.");
-        setTimeout(() => setCurrentStep(4), 700);
       } else {
         throw new Error(jobData.error || "Generation job failed to produce artifact");
       }
     } catch (err: any) {
       console.error("[DesignStudio] Generation error:", err);
-      setCurrentStep(4);
+      setGenerationStageText(`Error: ${err.message || "Failed to generate design."}`);
+    } finally {
+      setIsGenerating(false);
     }
   };
 
-  // Instant Architecture Preview (Fallback when queued)
-  const handleGeneratePreview = async () => {
-    if (!activeProject) return;
-    setCurrentStep(3);
-    setGenerationProgress(50);
-    setGenerationStageText("Synthesizing responsive architectural wireframe...");
-    try {
-      const res = await fetch("/api/design-studio/jobs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          projectId: activeProject.id,
-          modelId: modelPreference,
-          deviceType: deviceTarget,
-          previewOnly: true,
-        }),
-      });
-      const data = await res.json();
-      if (data.ok && data.artifact) {
-        setActiveArtifact(data.artifact);
-        setActiveJob(data.job);
-        setAllArtifacts([data.artifact]);
-        setGenerationProgress(100);
-        setGenerationStageText("Architectural preview ready!");
-        setTimeout(() => setCurrentStep(4), 500);
-      }
-    } catch {
-      setCurrentStep(4);
-    }
-  };
-
-  // Stage 4: In-Canvas Natural Language Refinement with Stitch AI
+  // Natural Language Refinement with Stitch edit_screens
   const handleRefineDesign = async (customText?: string) => {
     const textToSubmit = (customText || refinementPrompt).trim();
     if (!textToSubmit || !activeProject || !activeArtifact) return;
 
     setIsRefining(true);
-    setRefinementToast("Stitch AI is synthesizing your requested revisions...");
+    setRefinementToast("Google Stitch is synthesizing your requested revisions...");
 
     try {
       const res = await fetch("/api/design-studio/revisions", {
@@ -460,23 +534,6 @@ export function DesignStudioClient() {
     }
   };
 
-  // Version Switcher
-  const handleSwitchVersion = (versionArt: DesignArtifact) => {
-    setActiveArtifact(versionArt);
-    setActiveViewport(versionArt.deviceType || "DESKTOP");
-    setActiveVersionDropdown(false);
-  };
-
-  // Share Demo Link
-  const handleShareDemo = () => {
-    if (typeof window === "undefined") return;
-    const url = window.location.href;
-    navigator.clipboard.writeText(url).then(() => {
-      setShareToast("Personalized Demo Link Copied to Clipboard!");
-      setTimeout(() => setShareToast(null), 3000);
-    });
-  };
-
   // Submit Quotation & Engineering Handoff
   const handleSubmitQuotation = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -485,23 +542,21 @@ export function DesignStudioClient() {
     setIsSubmittingQuote(true);
     try {
       const handoffDetails = [
-        `STARX DESIGN STUDIO — PERSONALIZED DEMO QUOTATION HANDOFF`,
+        `STARX DESIGN STUDIO — COMPLETE QUOTATION HANDOFF`,
         `Project ID: ${activeProject.projectCode} (${activeProject.id})`,
         `Title: ${activeProject.title}`,
-        `Stitch Provider Project: ${activeArtifact?.providerProjectId || "Google Stitch MCP"}`,
-        `Approved Version: v${activeArtifact?.versionNumber || 1} (${activeArtifact?.title || "Primary Screen"})`,
-        `Industry: ${currentIndustryObj.name} (${selectedIndustry})`,
+        `Stitch Screen ID: ${activeArtifact?.providerScreenId || "Google Stitch MCP Generated"}`,
+        `Approved Version: v${activeArtifact?.versionNumber || 1}`,
         `Division: ${currentDivisionObj.name} (${selectedDivision})`,
-        `Product Category: ${productCategory}`,
+        `Industry: ${currentIndustryObj.name} (${selectedIndustry})`,
+        `Selected Plan: ${currentPlan.name} (${currentPlan.code}) — ${formatINR(currentPlan.priceINR)} / ${formatUSD(currentPlan.priceUSD)}`,
+        `Selected Add-ons: ${selectedAddonIds.join(", ") || "None"} (Total Addons: ${formatINR(pricingTotals.addonsINR)})`,
+        `Estimated Total Investment: ${formatINR(pricingTotals.totalINR)} / ${formatUSD(pricingTotals.totalUSD)}`,
         `Target Platforms: ${platformTargets.join(", ")}`,
         `Primary Viewport: ${activeViewport}`,
-        `Theme Aesthetic: ${themePreference}`,
-        `Intended Users: ${intendedUsers}`,
-        `Core Features: ${selectedFeatures.join(", ")}`,
+        `Brand Palette: Primary ${palettePrimary}, Accent ${paletteAccent}`,
         `Customer Notes: ${clientNotes || "None"}`,
-        `Revisions Logged: ${revisionsList.map((r) => r.notes).join("; ") || "None"}`,
-        `Stitch Design Artifact URL: ${activeArtifact?.thumbnailUrl || "Available in PostgreSQL"}`,
-        `Client Vision: ${rawDescription || "Enterprise system implementation."}`,
+        `Scope Special Instructions: ${scopeNotes || "None"}`,
       ].join("\n\n");
 
       const res = await fetch("/api/quote", {
@@ -513,1477 +568,1441 @@ export function DesignStudioClient() {
           phone: clientPhone || "+91 99999 99999",
           company: clientCompany || `${projectName} (${currentIndustryObj.name})`,
           serviceSlug: selectedDivision,
-          budgetRange: clientBudget,
-          timeline: clientTimeline,
+          budgetRange: `${formatINR(pricingTotals.totalINR)} (${currentPlan.name})`,
+          timeline: currentPlan.timelineWeeks,
           projectDetails: handoffDetails,
           sourcePage: "/design-studio",
         }),
       });
 
-      const quoteData = await res.json();
-      const quoteId =
-        quoteData?.quoteId || `STX-QUO-${Date.now().toString().slice(-6)}`;
-      setQuoteSuccessId(quoteId);
+      const data = await res.json();
+      if (data.ok) {
+        setQuoteSubmittedCode(data.quoteId || activeProject.projectCode);
+        setQuoteModalOpen(false);
+      } else {
+        alert(data.error || "Failed to submit quotation.");
+      }
     } catch {
-      setQuoteSuccessId(`STX-QUO-${Date.now().toString().slice(-6)}`);
+      alert("Submission error. Please verify network connectivity.");
     } finally {
       setIsSubmittingQuote(false);
     }
   };
 
-  // Viewport Sizing Map for Chassis
-  const viewportStyles = useMemo(() => {
-    switch (activeViewport) {
-      case "MOBILE":
-        return {
-          wrapper: "max-w-[400px] w-full",
-          aspect: "min-h-[720px]",
-          label: "Mobile (390px)",
-          icon: Smartphone,
-        };
-      case "TABLET":
-        return {
-          wrapper: "max-w-[768px] w-full",
-          aspect: "min-h-[580px]",
-          label: "Tablet (768px)",
-          icon: Tablet,
-        };
-      case "DESKTOP":
-      default:
-        return {
-          wrapper: "max-w-6xl w-full",
-          aspect: "min-h-[560px]",
-          label: "Desktop (1440px)",
-          icon: Laptop,
-        };
-    }
-  }, [activeViewport]);
+  const stepTitles = [
+    { num: 1, label: "Discovery", sub: "Division & Industry" },
+    { num: 2, label: "Requirements", sub: "Idea & Workflows" },
+    { num: 3, label: "Complexity", sub: "Technical Audit" },
+    { num: 4, label: "Plan Match", sub: "AI Recommendation" },
+    { num: 5, label: "Configuration", sub: "Scope & Add-ons" },
+    { num: 6, label: "Brand Styling", sub: "Palette & Themes" },
+    { num: 7, label: "AI Blueprint", sub: "Stitch Prompt" },
+    { num: 8, label: "Live Demo", sub: "Workspace & Handoff" },
+  ];
 
   return (
-    <div
-      className="min-h-screen bg-[#030B24] text-white selection:bg-[#00D9FF] selection:text-[#030B24] py-8 sm:py-12"
-      style={stitchCssVars as React.CSSProperties}
-    >
-      <Container className="space-y-8">
-        {/* Top Studio Brand Header */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-6 border-b border-[#0A1940]">
-          <div className="space-y-1.5">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="px-3 py-1 text-xs font-mono font-bold rounded-full bg-[#E52BFF]/15 text-[#E52BFF] border border-[#E52BFF]/30 flex items-center gap-1.5 shadow-[0_0_12px_rgba(229,43,255,0.2)]">
+    <div className="min-h-screen bg-[#030B24] text-white selection:bg-[#087BFF] selection:text-white">
+      {/* Toast Notifications */}
+      {refinementToast && (
+        <div className="fixed bottom-6 right-6 z-50 p-4 rounded-xl bg-[#071638] border border-[#00D9FF] text-white text-xs font-mono shadow-2xl flex items-center gap-3">
+          <Sparkles className="w-4 h-4 text-[#00D9FF] animate-spin" />
+          <span>{refinementToast}</span>
+        </div>
+      )}
+
+      {shareToast && (
+        <div className="fixed bottom-6 right-6 z-50 p-4 rounded-xl bg-[#00C98B] text-black text-xs font-bold shadow-2xl flex items-center gap-2">
+          <Check className="w-4 h-4" />
+          <span>{shareToast}</span>
+        </div>
+      )}
+
+      {/* Session Restored Recovery Banner */}
+      {restoredBannerOpen && (
+        <div className="bg-[#071638] border-b border-[#00D9FF]/30 py-2.5 px-4 text-xs font-mono text-center flex items-center justify-center gap-4">
+          <span className="text-[#00D9FF] flex items-center gap-1.5">
+            <History className="w-3.5 h-3.5" />
+            Previous Design Studio session restored automatically.
+          </span>
+          <button
+            type="button"
+            onClick={() => setRestoredBannerOpen(false)}
+            className="text-slate-400 hover:text-white underline cursor-pointer"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* Sticky 8-Step Header Stepper */}
+      <div className="sticky top-16 sm:top-20 z-40 bg-[#030B24]/90 backdrop-blur-xl border-b border-white/10 py-3">
+        <Container>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 shrink-0">
+              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#00D9FF] flex items-center gap-1">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>StarX Design Studio • Personalized AI Demo Generator</span>
+                <span>StarX Studio</span>
               </span>
-              <span className="px-2.5 py-1 text-xs font-mono rounded-full bg-[#00D9FF]/10 text-[#00D9FF] border border-[#00D9FF]/20 flex items-center gap-1.5">
-                <Cpu className="w-3.5 h-3.5" />
-                <span>Google Stitch MCP Connected</span>
+              <span className="text-slate-600 hidden sm:inline">•</span>
+              <span className="text-xs text-slate-300 hidden sm:inline font-mono">
+                Step {currentStep} of 8: {stepTitles[currentStep - 1]?.label}
               </span>
-              {activeProject && (
-                <span className="px-2.5 py-1 text-[11px] font-mono rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
-                  <CheckCircle className="w-3 h-3" />
-                  <span>Session Active: {activeProject.projectCode}</span>
-                </span>
-              )}
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
-              Describe Your Idea. See It Designed in Seconds.
-            </h1>
-            <p className="text-xs sm:text-sm text-[#C8D5EF] max-w-2xl leading-relaxed">
-              Tell our AI what you want to build. Google Stitch synthesizes authentic
-              architecture, responsive layouts, and interactive design prototypes tailored
-              specifically to your individual requirements.
-            </p>
+
+            {/* Stepper Navigation Pills */}
+            <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar py-1">
+              {stepTitles.map((s) => {
+                const isCurrent = s.num === currentStep;
+                const isPassed = s.num < currentStep;
+                return (
+                  <button
+                    key={s.num}
+                    type="button"
+                    onClick={() => {
+                      if (isPassed || (s.num === 8 && activeArtifact)) {
+                        setCurrentStep(s.num);
+                      }
+                    }}
+                    disabled={!isPassed && s.num > currentStep && !(s.num === 8 && activeArtifact)}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold transition-all flex items-center gap-1.5 shrink-0 ${
+                      isCurrent
+                        ? "bg-[#00D9FF] text-black shadow-[0_0_15px_rgba(0,217,255,0.4)]"
+                        : isPassed
+                        ? "bg-[#071638] text-white border border-white/20 hover:border-[#00D9FF] cursor-pointer"
+                        : "bg-white/5 text-slate-500 border border-transparent cursor-not-allowed"
+                    }`}
+                  >
+                    <span>{s.num}.</span>
+                    <span className="hidden md:inline">{s.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Live Pricing Peek */}
+            <div className="hidden lg:flex items-center gap-2 text-xs font-mono bg-[#071638] px-3 py-1 rounded-xl border border-white/10">
+              <span className="text-slate-400">Scope:</span>
+              <span className="text-white font-bold">{formatINR(pricingTotals.totalINR)}</span>
+            </div>
           </div>
+        </Container>
+      </div>
 
-          <div className="shrink-0 flex flex-wrap items-center gap-2.5">
-            {activeArtifact && currentStep === 4 && (
-              <button
-                type="button"
-                onClick={handleShareDemo}
-                className="px-3.5 py-2 text-xs font-bold text-slate-300 hover:text-white bg-[#071638] border border-white/10 rounded-xl hover:border-[#00D9FF]/40 transition-all flex items-center gap-1.5 cursor-pointer"
-              >
-                <Share2 className="w-3.5 h-3.5 text-[#00D9FF]" />
-                <span>Share Demo</span>
-              </button>
-            )}
-            <Link
-              href="/get-quote"
-              className="px-3.5 py-2 text-xs font-bold text-slate-300 hover:text-white bg-[#071638] border border-white/10 rounded-xl hover:border-white/20 transition-all"
-            >
-              Custom RFQ &rarr;
-            </Link>
-            <Link
-              href="/project-calculator"
-              className="px-3.5 py-2 text-xs font-bold text-[#00D9FF] bg-[#00D9FF]/10 border border-[#00D9FF]/30 rounded-xl hover:bg-[#00D9FF]/20 transition-all"
-            >
-              Budget Calculator &rarr;
-            </Link>
-          </div>
-        </div>
-
-        {/* Share Link Toast */}
-        {shareToast && (
-          <div className="fixed top-6 right-6 z-50 bg-[#071638] text-[#00D9FF] border border-[#00D9FF]/40 px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 text-xs font-mono font-bold animate-in fade-in slide-in-from-top-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            <span>{shareToast}</span>
-          </div>
-        )}
-
-        {/* 4-Step Visual Progress Stepper */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          {[
-            { num: 1, label: "01. Describe Your Idea" },
-            { num: 2, label: "02. AI Architecture Brief" },
-            { num: 3, label: "03. Stitch Synthesis" },
-            { num: 4, label: "04. Hero Demo Workspace" },
-          ].map((step) => {
-            const isPassed = currentStep > step.num;
-            const isCurrent = currentStep === step.num;
-            return (
-              <div
-                key={step.num}
-                onClick={() => {
-                  if (step.num < currentStep || (step.num === 4 && activeArtifact)) {
-                    setCurrentStep(step.num);
-                  }
-                }}
-                className={`p-3 rounded-2xl border transition-all flex items-center gap-2.5 ${
-                  isCurrent
-                    ? "bg-[#071638] border-[#00D9FF] text-white shadow-[0_0_15px_rgba(0,217,255,0.2)]"
-                    : isPassed
-                    ? "bg-[#030B24] border-emerald-500/40 text-emerald-400 cursor-pointer hover:border-emerald-500"
-                    : "bg-[#030B24] border-[#0A1940] text-slate-500"
-                }`}
-              >
-                <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-mono font-bold shrink-0 ${
-                    isCurrent
-                      ? "bg-[#00D9FF] text-[#030B24]"
-                      : isPassed
-                      ? "bg-emerald-500 text-white"
-                      : "bg-[#071638] text-slate-400"
-                  }`}
-                >
-                  {isPassed ? <Check className="w-3.5 h-3.5" /> : step.num}
-                </div>
-                <span className="text-xs font-bold tracking-tight truncate">{step.label}</span>
+      <main className="py-10">
+        <Container>
+          {/* ================================================================ */}
+          {/* STEP 1: SOLUTION DISCOVERY */}
+          {/* ================================================================ */}
+          {currentStep === 1 && (
+            <div className="max-w-5xl mx-auto space-y-10">
+              <div className="text-center space-y-3">
+                <Badge variant="electric" dot>Step 1 of 8 • Solution Discovery</Badge>
+                <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+                  Discover Your Technology Solution.
+                </h1>
+                <p className="text-sm sm:text-base text-[#C8D5EF] max-w-2xl mx-auto">
+                  Select your core practice division, industry domain, and target platforms to anchor your architecture.
+                </p>
               </div>
-            );
-          })}
-        </div>
 
-        {/* ========================================================================= */}
-        {/* STAGE 1: DESCRIBE YOUR IDEA (Conversational Discovery)                    */}
-        {/* ========================================================================= */}
-        {currentStep === 1 && (
-          <div className="p-6 sm:p-10 rounded-3xl bg-[#071638]/90 border border-[#0A1940] space-y-8 shadow-2xl backdrop-blur-xl">
-            <div className="space-y-1">
-              <span className="text-xs font-mono uppercase tracking-widest text-[#00D9FF]">
-                Stage 01 • Describe Your Vision
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-white">
-                What software do you want to build?
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-300">
-                Provide your requirements below. Our AI converts your input into a formal
-                system architecture, and Google Stitch generates an authentic, personalized
-                design.
-              </p>
-            </div>
-
-            {/* Product Category Selector */}
-            <div className="space-y-2.5">
-              <label className="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider">
-                Product Category
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
-                {[
-                  "SaaS Web Application",
-                  "Customer Portal",
-                  "Business ERP / POS",
-                  "Branded Mobile App",
-                  "E-Commerce Storefront",
-                  "Analytics Dashboard",
-                  "Custom AI System",
-                ].map((cat) => {
-                  const selected = productCategory === cat;
-                  return (
-                    <button
-                      type="button"
-                      key={cat}
-                      onClick={() => setProductCategory(cat)}
-                      className={`p-2.5 rounded-xl border text-xs font-bold text-center transition-all cursor-pointer ${
-                        selected
-                          ? "bg-[#00D9FF]/20 border-[#00D9FF] text-white shadow-[0_0_10px_rgba(0,217,255,0.25)]"
-                          : "bg-[#030B24] border-[#0A1940] text-slate-400 hover:text-white hover:border-white/20"
-                      }`}
-                    >
-                      {cat}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Industry & Division Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider">
-                  Target Industry Domain
+              {/* Division Selector */}
+              <div className="space-y-4">
+                <label className="text-xs font-mono font-bold uppercase tracking-wider text-white block">
+                  Select Practice Division (6 Canonical Domains)
                 </label>
-                <select
-                  value={selectedIndustry}
-                  onChange={(e) => setSelectedIndustry(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-[#030B24] border border-[#0A1940] text-sm text-white focus:outline-none focus:border-[#00D9FF] transition-all"
-                >
-                  {INDUSTRIES_DATA.map((ind) => (
-                    <option key={ind.slug} value={ind.slug}>
-                      {ind.emoji} {ind.name}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-[11px] text-slate-400">{currentIndustryObj.tagline}</p>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider">
-                  Primary StarX Division
-                </label>
-                <select
-                  value={selectedDivision}
-                  onChange={(e) => setSelectedDivision(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-[#030B24] border border-[#0A1940] text-sm text-white focus:outline-none focus:border-[#00D9FF] transition-all"
-                >
-                  {DIVISIONS_DATA.map((div) => (
-                    <option key={div.slug} value={div.slug}>
-                      {div.name} ({div.badge})
-                    </option>
-                  ))}
-                </select>
-                <p className="text-[11px] text-slate-400">{currentDivisionObj.tagline}</p>
-              </div>
-            </div>
-
-            {/* Project Working Title & Purpose Textarea */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider">
-                  Project Title or Brand Name
-                </label>
-                <input
-                  type="text"
-                  placeholder={`e.g. Apex ${currentIndustryObj.name} Platform`}
-                  value={projectName}
-                  onChange={(e) => setProjectName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-[#030B24] border border-[#0A1940] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#00D9FF] transition-all"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider">
-                  Describe Your Software Concept &amp; Core Workflow
-                </label>
-                <textarea
-                  rows={3}
-                  placeholder="What does your software need to accomplish? Who will use it? What manual process or friction does it eliminate?"
-                  value={rawDescription}
-                  onChange={(e) => setRawDescription(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-[#030B24] border border-[#0A1940] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#00D9FF] transition-all"
-                />
-              </div>
-            </div>
-
-            {/* User Personas & Target Platforms */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider">
-                  Intended Users &amp; Key Roles
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Store Customers, Field Technicians, Warehouse Admins, C-Suite"
-                  value={intendedUsers}
-                  onChange={(e) => setIntendedUsers(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-[#030B24] border border-[#0A1940] text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#00D9FF] transition-all"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider">
-                  Target Device Viewport
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { id: "DESKTOP", label: "Desktop (1440px)", icon: Laptop },
-                    { id: "TABLET", label: "Tablet (768px)", icon: Tablet },
-                    { id: "MOBILE", label: "Mobile (390px)", icon: Smartphone },
-                  ].map((dev) => {
-                    const Icon = dev.icon;
-                    const active = deviceTarget === dev.id;
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {DIVISIONS_DATA.map((div) => {
+                    const isSelected = selectedDivision === div.slug;
                     return (
-                      <button
-                        type="button"
-                        key={dev.id}
-                        onClick={() => setDeviceTarget(dev.id as StitchDeviceType)}
-                        className={`p-2.5 rounded-xl border text-xs font-bold flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${
-                          active
-                            ? "bg-[#087BFF]/20 border-[#00D9FF] text-white"
-                            : "bg-[#030B24] border-[#0A1940] text-slate-400 hover:text-white"
+                      <div
+                        key={div.slug}
+                        onClick={() => setSelectedDivision(div.slug)}
+                        className={`p-5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
+                          isSelected
+                            ? "bg-[#071638] border-[#00D9FF] shadow-[0_0_25px_rgba(0,217,255,0.25)] ring-1 ring-[#00D9FF]"
+                            : "bg-[#0A1940]/70 border-white/10 hover:border-white/30"
                         }`}
                       >
-                        <Icon className="w-4 h-4 text-[#00D9FF]" />
-                        <span>{dev.label}</span>
+                        <div className="flex items-center justify-between">
+                          <span 
+                            className="text-xs font-mono font-bold px-2 py-0.5 rounded"
+                            style={{ backgroundColor: `${div.accentColor}20`, color: div.accentColor }}
+                          >
+                            {div.badge}
+                          </span>
+                          {isSelected && <CheckCircle2 className="w-4 h-4 text-[#00D9FF]" />}
+                        </div>
+                        <div>
+                          <h4 className="text-base font-bold text-white">{div.name}</h4>
+                          <p className="text-xs text-[#C8D5EF] mt-1 leading-relaxed line-clamp-2">
+                            {div.tagline}
+                          </p>
+                        </div>
+                        <div className="text-[11px] font-mono text-slate-400 pt-2 border-t border-white/5">
+                          {div.indicativePrice}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Industry Selector */}
+              <div className="space-y-4">
+                <label className="text-xs font-mono font-bold uppercase tracking-wider text-white block">
+                  Select Target Industry (12 Industry Transformations)
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {INDUSTRIES_DATA.map((ind) => {
+                    const isSelected = selectedIndustry === ind.slug;
+                    return (
+                      <button
+                        key={ind.slug}
+                        type="button"
+                        onClick={() => setSelectedIndustry(ind.slug)}
+                        className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-3 ${
+                          isSelected
+                            ? "bg-[#071638] border-[#00D9FF] text-white shadow-md"
+                            : "bg-[#0A1940]/50 border-white/10 text-slate-300 hover:text-white hover:bg-white/5"
+                        }`}
+                      >
+                        <span className="text-xl">{ind.emoji}</span>
+                        <div className="truncate">
+                          <div className="text-xs font-bold truncate">{ind.name}</div>
+                          <div className="text-[10px] text-slate-400 font-mono truncate">{ind.badge}</div>
+                        </div>
                       </button>
                     );
                   })}
                 </div>
               </div>
-            </div>
 
-            {/* Essential Features Checklist + Custom Tags */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider">
-                  Core Features &amp; Functional Modules ({selectedFeatures.length})
+              {/* Platform Targets */}
+              <div className="space-y-4">
+                <label className="text-xs font-mono font-bold uppercase tracking-wider text-white block">
+                  Select Target Deployment Platforms
                 </label>
-                <span className="text-[11px] text-slate-400">Click to toggle or add custom below</span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                {[
-                  ...currentIndustryObj.featuredCapabilities,
-                  "Role-Based Access Control",
-                  "Real-Time Data Dashboard",
-                  "Automated WhatsApp Notifications",
-                  "Payment Gateway Integration",
-                  "Multi-Tenant Isolation",
-                  "Interactive Reporting Analytics",
-                  "Audit Logging & Security",
-                ].map((feat) => {
-                  const checked = selectedFeatures.includes(feat);
-                  return (
-                    <button
-                      type="button"
-                      key={feat}
-                      onClick={() => toggleFeature(feat)}
-                      className={`p-2.5 rounded-xl border text-xs font-semibold text-left transition-all flex items-center justify-between cursor-pointer ${
-                        checked
-                          ? "bg-[#00D9FF]/10 border-[#00D9FF]/50 text-[#00D9FF]"
-                          : "bg-[#030B24] border-[#0A1940] text-slate-300 hover:border-white/20"
-                      }`}
-                    >
-                      <span className="truncate">{feat}</span>
-                      {checked && <Check className="w-3.5 h-3.5 text-[#00D9FF] shrink-0" />}
-                    </button>
-                  );
-                })}
+                <div className="flex flex-wrap gap-3">
+                  {[
+                    "Web Desktop (1440px)",
+                    "Mobile Responsive",
+                    "Native iOS (iPhone)",
+                    "Native Android",
+                    "Progressive Web App (PWA)",
+                    "Tablet / POS Terminal",
+                    "Cloud Backend API",
+                  ].map((plat) => {
+                    const isChecked = platformTargets.includes(plat);
+                    return (
+                      <button
+                        key={plat}
+                        type="button"
+                        onClick={() => {
+                          setPlatformTargets((prev) =>
+                            isChecked ? prev.filter((p) => p !== plat) : [...prev, plat]
+                          );
+                        }}
+                        className={`px-4 py-2.5 rounded-xl text-xs font-mono font-bold border transition-all cursor-pointer flex items-center gap-2 ${
+                          isChecked
+                            ? "bg-[#00D9FF]/15 border-[#00D9FF] text-[#00D9FF]"
+                            : "bg-[#0A1940] border-white/10 text-slate-400 hover:text-white"
+                        }`}
+                      >
+                        {isChecked ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                        <span>{plat}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
-              {/* Add Custom Feature Tag */}
-              <div className="flex gap-2 pt-2">
-                <input
-                  type="text"
-                  placeholder="+ Add custom module (e.g. Biometric Attendance, Inventory Barcode Scanner)..."
-                  value={customFeatureInput}
-                  onChange={(e) => setCustomFeatureInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleAddCustomFeature();
-                    }
-                  }}
-                  className="grow px-4 py-2.5 rounded-xl bg-[#030B24] border border-[#0A1940] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00D9FF]"
-                />
+              {/* Step 1 Actions */}
+              <div className="flex justify-end pt-6 border-t border-white/10">
                 <button
                   type="button"
-                  onClick={handleAddCustomFeature}
-                  className="px-4 py-2.5 rounded-xl bg-[#00D9FF]/20 text-[#00D9FF] border border-[#00D9FF]/40 text-xs font-bold hover:bg-[#00D9FF]/30 transition-all cursor-pointer flex items-center gap-1 shrink-0"
+                  onClick={() => setCurrentStep(2)}
+                  className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-black font-extrabold text-sm shadow-xl hover:brightness-110 flex items-center gap-2 cursor-pointer"
                 >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Add Feature</span>
+                  <span>Continue to Requirements</span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
+          )}
 
-            {/* Visual Style & Theme Preset */}
-            <div className="space-y-3">
-              <label className="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider">
-                Visual Personality &amp; Color Scheme
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {[
-                  {
-                    id: "cosmic-dark",
-                    name: "Cosmic Liquid Glass",
-                    desc: "Deep Space Navy, Cyan & Violet specular glows, glassmorphism",
-                    swatch: ["#030B24", "#00D9FF", "#E52BFF"],
-                  },
-                  {
-                    id: "executive-light",
-                    name: "Executive Modern",
-                    desc: "Clean Slate Monochrome, crisp platinum borders, subtle contrast",
-                    swatch: ["#F8FAFC", "#0F172A", "#087BFF"],
-                  },
-                  {
-                    id: "high-contrast-neon",
-                    name: "Cyber Brutalist",
-                    desc: "Laser Cyan, Electric Amber, High-density HUD grids",
-                    swatch: ["#000000", "#00D9FF", "#F59E0B"],
-                  },
-                ].map((th) => {
-                  const active = themePreference === th.id;
-                  return (
-                    <button
-                      type="button"
-                      key={th.id}
-                      onClick={() => setThemePreference(th.id as any)}
-                      className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer space-y-2 ${
-                        active
-                          ? "bg-[#087BFF]/20 border-[#00D9FF] shadow-[0_0_15px_rgba(0,217,255,0.2)] text-white"
-                          : "bg-[#030B24] border-[#0A1940] text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-white">{th.name}</span>
-                        <div className="flex items-center gap-1">
-                          {th.swatch.map((col, idx) => (
-                            <span
-                              key={idx}
-                              className="w-3 h-3 rounded-full border border-white/20"
-                              style={{ backgroundColor: col }}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      <p className="text-[11px] text-slate-400">{th.desc}</p>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Advance to Brief Review */}
-            <div className="pt-4 flex items-center justify-between border-t border-white/10">
-              <span className="text-xs text-slate-400 flex items-center gap-1.5 font-mono">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>Zero login wall • Instant personalized demo generation</span>
-              </span>
-
-              <button
-                type="button"
-                onClick={handleProceedToBrief}
-                className="px-8 py-3 rounded-full text-xs font-extrabold bg-gradient-to-r from-[#00D9FF] to-[#087BFF] hover:brightness-110 text-white shadow-xl flex items-center gap-2 cursor-pointer transition-all"
-              >
-                <span>Analyze &amp; Formulate Design Brief</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* STAGE 2: AI REQUIREMENT ANALYSIS & BRIEF REVIEW                           */}
-        {/* ========================================================================= */}
-        {currentStep === 2 && (
-          <div className="p-6 sm:p-10 rounded-3xl bg-[#071638]/90 border border-[#0A1940] space-y-8 shadow-2xl backdrop-blur-xl">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="space-y-1">
-                <span className="text-xs font-mono uppercase tracking-widest text-[#00D9FF]">
-                  Stage 02 • AI Requirement Analysis
-                </span>
-                <h2 className="text-2xl sm:text-3xl font-black text-white">
-                  Synthesized Architecture Brief
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-300">
-                  Our system has analyzed your inputs and structured a technical brief for
-                  Google Stitch. You can review and adjust this brief before launching generation.
+          {/* ================================================================ */}
+          {/* STEP 2: AI REQUIREMENT DISCOVERY */}
+          {/* ================================================================ */}
+          {currentStep === 2 && (
+            <div className="max-w-4xl mx-auto space-y-8">
+              <div className="text-center space-y-3">
+                <Badge variant="electric" dot>Step 2 of 8 • AI Requirement Discovery</Badge>
+                <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+                  Frame Your Software Product.
+                </h1>
+                <p className="text-sm sm:text-base text-[#C8D5EF] max-w-2xl mx-auto">
+                  Describe what your platform will do. Our AI engine extracts features, users, and complexity automatically.
                 </p>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setCurrentStep(1)}
-                className="text-xs text-slate-400 hover:text-white flex items-center gap-1 font-mono cursor-pointer"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" /> Back to Edit Inputs
-              </button>
-            </div>
-
-            {/* Executive Synthesis Summary Card */}
-            <div className="p-6 rounded-2xl bg-[#030B24] border border-[#0A1940] space-y-6">
-              <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-white/5">
-                <div>
-                  <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">
-                    Software Target
-                  </span>
-                  <h3 className="text-xl font-bold text-white">{projectName}</h3>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    {productCategory} • {currentIndustryObj.name}
-                  </p>
+              <div className="p-8 rounded-3xl bg-[#0A1940] border border-white/10 space-y-6">
+                {/* Project Title */}
+                <div className="space-y-2">
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-white">
+                    Project or Brand Name
+                  </label>
+                  <input
+                    type="text"
+                    value={projectName}
+                    onChange={(e) => setProjectName(e.target.value)}
+                    placeholder="e.g., Nexus POS, Zenith Luxury Store, Aura Health Portal"
+                    className="w-full px-4 py-3 rounded-xl bg-[#030B24] border border-white/10 text-white placeholder-slate-500 text-sm focus:border-[#00D9FF] focus:outline-none"
+                  />
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="electric" size="sm">
-                    {currentIndustryObj.name}
-                  </Badge>
-                  <Badge variant="corporate" size="sm">
-                    {currentDivisionObj.name}
-                  </Badge>
-                  <span className="px-2.5 py-1 text-xs font-mono rounded-full bg-[#00D9FF]/10 text-[#00D9FF] border border-[#00D9FF]/20">
-                    {deviceTarget} Viewport
-                  </span>
+
+                {/* Core Idea Description */}
+                <div className="space-y-2">
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-white">
+                    Describe Your Platform &amp; Key Business Workflows
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={rawDescription}
+                    onChange={(e) => setRawDescription(e.target.value)}
+                    placeholder="Describe what users do on this platform, what problems it solves, and what screens or features are most critical..."
+                    className="w-full px-4 py-3 rounded-xl bg-[#030B24] border border-white/10 text-white placeholder-slate-500 text-sm focus:border-[#00D9FF] focus:outline-none leading-relaxed"
+                  />
+                </div>
+
+                {/* Core Problem Solved */}
+                <div className="space-y-2">
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-white">
+                    What Primary Problem Does This Solve?
+                  </label>
+                  <input
+                    type="text"
+                    value={coreProblem}
+                    onChange={(e) => setCoreProblem(e.target.value)}
+                    placeholder="e.g., Eliminates manual spreadsheet errors; speeds up customer checkout by 3x"
+                    className="w-full px-4 py-3 rounded-xl bg-[#030B24] border border-white/10 text-white placeholder-slate-500 text-sm focus:border-[#00D9FF] focus:outline-none"
+                  />
+                </div>
+
+                {/* Intended Users */}
+                <div className="space-y-2">
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-white">
+                    Target Users / Stakeholders
+                  </label>
+                  <input
+                    type="text"
+                    value={intendedUsers}
+                    onChange={(e) => setIntendedUsers(e.target.value)}
+                    placeholder="e.g., Store Cashiers, Field Technicians, Paying Consumers, Super Admins"
+                    className="w-full px-4 py-3 rounded-xl bg-[#030B24] border border-white/10 text-white placeholder-slate-500 text-sm focus:border-[#00D9FF] focus:outline-none"
+                  />
+                </div>
+
+                {/* Feature Tags */}
+                <div className="space-y-3 pt-2">
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-white block">
+                    Core Capabilities &amp; Feature Modules
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedFeatures.map((f) => (
+                      <span
+                        key={f}
+                        className="px-3 py-1.5 rounded-lg bg-[#071638] border border-[#00D9FF]/40 text-xs font-mono text-white flex items-center gap-2"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#00D9FF]" />
+                        <span>{f}</span>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedFeatures((prev) => prev.filter((item) => item !== f))}
+                          className="hover:text-red-400 text-slate-500 cursor-pointer"
+                        >
+                          &times;
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-2 pt-2">
+                    <input
+                      type="text"
+                      value={customFeatureInput}
+                      onChange={(e) => setCustomFeatureInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && customFeatureInput.trim()) {
+                          e.preventDefault();
+                          setSelectedFeatures((prev) => [...prev, customFeatureInput.trim()]);
+                          setCustomFeatureInput("");
+                        }
+                      }}
+                      placeholder="Add custom feature (Press Enter)..."
+                      className="grow px-4 py-2.5 rounded-xl bg-[#030B24] border border-white/10 text-xs text-white placeholder-slate-500 focus:border-[#00D9FF] focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (customFeatureInput.trim()) {
+                          setSelectedFeatures((prev) => [...prev, customFeatureInput.trim()]);
+                          setCustomFeatureInput("");
+                        }
+                      }}
+                      className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-white cursor-pointer"
+                    >
+                      Add Feature
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {/* Synthesized Brief Specs Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
-                <div className="space-y-1.5">
-                  <span className="font-mono text-slate-400 uppercase flex items-center gap-1">
-                    <Cpu className="w-3.5 h-3.5 text-[#00D9FF]" />
-                    <span>Stitch AI Model Engine</span>
+              {/* Step 2 Actions */}
+              <div className="flex justify-between pt-6 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(1)}
+                  className="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-xs flex items-center gap-2 cursor-pointer"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Back to Discovery</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(3)}
+                  className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-black font-extrabold text-sm shadow-xl hover:brightness-110 flex items-center gap-2 cursor-pointer"
+                >
+                  <span>Analyze Complexity</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ================================================================ */}
+          {/* STEP 3: FEATURE & COMPLEXITY ANALYSIS */}
+          {/* ================================================================ */}
+          {currentStep === 3 && (
+            <div className="max-w-4xl mx-auto space-y-8">
+              <div className="text-center space-y-3">
+                <Badge variant="electric" dot>Step 3 of 8 • Architectural Complexity Audit</Badge>
+                <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+                  Transparent Complexity Scoring.
+                </h1>
+                <p className="text-sm sm:text-base text-[#C8D5EF] max-w-2xl mx-auto">
+                  Our deterministic multi-factor model audits your requirements across 5 engineering dimensions to recommend the right plan.
+                </p>
+              </div>
+
+              {/* Score Meter & Radar Breakdown */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Score Card */}
+                <div className="p-8 rounded-3xl bg-[#0A1940] border border-white/10 flex flex-col justify-between items-center text-center space-y-4">
+                  <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#00D9FF]">
+                    Architectural Complexity
                   </span>
-                  <select
-                    value={modelPreference}
-                    onChange={(e) => setModelPreference(e.target.value as StitchModelId)}
-                    className="w-full px-3 py-2 rounded-xl bg-[#071638] border border-white/10 text-xs text-white focus:outline-none focus:border-[#00D9FF]"
-                  >
-                    {STITCH_CAPABILITIES.supportedModels.map((m) => (
-                      <option key={m.id} value={m.id}>
-                        {m.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative flex items-center justify-center">
+                    <div className="w-36 h-36 rounded-full border-4 border-[#071638] flex items-center justify-center bg-[#030B24] shadow-[0_0_40px_rgba(0,217,255,0.2)]">
+                      <div className="text-5xl font-black text-white">
+                        {complexityData.score}
+                        <span className="text-xl text-[#00D9FF]">/10</span>
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-xs font-mono text-slate-300">
+                    {complexityData.score <= 3
+                      ? "Essential Lean Scope (Starter Match)"
+                      : complexityData.score <= 6
+                      ? "Scaling Platform (Growth Match)"
+                      : complexityData.score <= 8
+                      ? "Enterprise Mission-Critical"
+                      : "Bespoke Proprietary Architecture"}
+                  </span>
                 </div>
 
-                <div className="space-y-1.5">
-                  <span className="font-mono text-slate-400 uppercase flex items-center gap-1">
-                    <Globe className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Target Deployment Viewport</span>
-                  </span>
-                  <div className="flex gap-1.5">
+                {/* 5-Factor Radar Breakdown */}
+                <div className="md:col-span-2 p-8 rounded-3xl bg-[#0A1940] border border-white/10 space-y-4">
+                  <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-white">
+                    5-Factor Architectural Vectors
+                  </h3>
+
+                  <div className="space-y-3 text-xs font-mono">
                     {[
-                      { id: "DESKTOP", label: "Desktop", icon: Laptop },
-                      { id: "TABLET", label: "Tablet", icon: Tablet },
-                      { id: "MOBILE", label: "Mobile", icon: Smartphone },
-                    ].map((dev) => {
-                      const Icon = dev.icon;
-                      const active = deviceTarget === dev.id;
-                      return (
+                      { name: "External System Integrations", val: complexityData.factors.integrations },
+                      { name: "Real-Time Telemetry & Sync", val: complexityData.factors.realTime },
+                      { name: "Security, RBAC & Compliance", val: complexityData.factors.security },
+                      { name: "Multi-Platform Coverage", val: complexityData.factors.platforms },
+                      { name: "Data Volume & Throughput Scale", val: complexityData.factors.scale },
+                    ].map((f) => (
+                      <div key={f.name} className="space-y-1">
+                        <div className="flex justify-between text-slate-300">
+                          <span>{f.name}</span>
+                          <span className="text-[#00D9FF] font-bold">{f.val} / 10</span>
+                        </div>
+                        <div className="w-full h-2 rounded-full bg-[#030B24] overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-[#087BFF] to-[#00D9FF] rounded-full transition-all duration-500"
+                            style={{ width: `${f.val * 10}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="pt-3 border-t border-white/5 space-y-1.5">
+                    <span className="text-[11px] font-bold uppercase text-slate-400 block">Identified Drivers:</span>
+                    {complexityData.breakdown.map((item) => (
+                      <div key={item} className="flex items-center gap-2 text-xs text-[#C8D5EF]">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#00C98B] shrink-0" />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 3 Actions */}
+              <div className="flex justify-between pt-6 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(2)}
+                  className="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-xs flex items-center gap-2 cursor-pointer"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Back to Requirements</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(4)}
+                  className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-black font-extrabold text-sm shadow-xl hover:brightness-110 flex items-center gap-2 cursor-pointer"
+                >
+                  <span>Review Recommended Plan</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ================================================================ */}
+          {/* STEP 4: PLAN SELECTION */}
+          {/* ================================================================ */}
+          {currentStep === 4 && (
+            <div className="max-w-5xl mx-auto space-y-10">
+              <div className="text-center space-y-3">
+                <Badge variant="electric" dot>Step 4 of 8 • Deterministic Plan Recommendation</Badge>
+                <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+                  Selected Commercial Scope.
+                </h1>
+                <p className="text-sm sm:text-base text-[#C8D5EF] max-w-2xl mx-auto">
+                  Our recommendation engine matches your scope deterministically. No arbitrary budget sliders — the plan sets the commercial boundary.
+                </p>
+              </div>
+
+              {/* AI Justification Banner */}
+              <div className="p-6 rounded-2xl bg-gradient-to-r from-[#087BFF]/20 via-[#071638] to-[#00D9FF]/20 border border-[#00D9FF]/40 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-[#00D9FF]" />
+                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#00D9FF]">
+                      AI Recommendation Engine Match
+                    </span>
+                  </div>
+                  <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-[#00D9FF] text-black">
+                    {recommendationData.matchConfidence}% Match Confidence
+                  </span>
+                </div>
+                <p className="text-sm text-white leading-relaxed font-medium">
+                  {recommendationData.justification}
+                </p>
+              </div>
+
+              {/* Side-by-Side Plans Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {CANONICAL_PLANS.filter((p) => p.divisionSlug === selectedDivision).map((plan) => {
+                  const isSelected = selectedPlanId === plan.id;
+                  const isRecommended = plan.id === recommendationData.recommendedPlan.id;
+
+                  return (
+                    <div
+                      key={plan.id}
+                      onClick={() => setSelectedPlanId(plan.id)}
+                      className={`rounded-3xl p-6 bg-[#0A1940] border transition-all cursor-pointer flex flex-col justify-between relative ${
+                        isSelected
+                          ? "border-[#00D9FF] shadow-[0_0_35px_rgba(0,217,255,0.3)] ring-2 ring-[#00D9FF]"
+                          : "border-white/10 hover:border-white/30"
+                      }`}
+                    >
+                      {isRecommended && (
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-black text-[10px] font-mono font-black uppercase tracking-wider py-0.5 px-3 rounded-full shadow-md">
+                          Recommended Match
+                        </div>
+                      )}
+
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center pt-1">
+                          <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-[#030B24] text-white border border-white/10">
+                            {plan.code}
+                          </span>
+                          <span className="text-[10px] font-mono text-[#00D9FF]">{plan.timelineWeeks}</span>
+                        </div>
+
+                        <div>
+                          <h4 className="text-lg font-bold text-white">{plan.name}</h4>
+                          <p className="text-xs text-[#C8D5EF] mt-1 leading-relaxed line-clamp-2">
+                            {plan.tagline}
+                          </p>
+                        </div>
+
+                        <div className="p-3.5 rounded-xl bg-[#030B24] border border-white/5 space-y-1">
+                          <span className="text-[9px] font-mono uppercase text-slate-400 block">
+                            Milestone Investment
+                          </span>
+                          <div className="text-xl font-black text-white">
+                            {formatINR(plan.priceINR)}
+                          </div>
+                          <span className="text-[11px] font-mono text-slate-400 block">
+                            {formatUSD(plan.priceUSD)}
+                          </span>
+                        </div>
+
+                        <div className="space-y-2 pt-2 border-t border-white/5 text-xs text-[#C8D5EF]">
+                          <span className="text-[10px] font-bold uppercase text-white block">Key Deliverables:</span>
+                          {plan.includedFeatures.slice(0, 3).map((f) => (
+                            <div key={f.id} className="flex items-start gap-1.5 text-[11px]">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-[#00C98B] shrink-0 mt-0.5" />
+                              <span className="line-clamp-1">{f.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="pt-6">
                         <button
                           type="button"
-                          key={dev.id}
-                          onClick={() => setDeviceTarget(dev.id as StitchDeviceType)}
-                          className={`grow px-2 py-2 rounded-xl border text-[11px] font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
-                            active
-                              ? "bg-[#087BFF]/20 border-[#00D9FF] text-white"
-                              : "bg-[#071638] border-white/10 text-slate-400 hover:text-white"
+                          className={`w-full py-2.5 rounded-xl font-bold text-xs transition-all ${
+                            isSelected
+                              ? "bg-[#00D9FF] text-black font-extrabold"
+                              : "bg-white/10 text-white hover:bg-white/20"
                           }`}
                         >
-                          <Icon className="w-3 h-3" />
-                          <span>{dev.label}</span>
+                          {isSelected ? "Selected Plan ✓" : "Select Plan"}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Step 4 Actions */}
+              <div className="flex justify-between pt-6 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(3)}
+                  className="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-xs flex items-center gap-2 cursor-pointer"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Back to Complexity</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(5)}
+                  className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-black font-extrabold text-sm shadow-xl hover:brightness-110 flex items-center gap-2 cursor-pointer"
+                >
+                  <span>Configure Features &amp; Add-ons</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ================================================================ */}
+          {/* STEP 5: FEATURE CONFIGURATION & ADDONS */}
+          {/* ================================================================ */}
+          {currentStep === 5 && (
+            <div className="max-w-4xl mx-auto space-y-8">
+              <div className="text-center space-y-3">
+                <Badge variant="electric" dot>Step 5 of 8 • Scope &amp; Add-on Configuration</Badge>
+                <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+                  Customize Scope &amp; Extras.
+                </h1>
+                <p className="text-sm sm:text-base text-[#C8D5EF] max-w-2xl mx-auto">
+                  Review plan deliverables and toggle verified modular add-ons with dynamic authoritative pricing.
+                </p>
+              </div>
+
+              {/* Base Plan Review Card */}
+              <div className="p-6 rounded-3xl bg-[#0A1940] border border-white/10 space-y-4">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <span className="text-xs font-mono font-bold text-[#00D9FF]">Selected Base Plan</span>
+                    <h3 className="text-2xl font-bold text-white">{currentPlan.name} ({currentPlan.code})</h3>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-black text-white">{formatINR(currentPlan.priceINR)}</div>
+                    <span className="text-xs font-mono text-slate-400">{formatUSD(currentPlan.priceUSD)}</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-white/5 text-xs text-[#C8D5EF]">
+                  {currentPlan.includedFeatures.map((f) => (
+                    <div key={f.id} className="flex items-start gap-2 bg-[#030B24] p-2.5 rounded-xl border border-white/5">
+                      <CheckCircle2 className="w-4 h-4 text-[#00C98B] shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="text-white block">{f.name}</strong>
+                        <span className="text-[11px] text-slate-400">{f.description}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Modular Add-Ons Selection */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-white">
+                    Verified Modular Add-Ons (Optional)
+                  </label>
+                  <span className="text-xs font-mono text-[#00D9FF]">
+                    {selectedAddonIds.length} Add-on(s) Selected (+{formatINR(pricingTotals.addonsINR)})
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {GLOBAL_PLAN_ADDONS.map((addon) => {
+                    const isSelected = selectedAddonIds.includes(addon.id);
+                    return (
+                      <div
+                        key={addon.id}
+                        onClick={() => {
+                          setSelectedAddonIds((prev) =>
+                            isSelected ? prev.filter((id) => id !== addon.id) : [...prev, addon.id]
+                          );
+                        }}
+                        className={`p-4 rounded-2xl border transition-all cursor-pointer flex justify-between gap-4 ${
+                          isSelected
+                            ? "bg-[#071638] border-[#00D9FF] shadow-[0_0_15px_rgba(0,217,255,0.2)]"
+                            : "bg-[#0A1940] border-white/10 hover:border-white/30"
+                        }`}
+                      >
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => {}}
+                              className="w-4 h-4 rounded text-[#00D9FF]"
+                            />
+                            <h4 className="text-sm font-bold text-white">{addon.name}</h4>
+                          </div>
+                          <p className="text-xs text-[#C8D5EF] leading-relaxed pl-6">
+                            {addon.description}
+                          </p>
+                        </div>
+
+                        <div className="text-right shrink-0">
+                          <div className="text-sm font-extrabold text-white">{formatINR(addon.priceINR)}</div>
+                          <span className="text-[10px] font-mono text-slate-400">{formatUSD(addon.priceUSD)}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Total Investment Summary */}
+              <div className="p-6 rounded-2xl bg-gradient-to-r from-[#071638] via-[#0A1940] to-[#071638] border border-[#00D9FF]/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#00D9FF]">
+                    Total Authoritative Scope Investment
+                  </span>
+                  <div className="text-xs text-slate-300">
+                    Includes {currentPlan.screenOrPageScope}, {currentPlan.timelineWeeks} execution, and {currentPlan.postLaunchWarrantyDays}-day warranty.
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <div className="text-3xl font-black text-white">{formatINR(pricingTotals.totalINR)}</div>
+                  <span className="text-xs font-mono text-slate-400">Approx. {formatUSD(pricingTotals.totalUSD)}</span>
+                </div>
+              </div>
+
+              {/* Step 5 Actions */}
+              <div className="flex justify-between pt-6 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(4)}
+                  className="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-xs flex items-center gap-2 cursor-pointer"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Back to Plan</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(6)}
+                  className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-black font-extrabold text-sm shadow-xl hover:brightness-110 flex items-center gap-2 cursor-pointer"
+                >
+                  <span>Personalize Design &amp; Brand</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ================================================================ */}
+          {/* STEP 6: DESIGN PERSONALISATION */}
+          {/* ================================================================ */}
+          {currentStep === 6 && (
+            <div className="max-w-4xl mx-auto space-y-8">
+              <div className="text-center space-y-3">
+                <Badge variant="electric" dot>Step 6 of 8 • Visual Personalisation</Badge>
+                <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+                  Style Your Demo Identity.
+                </h1>
+                <p className="text-sm sm:text-base text-[#C8D5EF] max-w-2xl mx-auto">
+                  Customize the brand colors, design theme, and viewport target before invoking Google Stitch.
+                </p>
+              </div>
+
+              <div className="p-8 rounded-3xl bg-[#0A1940] border border-white/10 space-y-6">
+                {/* Brand Title */}
+                <div className="space-y-2">
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-white">
+                    Display Brand / Logo Name
+                  </label>
+                  <input
+                    type="text"
+                    value={brandName}
+                    onChange={(e) => setBrandName(e.target.value)}
+                    placeholder={projectName || "e.g., StarX Alpha Labs"}
+                    className="w-full px-4 py-3 rounded-xl bg-[#030B24] border border-white/10 text-white placeholder-slate-500 text-sm focus:border-[#00D9FF] focus:outline-none"
+                  />
+                </div>
+
+                {/* Color Palette Presets & Swatches */}
+                <div className="space-y-4">
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-white block">
+                    Brand Color Palette (Industry Presets)
+                  </label>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {[
+                      { name: "Cyan Cyber", primary: "#00D9FF", accent: "#087BFF", bg: "#030B24" },
+                      { name: "Neon Violet", primary: "#E52BFF", accent: "#873BFF", bg: "#0C0617" },
+                      { name: "Solar Amber", primary: "#FF941F", accent: "#FF35B8", bg: "#0D0A14" },
+                      { name: "Emerald Tech", primary: "#00C98B", accent: "#00D9FF", bg: "#04141E" },
+                    ].map((preset) => (
+                      <button
+                        key={preset.name}
+                        type="button"
+                        onClick={() => {
+                          setPalettePrimary(preset.primary);
+                          setPaletteAccent(preset.accent);
+                          setPaletteBg(preset.bg);
+                        }}
+                        className="p-3 rounded-xl bg-[#030B24] border border-white/10 hover:border-white/30 text-left space-y-2 cursor-pointer"
+                      >
+                        <div className="flex gap-1.5">
+                          <span className="w-4 h-4 rounded-full" style={{ backgroundColor: preset.primary }} />
+                          <span className="w-4 h-4 rounded-full" style={{ backgroundColor: preset.accent }} />
+                          <span className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: preset.bg }} />
+                        </div>
+                        <span className="text-xs font-bold text-white block">{preset.name}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Manual Hex Swatches */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-mono text-slate-400">Primary Brand Color</label>
+                      <div className="flex items-center gap-2 bg-[#030B24] px-3 py-2 rounded-xl border border-white/10">
+                        <input
+                          type="color"
+                          value={palettePrimary}
+                          onChange={(e) => setPalettePrimary(e.target.value)}
+                          className="w-6 h-6 rounded cursor-pointer bg-transparent border-0"
+                        />
+                        <input
+                          type="text"
+                          value={palettePrimary}
+                          onChange={(e) => setPalettePrimary(e.target.value)}
+                          className="bg-transparent text-xs font-mono text-white focus:outline-none w-20"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-mono text-slate-400">Accent Interactive</label>
+                      <div className="flex items-center gap-2 bg-[#030B24] px-3 py-2 rounded-xl border border-white/10">
+                        <input
+                          type="color"
+                          value={paletteAccent}
+                          onChange={(e) => setPaletteAccent(e.target.value)}
+                          className="w-6 h-6 rounded cursor-pointer bg-transparent border-0"
+                        />
+                        <input
+                          type="text"
+                          value={paletteAccent}
+                          onChange={(e) => setPaletteAccent(e.target.value)}
+                          className="bg-transparent text-xs font-mono text-white focus:outline-none w-20"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-mono text-slate-400">Surface Background</label>
+                      <div className="flex items-center gap-2 bg-[#030B24] px-3 py-2 rounded-xl border border-white/10">
+                        <input
+                          type="color"
+                          value={paletteBg}
+                          onChange={(e) => setPaletteBg(e.target.value)}
+                          className="w-6 h-6 rounded cursor-pointer bg-transparent border-0"
+                        />
+                        <input
+                          type="text"
+                          value={paletteBg}
+                          onChange={(e) => setPaletteBg(e.target.value)}
+                          className="bg-transparent text-xs font-mono text-white focus:outline-none w-20"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Theme Style Presets */}
+                <div className="space-y-3">
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-white block">
+                    Visual Theme Style
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {[
+                      { id: "cosmic-dark", label: "Cosmic Dark", desc: "Deep space black & neon cyan" },
+                      { id: "cyber-neon", label: "Cyberpunk Neon", desc: "High-contrast magenta & purple" },
+                      { id: "clean-corporate", label: "Clean Corporate", desc: "High-trust sapphire & navy" },
+                      { id: "minimalist", label: "Sleek Minimalist", desc: "Monochrome with subtle borders" },
+                    ].map((theme) => {
+                      const isSelected = themePreference === theme.id;
+                      return (
+                        <button
+                          key={theme.id}
+                          type="button"
+                          onClick={() => setThemePreference(theme.id)}
+                          className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                            isSelected
+                              ? "bg-[#071638] border-[#00D9FF] text-white shadow-md"
+                              : "bg-[#030B24] border-white/10 text-slate-400 hover:text-white"
+                          }`}
+                        >
+                          <span className="text-xs font-bold text-white block">{theme.label}</span>
+                          <span className="text-[10px] text-slate-400 leading-tight block mt-1">{theme.desc}</span>
                         </button>
                       );
                     })}
                   </div>
                 </div>
 
-                <div className="space-y-1.5">
-                  <span className="font-mono text-slate-400 uppercase">Architecture Tier</span>
-                  <p className="font-semibold text-[#00D9FF] text-xs pt-2">
-                    Production Full-Stack (Next.js 16 + Supabase + Stitch Tokens)
-                  </p>
-                </div>
-              </div>
-
-              {/* Scoped Functional Modules List */}
-              <div className="space-y-2 pt-2 border-t border-white/5">
-                <span className="text-xs font-mono text-slate-400 uppercase">
-                  Scoped Modules ({selectedFeatures.length})
-                </span>
-                <div className="flex flex-wrap gap-2">
-                  {selectedFeatures.map((f) => (
-                    <span
-                      key={f}
-                      className="px-2.5 py-1 rounded-lg text-xs font-mono bg-[#071638] border border-white/10 text-slate-200"
-                    >
-                      ✓ {f}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Editable Brief Prompt Textarea */}
-              <div className="space-y-2 pt-2 border-t border-white/5">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-mono text-slate-400 uppercase flex items-center gap-1.5">
-                    <FileCode className="w-3.5 h-3.5 text-[#00D9FF]" />
-                    <span>Compiled Stitch Design Brief</span>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setIsEditingBrief(!isEditingBrief)}
-                    className="text-[11px] font-mono text-[#00D9FF] hover:underline cursor-pointer"
-                  >
-                    {isEditingBrief ? "Collapse Editor" : "Edit Prompt"}
-                  </button>
-                </div>
-                {isEditingBrief ? (
-                  <textarea
-                    rows={6}
-                    value={editableBriefNotes}
-                    onChange={(e) => setEditableBriefNotes(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-[#071638] border border-white/10 font-mono text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00D9FF] transition-all"
-                  />
-                ) : (
-                  <div className="p-4 rounded-xl bg-[#071638] border border-white/10 text-xs font-mono text-slate-300 whitespace-pre-line max-h-48 overflow-y-auto leading-relaxed">
-                    {editableBriefNotes}
+                {/* Viewport Target Chassis */}
+                <div className="space-y-3">
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider text-white block">
+                    Target Viewport Chassis for Generation
+                  </label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      { id: "DESKTOP" as StitchDeviceType, label: "Desktop Web (1440px)", icon: Laptop },
+                      { id: "TABLET" as StitchDeviceType, label: "Tablet / POS (768px)", icon: Tablet },
+                      { id: "MOBILE" as StitchDeviceType, label: "Mobile App (390px)", icon: Smartphone },
+                    ].map((vp) => {
+                      const Icon = vp.icon;
+                      const isSelected = deviceTarget === vp.id;
+                      return (
+                        <button
+                          key={vp.id}
+                          type="button"
+                          onClick={() => setDeviceTarget(vp.id)}
+                          className={`p-3.5 rounded-xl border flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
+                            isSelected
+                              ? "bg-[#071638] border-[#00D9FF] text-white shadow-md"
+                              : "bg-[#030B24] border-white/10 text-slate-400 hover:text-white"
+                          }`}
+                        >
+                          <Icon className="w-5 h-5 text-[#00D9FF]" />
+                          <span className="text-xs font-bold">{vp.label}</span>
+                        </button>
+                      );
+                    })}
                   </div>
-                )}
-              </div>
-            </div>
-
-            {/* Launch Synthesis CTA */}
-            <div className="pt-4 flex items-center justify-between border-t border-white/10">
-              <span className="text-xs text-slate-400 flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>Google Stitch Engine initialized &amp; ready for real generation</span>
-              </span>
-
-              <button
-                type="button"
-                onClick={handleTriggerStitchGeneration}
-                className="px-8 py-3.5 rounded-full text-xs font-extrabold bg-gradient-to-r from-[#E52BFF] to-[#087BFF] hover:brightness-110 text-white shadow-[0_0_20px_rgba(229,43,255,0.3)] flex items-center gap-2 cursor-pointer transition-all"
-              >
-                <Sparkles className="w-4 h-4" />
-                <span>Synthesize Live Demo With Google Stitch</span>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* STAGE 3: LIVE STITCH SYNTHESIS TELEMETRY                                  */}
-        {/* ========================================================================= */}
-        {currentStep === 3 && (
-          <div className="p-12 sm:p-16 rounded-3xl bg-[#071638]/90 border border-[#0A1940] flex flex-col items-center justify-center text-center space-y-8 shadow-2xl backdrop-blur-xl">
-            <div className="relative">
-              <div className="w-24 h-24 rounded-full border-4 border-[#00D9FF]/20 border-t-[#00D9FF] animate-spin" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Sparkles className="w-8 h-8 text-[#00D9FF] animate-pulse" />
-              </div>
-            </div>
-
-            <div className="space-y-4 max-w-xl mx-auto">
-              <span className="px-3 py-1 text-xs font-mono uppercase tracking-widest text-[#00D9FF] bg-[#00D9FF]/10 rounded-full border border-[#00D9FF]/20">
-                Google Stitch Live Synthesis
-              </span>
-              <h3 className="text-2xl sm:text-3xl font-black text-white">
-                Designing {projectName}
-              </h3>
-              <p className="text-xs text-[#00D9FF] font-mono">{generationStageText}</p>
-
-              {/* Progress Bar */}
-              <div className="w-full bg-[#030B24] rounded-full h-2.5 overflow-hidden border border-white/10">
-                <div
-                  className="bg-gradient-to-r from-[#00D9FF] via-[#087BFF] to-[#E52BFF] h-full transition-all duration-500 shadow-[0_0_10px_rgba(0,217,255,0.5)]"
-                  style={{ width: `${generationProgress}%` }}
-                />
-              </div>
-
-              {/* Real Milestones */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-4 text-[11px] font-mono text-left">
-                <div className="p-2.5 rounded-xl bg-[#030B24] border border-white/5 text-slate-300 flex items-center gap-1.5">
-                  <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                  <span>Brief Compiled</span>
-                </div>
-                <div className="p-2.5 rounded-xl bg-[#030B24] border border-white/5 text-slate-300 flex items-center gap-1.5">
-                  <Cpu className="w-3.5 h-3.5 text-[#00D9FF] shrink-0" />
-                  <span>Stitch MCP Connected</span>
-                </div>
-                <div className="p-2.5 rounded-xl bg-[#030B24] border border-white/5 text-slate-300 flex items-center gap-1.5">
-                  <Layers className="w-3.5 h-3.5 text-[#E52BFF] shrink-0" />
-                  <span>Material You Tokens</span>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
 
-        {/* ========================================================================= */}
-        {/* STAGE 4: HERO PERSONALIZED DEMO PRESENTATION WORKSPACE                     */}
-        {/* ========================================================================= */}
-        {currentStep === 4 && activeArtifact && (
-          <div className="space-y-6">
-            {/* Command & Control Bar */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#071638]/90 border border-[#0A1940] flex flex-wrap items-center justify-between gap-4 shadow-xl backdrop-blur-xl">
-              {/* Left: Project title & version pill */}
-              <div className="flex items-center gap-3">
-                <div className="space-y-0.5">
+              {/* Step 6 Actions */}
+              <div className="flex justify-between pt-6 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(5)}
+                  className="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-xs flex items-center gap-2 cursor-pointer"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Back to Scope</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(7)}
+                  className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-black font-extrabold text-sm shadow-xl hover:brightness-110 flex items-center gap-2 cursor-pointer"
+                >
+                  <span>Review AI Blueprint</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ================================================================ */}
+          {/* STEP 7: AI BLUEPRINT & PROMPT ENGINE */}
+          {/* ================================================================ */}
+          {currentStep === 7 && (
+            <div className="max-w-4xl mx-auto space-y-8">
+              <div className="text-center space-y-3">
+                <Badge variant="electric" dot>Step 7 of 8 • AI Blueprint &amp; Prompt Compilation</Badge>
+                <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+                  Compiled Stitch Directive.
+                </h1>
+                <p className="text-sm sm:text-base text-[#C8D5EF] max-w-2xl mx-auto">
+                  Review the compiled blueprint and system instructions before triggering real Google Stitch MCP generation.
+                </p>
+              </div>
+
+              {/* Blueprint Summary */}
+              <div className="p-8 rounded-3xl bg-[#0A1940] border border-white/10 space-y-6">
+                <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-white/10">
+                  <div className="space-y-1">
+                    <span className="text-xs font-mono text-[#00D9FF] font-bold">
+                      ENGINE CONFIGURATION
+                    </span>
+                    <h3 className="text-xl font-bold text-white">Google Stitch MCP Protocol</h3>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-mono px-3 py-1 rounded-full bg-[#030B24] border border-white/10 text-slate-300">
+                      Model: Gemini 3.8 Flash
+                    </span>
+                    <span className="text-xs font-mono px-3 py-1 rounded-full bg-[#030B24] border border-white/10 text-slate-300">
+                      Viewport: {deviceTarget}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Compiled Prompt Terminal Viewer */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center text-xs font-mono text-slate-400">
+                    <span className="flex items-center gap-1.5">
+                      <Terminal className="w-3.5 h-3.5 text-[#00D9FF]" />
+                      Compiled Generation Prompt (v{promptBlueprint.version})
+                    </span>
+                    <span>{promptBlueprint.prompt.length} chars</span>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-[#030B24] border border-white/10 font-mono text-xs text-slate-300 leading-relaxed max-h-72 overflow-y-auto whitespace-pre-wrap select-all">
+                    {promptBlueprint.prompt}
+                  </div>
+                </div>
+
+                {/* Pre-Flight Checklist */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono text-slate-300 pt-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-[#00D9FF]">
-                      Personalized AI Demo
-                    </span>
-                    <span className="text-[10px] font-mono text-slate-400">•</span>
-                    <span className="text-[10px] font-mono text-slate-300">
-                      {currentIndustryObj.name}
-                    </span>
+                    <CheckCircle2 className="w-4 h-4 text-[#00C98B]" />
+                    <span>Real MCP Tool: generate_screen_from_text</span>
                   </div>
-                  <h2 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
-                    <span>{activeArtifact.title || projectName}</span>
-                  </h2>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#00C98B]" />
+                    <span>Dual PostgreSQL &amp; In-Memory Fallback</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#00C98B]" />
+                    <span>Material You Design Tokens Injected</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#00C98B]" />
+                    <span>Natural Language Revision Engine Ready</span>
+                  </div>
                 </div>
+              </div>
 
-                {/* Version Selector Pill */}
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setActiveVersionDropdown(!activeVersionDropdown)}
-                    className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#00D9FF]/10 text-[#00D9FF] border border-[#00D9FF]/30 flex items-center gap-1.5 hover:bg-[#00D9FF]/20 cursor-pointer"
-                  >
-                    <span>v{activeArtifact.versionNumber || 1}</span>
-                    <ChevronDown className="w-3 h-3" />
-                  </button>
+              {/* Step 7 Actions */}
+              <div className="flex justify-between pt-6 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(6)}
+                  className="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-xs flex items-center gap-2 cursor-pointer"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Back to Styling</span>
+                </button>
 
-                  {/* Version Switcher Dropdown */}
-                  {activeVersionDropdown && (
-                    <div className="absolute top-full left-0 mt-2 z-50 w-56 p-2 rounded-2xl bg-[#071638] border border-white/10 shadow-2xl space-y-1">
-                      <div className="px-2 py-1 text-[10px] font-mono text-slate-400 uppercase">
-                        Version History ({allArtifacts.length})
+                <button
+                  type="button"
+                  onClick={handleLaunchStitchGeneration}
+                  disabled={isGenerating}
+                  className="px-8 py-4 rounded-xl bg-gradient-to-r from-[#00D9FF] via-[#087BFF] to-[#E52BFF] text-white font-black text-sm shadow-2xl hover:brightness-110 flex items-center gap-3 cursor-pointer"
+                >
+                  <Wand2 className="w-4 h-4" />
+                  <span>Generate Personalized Demo with Stitch &rarr;</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ================================================================ */}
+          {/* STEP 8: GOOGLE STITCH GENERATION & HERO PRESENTATION WORKSPACE */}
+          {/* ================================================================ */}
+          {currentStep === 8 && (
+            <div className="space-y-8">
+              {/* Generation Progress Bar (When generating) */}
+              {isGenerating && (
+                <div className="max-w-2xl mx-auto p-8 rounded-3xl bg-[#0A1940] border border-[#00D9FF]/40 text-center space-y-4 shadow-2xl">
+                  <div className="flex items-center justify-center gap-3">
+                    <Sparkles className="w-6 h-6 text-[#00D9FF] animate-spin" />
+                    <h2 className="text-xl font-bold text-white">Synthesizing with Google Stitch MCP...</h2>
+                  </div>
+                  <div className="w-full h-3 rounded-full bg-[#030B24] overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-[#00D9FF] to-[#087BFF] rounded-full transition-all duration-300"
+                      style={{ width: `${generationProgress}%` }}
+                    />
+                  </div>
+                  <p className="text-xs font-mono text-[#00D9FF]">{generationStageText}</p>
+                </div>
+              )}
+
+              {/* Hero Workspace Canvas */}
+              {activeArtifact && (
+                <div className="space-y-6">
+                  {/* Workspace Command Bar */}
+                  <div className="p-4 rounded-2xl bg-[#0A1940] border border-white/10 flex flex-wrap items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <span className="w-3 h-3 rounded-full bg-[#00C98B] animate-pulse" />
+                      <div>
+                        <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                          <span>{activeArtifact.title || brandName || projectName}</span>
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#030B24] text-[#00D9FF] border border-white/10">
+                            v{activeArtifact.versionNumber || 1}
+                          </span>
+                        </h2>
+                        <span className="text-[10px] font-mono text-slate-400">
+                          Provider: {activeArtifact.provider} • Screen ID: {activeArtifact.providerScreenId || "Active"}
+                        </span>
                       </div>
-                      {allArtifacts.map((art) => {
-                        const isCurrent = art.id === activeArtifact.id;
+                    </div>
+
+                    {/* Viewport Switcher Controls */}
+                    <div className="flex items-center gap-1.5 bg-[#030B24] p-1 rounded-xl border border-white/10">
+                      {[
+                        { id: "DESKTOP" as StitchDeviceType, icon: Laptop, label: "1440px" },
+                        { id: "TABLET" as StitchDeviceType, icon: Tablet, label: "768px" },
+                        { id: "MOBILE" as StitchDeviceType, icon: Smartphone, label: "390px" },
+                      ].map((vp) => {
+                        const Icon = vp.icon;
+                        const isCurrent = activeViewport === vp.id;
                         return (
                           <button
+                            key={vp.id}
                             type="button"
-                            key={art.id}
-                            onClick={() => handleSwitchVersion(art)}
-                            className={`w-full px-3 py-2 rounded-xl text-xs font-mono text-left flex items-center justify-between cursor-pointer transition-all ${
+                            onClick={() => setActiveViewport(vp.id)}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                               isCurrent
-                                ? "bg-[#00D9FF]/20 text-[#00D9FF] font-bold"
-                                : "text-slate-300 hover:bg-white/5"
+                                ? "bg-[#087BFF] text-white shadow-md"
+                                : "text-slate-400 hover:text-white"
                             }`}
                           >
-                            <span>Version {art.versionNumber}</span>
-                            <span className="text-[10px] text-slate-400">
-                              {art.deviceType}
-                            </span>
+                            <Icon className="w-3.5 h-3.5" />
+                            <span>{vp.label}</span>
                           </button>
                         );
                       })}
                     </div>
-                  )}
-                </div>
-              </div>
 
-              {/* Center: Device Viewport Controls */}
-              <div className="flex items-center gap-1 bg-[#030B24] p-1 rounded-xl border border-white/10">
-                {[
-                  { id: "DESKTOP", label: "Desktop", icon: Laptop },
-                  { id: "TABLET", label: "Tablet", icon: Tablet },
-                  { id: "MOBILE", label: "Mobile", icon: Smartphone },
-                ].map((vp) => {
-                  const Icon = vp.icon;
-                  const active = activeViewport === vp.id;
-                  return (
-                    <button
-                      type="button"
-                      key={vp.id}
-                      onClick={() => setActiveViewport(vp.id as StitchDeviceType)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                        active
-                          ? "bg-[#087BFF] text-white shadow-sm"
-                          : "text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      <Icon className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">{vp.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Right: Quick Action Buttons & Conversion CTA */}
-              <div className="flex items-center gap-2">
-                {/* HTML Sandbox Toggle (if HTML exists) */}
-                {activeArtifact.htmlCode && (
-                  <div className="flex items-center bg-[#030B24] p-1 rounded-xl border border-white/10">
-                    <button
-                      type="button"
-                      onClick={() => setPreviewMode("render")}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all cursor-pointer ${
-                        previewMode === "render"
-                          ? "bg-[#00D9FF]/20 text-[#00D9FF] font-bold"
-                          : "text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      Visual
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPreviewMode("sandbox")}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all cursor-pointer ${
-                        previewMode === "sandbox"
-                          ? "bg-[#00D9FF]/20 text-[#00D9FF] font-bold"
-                          : "text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      Live Code
-                    </button>
-                  </div>
-                )}
-
-                {/* Lightbox / Zoom */}
-                <button
-                  type="button"
-                  onClick={() => setLightboxOpen(true)}
-                  className="p-2 rounded-xl bg-[#030B24] border border-white/10 text-slate-300 hover:text-white hover:border-white/20 transition-all cursor-pointer"
-                  title="Expand to Fullscreen Lightbox"
-                >
-                  <Maximize2 className="w-4 h-4 text-[#00D9FF]" />
-                </button>
-
-                {/* Brief Slide-Over Trigger */}
-                <button
-                  type="button"
-                  onClick={() => setBriefDrawerOpen(true)}
-                  className="px-3 py-2 rounded-xl bg-[#030B24] border border-white/10 text-xs font-mono font-bold text-slate-300 hover:text-white hover:border-white/20 transition-all flex items-center gap-1.5 cursor-pointer"
-                >
-                  <FileCode className="w-3.5 h-3.5 text-[#E52BFF]" />
-                  <span className="hidden md:inline">Tokens &amp; Brief</span>
-                </button>
-
-                {/* Download Signed Assets */}
-                <a
-                  href={`/api/design-studio/artifacts/${activeArtifact.id}/file?type=screenshot&mode=redirect&sessionId=${sessionId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-2 rounded-xl bg-[#030B24] border border-white/10 text-xs font-mono font-bold text-emerald-400 hover:bg-emerald-500/10 transition-all flex items-center gap-1.5"
-                  title="Download High-Res Design Screenshot"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span className="hidden md:inline">Export</span>
-                </a>
-
-                {/* HERO CONVERSION CTA: BUILD THIS WITH STARX */}
-                <button
-                  type="button"
-                  onClick={() => setQuoteModalOpen(true)}
-                  className="px-5 py-2.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-emerald-500 via-[#00D9FF] to-[#087BFF] hover:brightness-110 text-[#030B24] shadow-[0_0_20px_rgba(0,217,255,0.4)] flex items-center gap-1.5 cursor-pointer transition-all shrink-0"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  <span>Build This With StarX</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-
-            {/* =================================================================== */}
-            {/* THE HERO CANVAS: CENTERPIECE OF THE SCREEN                         */}
-            {/* =================================================================== */}
-            <div className="relative rounded-3xl bg-[#020716] border border-[#0A1940] p-4 sm:p-8 flex flex-col items-center justify-center min-h-[640px] shadow-2xl overflow-hidden">
-              {/* Subtle Ambient Radial Glow */}
-              <div
-                className="absolute inset-0 pointer-events-none opacity-25"
-                style={{
-                  background:
-                    "radial-gradient(ellipse at 50% 30%, rgba(0, 217, 255, 0.25) 0%, rgba(3, 11, 36, 0) 70%)",
-                }}
-              />
-
-              {/* In-Canvas Refinement Loading Spinner Overlay */}
-              {isRefining && (
-                <div className="absolute inset-0 z-40 bg-[#030B24]/80 backdrop-blur-md flex flex-col items-center justify-center text-center space-y-4">
-                  <div className="w-16 h-16 rounded-full border-4 border-[#00D9FF]/20 border-t-[#00D9FF] animate-spin" />
-                  <div className="space-y-1">
-                    <h4 className="text-xl font-black text-white">
-                      Synthesizing Requested Revisions...
-                    </h4>
-                    <p className="text-xs text-[#00D9FF] font-mono">
-                      Google Stitch is modifying the canvas with your instructions.
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Viewport Chassis Container */}
-              <div
-                className={`${viewportStyles.wrapper} relative rounded-2xl overflow-hidden border border-white/15 bg-[#030B24] shadow-[0_20px_50px_rgba(0,0,0,0.8)] transition-all duration-300`}
-              >
-                {/* Desktop Browser Bar Chassis */}
-                {activeViewport === "DESKTOP" && (
-                  <div className="px-4 py-2.5 bg-[#071638] border-b border-white/10 flex items-center justify-between">
+                    {/* Quick CTAs */}
                     <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
-                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
-                      <div className="hidden sm:flex items-center gap-1.5 ml-3 px-3 py-1 rounded-lg bg-[#030B24] border border-white/5 text-[11px] font-mono text-slate-400">
-                        <Lock className="w-2.5 h-2.5 text-emerald-400" />
-                        <span>https://starxalphalabs.online/demo/{activeProject?.id}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 text-[10px] font-mono text-slate-400">
-                      <span>1440 × 900</span>
-                    </div>
-                  </div>
-                )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (typeof window !== "undefined") {
+                            navigator.clipboard.writeText(window.location.href);
+                            setShareToast("Link copied to clipboard!");
+                            setTimeout(() => setShareToast(null), 3000);
+                          }
+                        }}
+                        className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-mono flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Share2 className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">Share</span>
+                      </button>
 
-                {/* Mobile / Tablet Status Notch */}
-                {activeViewport === "MOBILE" && (
-                  <div className="px-6 py-2 bg-[#071638] border-b border-white/10 flex items-center justify-between text-[11px] font-mono text-slate-400">
-                    <span>9:41</span>
-                    <div className="w-16 h-4 bg-black rounded-full" />
-                    <span>5G • 100%</span>
-                  </div>
-                )}
-
-                {activeViewport === "TABLET" && (
-                  <div className="px-6 py-2 bg-[#071638] border-b border-white/10 flex items-center justify-between text-[11px] font-mono text-slate-400">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-white/20" />
-                      <span>Tablet Viewport</span>
+                      <button
+                        type="button"
+                        onClick={() => setQuoteModalOpen(true)}
+                        className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-black font-extrabold text-xs shadow-lg hover:brightness-110 flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Briefcase className="w-3.5 h-3.5" />
+                        <span>Build with StarX</span>
+                      </button>
                     </div>
-                    <span>768 × 1024</span>
                   </div>
-                )}
 
-                {/* Canvas Interior View: Render or Sandbox */}
-                {previewMode === "sandbox" && activeArtifact.htmlCode ? (
-                  <div className="w-full bg-white h-[650px] overflow-auto">
-                    <iframe
-                      srcDoc={activeArtifact.htmlCode}
-                      title={activeArtifact.title}
-                      sandbox="allow-scripts"
-                      className="w-full h-full border-0"
-                    />
-                  </div>
-                ) : activeArtifact.thumbnailUrl ? (
-                  <div className="relative group bg-[#020716] flex items-center justify-center p-1">
-                    <img
-                      src={activeArtifact.thumbnailUrl}
-                      alt={activeArtifact.title}
-                      className="w-full h-auto object-cover rounded-xl cursor-zoom-in"
-                      onClick={() => setLightboxOpen(true)}
-                    />
+                  {/* Sandboxed Viewport Chassis */}
+                  <div className="relative mx-auto flex justify-center py-4">
                     <div
-                      onClick={() => setLightboxOpen(true)}
-                      className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                      className={`border border-white/15 rounded-3xl bg-[#030B24] shadow-2xl overflow-hidden transition-all duration-300 ${
+                        activeViewport === "MOBILE"
+                          ? "w-[390px] min-h-[700px]"
+                          : activeViewport === "TABLET"
+                          ? "w-[768px] min-h-[750px]"
+                          : "w-full max-w-6xl min-h-[750px]"
+                      }`}
                     >
-                      <span className="px-4 py-2 rounded-xl bg-[#071638]/90 border border-white/20 text-xs font-mono font-bold text-white flex items-center gap-2 shadow-2xl">
-                        <ZoomIn className="w-4 h-4 text-[#00D9FF]" />
-                        <span>Click to Inspect Fullscreen (Zoom &amp; Pan)</span>
+                      {/* Browser Window Chrome Top Bar */}
+                      <div className="bg-[#071638] border-b border-white/10 px-4 py-2.5 flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-3 h-3 rounded-full bg-red-500/80" />
+                          <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
+                          <span className="w-3 h-3 rounded-full bg-green-500/80" />
+                        </div>
+                        <div className="text-[10px] font-mono text-slate-400 bg-[#030B24] px-4 py-0.5 rounded-full border border-white/5">
+                          https://demo.starxalphalabs.online/{currentIndustryObj.slug}/{brandName || "preview"}
+                        </div>
+                        <div className="text-[10px] font-mono text-[#00D9FF]">
+                          {activeViewport}
+                        </div>
+                      </div>
+
+                      {/* Rendered Design Artifact */}
+                      {activeArtifact.htmlCode ? (
+                        <iframe
+                          srcDoc={activeArtifact.htmlCode}
+                          title={activeArtifact.title || "Stitch Demo Canvas"}
+                          className="w-full min-h-[750px] border-0 bg-transparent"
+                          sandbox="allow-scripts allow-same-origin"
+                        />
+                      ) : activeArtifact.thumbnailUrl ? (
+                        <div className="p-4 flex items-center justify-center">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={activeArtifact.thumbnailUrl}
+                            alt={activeArtifact.title || "Design Screenshot"}
+                            className="max-w-full rounded-2xl shadow-xl"
+                          />
+                        </div>
+                      ) : (
+                        <div className="p-16 text-center space-y-4">
+                          <Sparkles className="w-10 h-10 text-[#00D9FF] mx-auto animate-pulse" />
+                          <h3 className="text-lg font-bold text-white">Stitch Architectural Screen Ready</h3>
+                          <p className="text-xs text-slate-400 max-w-md mx-auto">
+                            Artifact registered in PostgreSQL storage. Use natural language refinement below to iterate on layout.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Natural Language Refinement Input Bar (Calls edit_screens) */}
+                  <div className="max-w-4xl mx-auto p-4 rounded-2xl bg-[#0A1940] border border-white/10 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#00D9FF] flex items-center gap-1.5">
+                        <Wand2 className="w-3.5 h-3.5" />
+                        Collaborative Refinement with Google Stitch
+                      </span>
+                      <span className="text-[10px] font-mono text-slate-400">
+                        Natural Language Edits Powered by Stitch edit_screens
                       </span>
                     </div>
-                  </div>
-                ) : (
-                  <div className="p-16 text-center text-slate-400 font-mono text-xs">
-                    Authentic screen rendered through Google Stitch protocol.
-                  </div>
-                )}
-              </div>
-            </div>
 
-            {/* Refinement Toast Feedback */}
-            {refinementToast && (
-              <div className="p-3.5 rounded-2xl bg-[#071638] border border-[#00D9FF]/40 text-xs text-[#00D9FF] font-mono font-bold flex items-center justify-between shadow-2xl animate-in fade-in">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-[#E52BFF]" />
-                  <span>{refinementToast}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setRefinementToast(null)}
-                  className="text-slate-400 hover:text-white"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            )}
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={refinementPrompt}
+                        onChange={(e) => setRefinementPrompt(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleRefineDesign();
+                          }
+                        }}
+                        placeholder="e.g. 'Add a dark glassmorphic metric card for total revenue', 'Change primary button color to cyan', 'Make the hero title larger'..."
+                        className="grow px-4 py-3 rounded-xl bg-[#030B24] border border-white/10 text-xs text-white placeholder-slate-500 focus:border-[#00D9FF] focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRefineDesign()}
+                        disabled={isRefining || !refinementPrompt.trim()}
+                        className="px-6 py-3 rounded-xl bg-[#00D9FF] text-black font-extrabold text-xs hover:brightness-110 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                      >
+                        {isRefining ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                        <span>Apply Update</span>
+                      </button>
+                    </div>
 
-            {/* =================================================================== */}
-            {/* FLOATING NATURAL LANGUAGE REFINEMENT BAR                           */}
-            {/* =================================================================== */}
-            <div className="p-5 sm:p-6 rounded-3xl bg-[#071638]/95 border border-[#0A1940] space-y-3.5 shadow-2xl backdrop-blur-xl">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="text-xs font-mono font-bold text-white flex items-center gap-2">
-                  <Wand2 className="w-4 h-4 text-[#00D9FF]" />
-                  <span>Natural Language Design Refinement</span>
-                </span>
-                <span className="text-[11px] text-slate-400">
-                  Powered by Google Stitch <code className="text-[#00D9FF]">edit_screens</code> MCP
-                </span>
-              </div>
-
-              {/* Quick Prompt Pill Suggestions */}
-              <div className="flex flex-wrap gap-2 text-[11px] font-mono">
-                {[
-                  "+ Darker hero with champagne gold accents",
-                  "+ Add real-time sales & revenue charts",
-                  "+ Add customer quick-booking modal",
-                  "+ Include WhatsApp direct support trigger",
-                  "+ Make table columns high-density",
-                ].map((sugg) => (
-                  <button
-                    type="button"
-                    key={sugg}
-                    onClick={() => {
-                      setRefinementPrompt(sugg.replace("+ ", ""));
-                    }}
-                    className="px-2.5 py-1 rounded-lg bg-[#030B24] border border-white/10 text-slate-300 hover:border-[#00D9FF]/40 hover:text-[#00D9FF] transition-all cursor-pointer"
-                  >
-                    {sugg}
-                  </button>
-                ))}
-              </div>
-
-              {/* Refinement Input & Action */}
-              <div className="flex flex-col sm:flex-row gap-2.5">
-                <input
-                  type="text"
-                  placeholder="Describe what to change (e.g. Make hero darker, add inventory table, introduce checkout button)..."
-                  value={refinementPrompt}
-                  onChange={(e) => setRefinementPrompt(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !isRefining) {
-                      e.preventDefault();
-                      handleRefineDesign();
-                    }
-                  }}
-                  className="grow px-4 py-3 rounded-xl bg-[#030B24] border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00D9FF] transition-all"
-                />
-                <button
-                  type="button"
-                  disabled={isRefining || !refinementPrompt.trim()}
-                  onClick={() => handleRefineDesign()}
-                  className="px-6 py-3 rounded-xl text-xs font-extrabold bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-white hover:brightness-110 disabled:opacity-50 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shrink-0"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>{isRefining ? "Refining..." : "Refine with Stitch AI"}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* STAGE 4 FALLBACK: WHEN GENERATION QUEUED FOR OPERATOR WORKER              */}
-        {/* ========================================================================= */}
-        {currentStep === 4 && !activeArtifact && (
-          <div className="p-8 sm:p-12 rounded-3xl bg-[#071638]/90 border border-[#0A1940] space-y-6 shadow-2xl text-center max-w-2xl mx-auto backdrop-blur-xl">
-            <div className="w-16 h-16 rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mx-auto text-[#00D9FF]">
-              <Lock className="w-8 h-8" />
-            </div>
-            <div className="space-y-2">
-              <span className="px-3 py-1 rounded-full text-xs font-mono bg-cyan-500/10 text-[#00D9FF] border border-cyan-500/20">
-                PERSISTED IN POSTGRESQL (Job: {activeJob?.jobCode || "QUEUED"})
-              </span>
-              <h2 className="text-2xl font-black text-white">Generation Queued for Stitch Worker</h2>
-              <p className="text-xs text-slate-300">
-                Your project brief <strong>{activeProject?.title}</strong> is securely stored in
-                PostgreSQL. The Stitch execution provider is queued for autonomous execution by a
-                StarX Operator Worker.
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <button
-                type="button"
-                onClick={handleGeneratePreview}
-                className="w-full sm:w-auto px-6 py-3 rounded-full text-xs font-extrabold bg-[#0A1940] hover:bg-[#0E2458] border border-[#00D9FF]/40 text-[#00D9FF] flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Eye className="w-4 h-4" />
-                <span>View Instant Architecture Wireframe</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setQuoteModalOpen(true)}
-                className="w-full sm:w-auto px-6 py-3 rounded-full text-xs font-extrabold bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-white flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span>Proceed to Scoping &amp; Quotation</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* SLIDE-OVER DRAWER: TOKENS & ARCHITECTURE BRIEF                            */}
-        {/* ========================================================================= */}
-        {briefDrawerOpen && activeArtifact && (
-          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex justify-end">
-            <div className="w-full max-w-xl h-full bg-[#071638] border-l border-white/10 p-6 sm:p-8 overflow-y-auto space-y-6 shadow-2xl">
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
-                <div className="space-y-0.5">
-                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-[#00D9FF]" />
-                    <span>Design Tokens &amp; Specifications</span>
-                  </h3>
-                  <p className="text-xs text-slate-400">
-                    Google Stitch Material You 3 Tokens &amp; Design.md
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setBriefDrawerOpen(false)}
-                  className="p-2 rounded-xl bg-[#030B24] text-slate-400 hover:text-white border border-white/10 cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Material You Colors */}
-              <div className="space-y-3">
-                <h4 className="text-xs font-mono font-bold text-[#00D9FF] uppercase tracking-wider">
-                  Material You Semantic Colors
-                </h4>
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  {Object.entries(activeArtifact.designTheme.namedColors || {}).map(
-                    ([token, hex]) => {
-                      if (!hex) return null;
-                      return (
-                        <div
-                          key={token}
-                          className="p-2.5 rounded-xl bg-[#030B24] border border-white/5 flex items-center gap-2.5"
+                    {/* Quick Suggestion Pills */}
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {[
+                        "Add a high-contrast KPI metric bar",
+                        "Insert an automated WhatsApp direct chat button",
+                        "Show customer rating stars and social proof badges",
+                        "Switch to high-density tabular data view",
+                      ].map((sug) => (
+                        <button
+                          key={sug}
+                          type="button"
+                          onClick={() => handleRefineDesign(sug)}
+                          className="text-[10px] font-mono px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5 cursor-pointer"
                         >
-                          <span
-                            className="w-6 h-6 rounded-lg border border-white/20 shrink-0"
-                            style={{ backgroundColor: hex }}
-                          />
-                          <div className="overflow-hidden">
-                            <p className="text-[10px] font-mono text-slate-300 truncate">
-                              {token}
-                            </p>
-                            <p className="text-[10px] font-mono text-[#00D9FF] uppercase">
-                              {hex}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    }
-                  )}
-                </div>
-              </div>
-
-              {/* Typography Scale */}
-              <div className="space-y-3 pt-4 border-t border-white/10">
-                <h4 className="text-xs font-mono font-bold text-[#E52BFF] uppercase tracking-wider">
-                  Typography Scale
-                </h4>
-                <div className="space-y-2">
-                  {Object.entries(activeArtifact.designTheme.typography || {}).map(
-                    ([scaleName, item]) => (
-                      <div
-                        key={scaleName}
-                        className="p-3 rounded-xl bg-[#030B24] border border-white/5 flex items-center justify-between text-xs"
-                      >
-                        <span className="font-mono text-[#00D9FF]">{scaleName}</span>
-                        <span className="font-mono text-slate-400">
-                          {item.fontFamily} • {item.fontSize}
-                        </span>
-                      </div>
-                    )
-                  )}
-                </div>
-              </div>
-
-              {/* Design.md Markdown Content */}
-              {parsedDesignMd.sections.length > 0 && (
-                <div className="space-y-3 pt-4 border-t border-white/10">
-                  <h4 className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">
-                    Stitch Design.md Specification
-                  </h4>
-                  <div className="space-y-3 text-xs text-slate-300 leading-relaxed">
-                    {parsedDesignMd.sections.map((sec) => (
-                      <div
-                        key={sec.id}
-                        className="p-4 rounded-xl bg-[#030B24] border border-white/5 space-y-1.5"
-                      >
-                        <h5 className="font-bold text-white border-b border-white/10 pb-1">
-                          {sec.title}
-                        </h5>
-                        <p className="whitespace-pre-line text-slate-300 text-[11px]">
-                          {sec.content}
-                        </p>
-                      </div>
-                    ))}
+                          + {sug}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
-            </div>
-          </div>
-        )}
 
-        {/* ========================================================================= */}
-        {/* LIGHTBOX MODAL (ZOOM & PAN CANVAS INSPECTION)                             */}
-        {/* ========================================================================= */}
-        {lightboxOpen && activeArtifact?.thumbnailUrl && (
-          <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-4">
-            <div className="absolute top-4 right-4 flex items-center gap-2 z-50">
-              <button
-                type="button"
-                onClick={() => setLightboxZoom((prev) => Math.min(prev + 0.25, 2.5))}
-                className="p-2.5 rounded-full bg-[#071638] text-white border border-white/20 hover:bg-white/10 cursor-pointer"
-                title="Zoom In"
-              >
-                <ZoomIn className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setLightboxZoom((prev) => Math.max(prev - 0.25, 0.75))}
-                className="p-2.5 rounded-full bg-[#071638] text-white border border-white/20 hover:bg-white/10 cursor-pointer"
-                title="Zoom Out"
-              >
-                <ZoomOut className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setLightboxZoom(1)}
-                className="px-3 py-2 rounded-full bg-[#071638] text-white border border-white/20 hover:bg-white/10 text-xs font-mono cursor-pointer"
-              >
-                Reset ({Math.round(lightboxZoom * 100)}%)
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setLightboxOpen(false);
-                  setLightboxZoom(1);
-                }}
-                className="p-2.5 rounded-full bg-[#071638] text-white border border-white/20 hover:bg-white/10 cursor-pointer"
-                title="Close Lightbox"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="overflow-auto max-w-7xl max-h-[85vh] w-full flex items-center justify-center p-4">
-              <img
-                src={activeArtifact.thumbnailUrl}
-                alt={activeArtifact.title}
-                style={{ transform: `scale(${lightboxZoom})`, transformOrigin: "center" }}
-                className="max-h-[80vh] w-auto object-contain rounded-2xl shadow-2xl transition-transform duration-200"
-              />
-            </div>
-            <p className="text-xs font-mono text-slate-400 mt-2">
-              {activeArtifact.title} • Google Stitch Authenticated Canvas v{activeArtifact.versionNumber}
-            </p>
-          </div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* MODAL: "BUILD THIS WITH STARX" — QUOTATION & CONVERSION                   */}
-        {/* ========================================================================= */}
-        {quoteModalOpen && (
-          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="w-full max-w-2xl bg-[#071638] border border-[#00D9FF]/30 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl overflow-y-auto max-h-[90vh]">
-              {quoteSuccessId ? (
-                <div className="py-8 text-center space-y-4">
-                  <div className="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto">
-                    <CheckCircle2 className="w-8 h-8" />
-                  </div>
-                  <h3 className="text-2xl font-black text-white">
-                    Personalized Demo Transmitted to StarX Architects!
-                  </h3>
-                  <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto leading-relaxed">
-                    Your approved Stitch design direction (v{activeArtifact?.versionNumber || 1}) and
-                    specifications have been recorded under Reference ID:
+              {/* Quotation Submission Success Banner */}
+              {quoteSubmittedCode && (
+                <div className="max-w-2xl mx-auto p-8 rounded-3xl bg-[#071638] border border-[#00C98B] text-center space-y-4">
+                  <CheckCircle className="w-12 h-12 text-[#00C98B] mx-auto" />
+                  <h3 className="text-2xl font-black text-white">Quotation Request Dispatched!</h3>
+                  <p className="text-xs text-slate-300">
+                    Your design reference and itemized scope have been submitted to StarX Alpha Labs engineering.
+                    Reference Code: <strong className="text-[#00D9FF] font-mono">{quoteSubmittedCode}</strong>
                   </p>
-                  <div className="inline-block px-4 py-2 rounded-xl bg-[#030B24] border border-[#00D9FF]/40 text-[#00D9FF] font-mono font-bold text-sm">
-                    {quoteSuccessId}
-                  </div>
-                  <p className="text-xs text-slate-400 max-w-md mx-auto pt-2">
-                    Our Principal Software Architect is reviewing your requirements and will
-                    assemble an itemized commercial proposal within 24 business hours.
-                  </p>
-                  <div className="pt-4 flex justify-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setQuoteModalOpen(false);
-                        setQuoteSuccessId(null);
-                      }}
-                      className="px-6 py-2.5 rounded-full text-xs font-bold bg-[#030B24] border border-white/20 text-slate-300 hover:text-white cursor-pointer"
-                    >
-                      Close &amp; Keep Exploring
-                    </button>
+                  <div className="pt-2">
                     <Link
-                      href="/customer"
-                      className="px-6 py-2.5 rounded-full text-xs font-bold bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-white hover:brightness-110"
+                      href={`/customer`}
+                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-black font-bold text-xs inline-block"
                     >
-                      Customer Portal &rarr;
+                      View in Customer Portal &rarr;
                     </Link>
                   </div>
                 </div>
-              ) : (
-                <form onSubmit={handleSubmitQuotation} className="space-y-6">
-                  <div className="flex items-center justify-between pb-4 border-b border-white/10">
-                    <div className="space-y-0.5">
-                      <span className="text-[10px] font-mono text-[#00D9FF] uppercase tracking-wider">
-                        Engineering Handoff &amp; Commercial Scope
-                      </span>
-                      <h3 className="text-xl font-black text-white">Build This With StarX</h3>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setQuoteModalOpen(false)}
-                      className="p-2 rounded-xl bg-[#030B24] text-slate-400 hover:text-white border border-white/10 cursor-pointer"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  {/* Pre-filled Scope Summary */}
-                  <div className="p-4 rounded-xl bg-[#030B24] border border-white/5 grid grid-cols-2 gap-3 text-xs">
-                    <div>
-                      <span className="text-[10px] font-mono text-slate-400 uppercase">
-                        Project &amp; Category:
-                      </span>
-                      <p className="font-bold text-white truncate">{projectName}</p>
-                      <p className="text-slate-400 text-[11px]">{productCategory}</p>
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-mono text-slate-400 uppercase">
-                        Stitch Direction:
-                      </span>
-                      <p className="font-bold text-[#00D9FF]">
-                        v{activeArtifact?.versionNumber || 1} • {activeViewport}
-                      </p>
-                      <p className="text-slate-400 text-[11px]">
-                        {revisionsList.length} revision note(s) logged
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Customer Information Inputs */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-mono font-bold text-slate-300">
-                        Full Name *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. Vikram Malhotra"
-                        value={clientName}
-                        onChange={(e) => setClientName(e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-xl bg-[#030B24] border border-[#0A1940] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00D9FF]"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-mono font-bold text-slate-300">
-                        Work Email *
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        placeholder="e.g. vikram@company.com"
-                        value={clientEmail}
-                        onChange={(e) => setClientEmail(e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-xl bg-[#030B24] border border-[#0A1940] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00D9FF]"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-mono font-bold text-slate-300">
-                        Phone / WhatsApp *
-                      </label>
-                      <input
-                        type="tel"
-                        required
-                        placeholder="e.g. +91 98765 43210"
-                        value={clientPhone}
-                        onChange={(e) => setClientPhone(e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-xl bg-[#030B24] border border-[#0A1940] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00D9FF]"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-mono font-bold text-slate-300">
-                        Company Name (Optional)
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Malhotra Enterprises"
-                        value={clientCompany}
-                        onChange={(e) => setClientCompany(e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-xl bg-[#030B24] border border-[#0A1940] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00D9FF]"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Budget & Timeline Selectors */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-mono font-bold text-slate-300">
-                        Target Timeline
-                      </label>
-                      <select
-                        value={clientTimeline}
-                        onChange={(e) => setClientTimeline(e.target.value)}
-                        className="w-full px-3 py-2.5 rounded-xl bg-[#030B24] border border-[#0A1940] text-xs text-white focus:outline-none focus:border-[#00D9FF]"
-                      >
-                        <option value="2–4 Weeks">2–4 Weeks (Fast-Track MVP)</option>
-                        <option value="3–5 Weeks">3–5 Weeks (Standard Production)</option>
-                        <option value="6–10 Weeks">6–10 Weeks (Enterprise Platform)</option>
-                        <option value="Flexible">Flexible Staged Roadmap</option>
-                      </select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-mono font-bold text-slate-300">
-                        Estimated Budget
-                      </label>
-                      <select
-                        value={clientBudget}
-                        onChange={(e) => setClientBudget(e.target.value)}
-                        className="w-full px-3 py-2.5 rounded-xl bg-[#030B24] border border-[#0A1940] text-xs text-white focus:outline-none focus:border-[#00D9FF]"
-                      >
-                        <option value="₹50,000 - ₹1,50,000">₹50,000 – ₹1,50,000</option>
-                        <option value="₹75,000 - ₹2,50,000">₹75,000 – ₹2,50,000</option>
-                        <option value="₹2,50,000 - ₹6,00,000">₹2,50,000 – ₹6,00,000</option>
-                        <option value="₹6,00,000+">₹6,00,000+ (Enterprise Staged)</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Additional Notes Textarea */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-mono font-bold text-slate-300">
-                      Additional Requirements or Integrations
-                    </label>
-                    <textarea
-                      rows={2}
-                      placeholder="e.g. Needs ERP sync, custom payment webhook, multi-currency support..."
-                      value={clientNotes}
-                      onChange={(e) => setClientNotes(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl bg-[#030B24] border border-[#0A1940] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00D9FF]"
-                    />
-                  </div>
-
-                  {/* Submit Button */}
-                  <div className="pt-2 flex items-center justify-between border-t border-white/10">
-                    <button
-                      type="button"
-                      onClick={() => setQuoteModalOpen(false)}
-                      className="text-xs font-mono text-slate-400 hover:text-white cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-
-                    <button
-                      type="submit"
-                      disabled={isSubmittingQuote}
-                      className="px-8 py-3 rounded-full text-xs font-extrabold bg-gradient-to-r from-emerald-500 via-[#00D9FF] to-[#087BFF] hover:brightness-110 text-[#030B24] shadow-xl flex items-center gap-2 cursor-pointer disabled:opacity-50 transition-all"
-                    >
-                      <Send className="w-4 h-4" />
-                      <span>
-                        {isSubmittingQuote
-                          ? "Transmitting..."
-                          : "Submit for Engineering Feasibility & Proposal"}
-                      </span>
-                    </button>
-                  </div>
-                </form>
               )}
             </div>
+          )}
+        </Container>
+      </main>
+
+      {/* Build with StarX Commercial Conversion Modal */}
+      {quoteModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="w-full max-w-xl rounded-3xl bg-[#0A1940] border border-[#00D9FF]/40 p-8 space-y-6 shadow-2xl relative">
+            <button
+              type="button"
+              onClick={() => setQuoteModalOpen(false)}
+              className="absolute top-6 right-6 text-slate-400 hover:text-white text-lg cursor-pointer"
+            >
+              &times;
+            </button>
+
+            <div className="space-y-1">
+              <Badge variant="electric">Commercial Conversion</Badge>
+              <h3 className="text-2xl font-black text-white">Build with StarX Alpha Labs</h3>
+              <p className="text-xs text-[#C8D5EF]">
+                Lock in your scope, approved Stitch design reference, and itemized milestone quotation.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[#030B24] border border-white/5 space-y-2 text-xs font-mono">
+              <div className="flex justify-between">
+                <span className="text-slate-400">Selected Plan:</span>
+                <span className="text-white font-bold">{currentPlan.name} ({currentPlan.code})</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Total Investment:</span>
+                <span className="text-[#00D9FF] font-bold">{formatINR(pricingTotals.totalINR)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Delivery Timeline:</span>
+                <span className="text-white">{currentPlan.timelineWeeks}</span>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmitQuotation} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-mono text-slate-400">Your Full Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={clientName}
+                    onChange={(e) => setClientName(e.target.value)}
+                    placeholder="e.g. Alex Sharma"
+                    className="w-full px-3 py-2 rounded-xl bg-[#030B24] border border-white/10 text-xs text-white focus:outline-none focus:border-[#00D9FF]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-mono text-slate-400">Business Email *</label>
+                  <input
+                    type="email"
+                    required
+                    value={clientEmail}
+                    onChange={(e) => setClientEmail(e.target.value)}
+                    placeholder="alex@company.com"
+                    className="w-full px-3 py-2 rounded-xl bg-[#030B24] border border-white/10 text-xs text-white focus:outline-none focus:border-[#00D9FF]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-mono text-slate-400">WhatsApp / Phone *</label>
+                  <input
+                    type="tel"
+                    required
+                    value={clientPhone}
+                    onChange={(e) => setClientPhone(e.target.value)}
+                    placeholder="+91 98765 43210"
+                    className="w-full px-3 py-2 rounded-xl bg-[#030B24] border border-white/10 text-xs text-white focus:outline-none focus:border-[#00D9FF]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-mono text-slate-400">Company / Organization</label>
+                  <input
+                    type="text"
+                    value={clientCompany}
+                    onChange={(e) => setClientCompany(e.target.value)}
+                    placeholder="e.g. Acme Enterprises"
+                    className="w-full px-3 py-2 rounded-xl bg-[#030B24] border border-white/10 text-xs text-white focus:outline-none focus:border-[#00D9FF]"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[11px] font-mono text-slate-400">Additional Project Notes</label>
+                <textarea
+                  rows={3}
+                  value={clientNotes}
+                  onChange={(e) => setClientNotes(e.target.value)}
+                  placeholder="Any specific architectural preferences, deadlines, or third-party systems..."
+                  className="w-full px-3 py-2 rounded-xl bg-[#030B24] border border-white/10 text-xs text-white focus:outline-none focus:border-[#00D9FF]"
+                />
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={isSubmittingQuote}
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#00D9FF] to-[#087BFF] text-black font-extrabold text-xs shadow-xl hover:brightness-110 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {isSubmittingQuote ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  <span>Submit Handoff for Guaranteed Quotation</span>
+                </button>
+              </div>
+            </form>
           </div>
-        )}
-      </Container>
+        </div>
+      )}
     </div>
   );
 }

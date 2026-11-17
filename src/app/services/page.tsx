@@ -15,10 +15,12 @@ export const metadata: Metadata = {
 
 export default function ServicesPage() {
   const categories = [
-    { key: "digital", label: "STARX DIGITAL (Web & Commerce)" },
-    { key: "systems", label: "STARX SYSTEMS (Custom Software & APIs)" },
-    { key: "ai", label: "STARX AI SOLUTIONS (Bespoke AI Architecture)" },
-    { key: "maintenance", label: "Engineering Maintenance & SLA" },
+    { key: "web", label: "STARX WEB (Websites, Portals & Commerce)", divisionSlug: "starx-web" },
+    { key: "apps", label: "STARX APPS (Branded iOS & Android Applications)", divisionSlug: "starx-apps" },
+    { key: "business", label: "STARX BUSINESS (Operations, POS & Internal Tools)", divisionSlug: "starx-business" },
+    { key: "saas", label: "STARX SAAS (Subscription Products & Multi-Tenant Systems)", divisionSlug: "starx-saas" },
+    { key: "ai", label: "STARX AI (Bespoke AI Architecture & RAG Pipelines)", divisionSlug: "starx-ai" },
+    { key: "custom", label: "STARX CUSTOM (Enterprise Engineering & SLA Support)", divisionSlug: "starx-custom" },
   ];
 
   return (

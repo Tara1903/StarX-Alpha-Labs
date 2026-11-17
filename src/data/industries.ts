@@ -435,7 +435,8 @@ export function getIndustryBySlug(slug: string): IndustryItem | undefined {
   const exact = INDUSTRIES_DATA.find((i) => i.slug === normalized);
   if (exact) return exact;
 
-  // Legacy route mappings
+  // Legacy and canonical alias route mappings
+  if (normalized === "finance-banking") return INDUSTRIES_DATA.find((i) => i.slug === "finance-professional-services");
   if (normalized === "restaurants-cloud-kitchens") return INDUSTRIES_DATA.find((i) => i.slug === "food-hospitality");
   if (normalized === "retail-wholesale") return INDUSTRIES_DATA.find((i) => i.slug === "retail-commerce");
   if (normalized === "ecommerce-brands") return INDUSTRIES_DATA.find((i) => i.slug === "retail-commerce");
