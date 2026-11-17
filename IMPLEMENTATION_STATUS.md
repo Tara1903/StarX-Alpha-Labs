@@ -127,8 +127,37 @@
 ---
 
 ### Phase 5: Backend & Supabase
-- **Status**: **PENDING**
-- **Target Scope**: Independent Supabase database migrations, Row Level Security (RLS) policies, contact/quote/consultation intake endpoints, admin authentication, website CMS foundation.
+- **Status**: **IN PROGRESS**
+- **Milestones**:
+  - [x] Independent Supabase database migrations (`supabase/migrations/`) established.
+  - [x] Contact, quote, and consultation intake endpoints active with offline resilience.
+  - [x] Design Studio ecosystem persistence schema (`20261117000001_design_studio_ecosystem.sql`).
+  - [x] Row Level Security (RLS) policies configured for projects, jobs, artifacts, and revisions.
+
+---
+
+### Google Stitch Integration Milestone (Design Studio)
+- **Status**: **COMPLETE**
+- **Milestones**:
+  - [x] Deep capability discovery performed on connected Stitch MCP environment (`StitchMCP`).
+  - [x] Architecture design: Dual-mode execution (HTTP Bridge via `STITCH_MCP_URL` & authenticated Stitch MCP catalog with signed Google Cloud thumbnails and `Design.md` markdown specs).
+  - [x] Stitch integration layer created under `src/lib/stitch/` (`types.ts`, `schemas.ts`, `capabilities.ts`, `artifacts.ts`, `catalog.ts`, `client.ts`, `jobs.ts`).
+  - [x] Database migration created (`20261117000001_design_studio_ecosystem.sql`) with tables: `design_studio_projects`, `design_generation_jobs`, `design_artifacts`, `design_revisions`.
+  - [x] Backend API endpoints created:
+    - `/api/design-studio/projects` (GET, POST)
+    - `/api/design-studio/jobs` (GET, POST)
+    - `/api/design-studio/artifacts` (GET)
+    - `/api/design-studio/revisions` (GET, POST, PATCH)
+  - [x] Frontend transformed (`DesignStudioClient.tsx`) into a 6-stage collaborative experience:
+    - 01. Requirement Discovery (Industry, division, platform, requirements)
+    - 02. AI System Brief & Model Configuration (`GEMINI_3_8_FLASH`, viewport target)
+    - 03. Live Stitch Generation Lifecycle (Progress bar, multi-stage status telemetry)
+    - 04. Design Workspace (Visual Preview with zoom, Material You tokens, Design.md spec viewer, Typography scale)
+    - 05. Collaborative Revisions & Version History (Logged feedback notes, formal approval)
+    - 06. Engineering Scope & Quotation Handoff (Transmits to `/api/quote`, generates quotation reference)
+  - [x] Full integration test suite created (`scripts/test-stitch-integration.mjs`) passing 7/7 HTTP tests.
+  - [x] Strict TypeScript check passed with 0 errors.
+  - [x] Turbopack production build verified passing for all 395 routes.
 
 ---
 
