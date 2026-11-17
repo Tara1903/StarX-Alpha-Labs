@@ -149,6 +149,21 @@ export interface StitchScreen {
 // Design Studio Application & Database Entity Types
 // -------------------------------------------------------------
 
+export type PreferredContactMethod = "phone" | "whatsapp" | "email";
+export type PreferredContactTime = "morning" | "afternoon" | "evening" | "flexible";
+
+export interface DesignStudioContactProfile {
+  fullName: string;
+  countryCode: string;
+  phone: string;
+  email: string;
+  company?: string;
+  preferredContactMethod: PreferredContactMethod;
+  preferredContactTime: PreferredContactTime;
+  consent: boolean;
+  consentTimestamp?: string;
+}
+
 export type JobStatus = "queued" | "processing" | "completed" | "failed" | "cancelled";
 
 export type ProjectLifecycleStatus =
@@ -193,6 +208,7 @@ export interface DesignStudioProject {
   contactName?: string;
   contactEmail?: string;
   contactPhone?: string;
+  contactProfile?: DesignStudioContactProfile;
   quoteRequestId?: string;
   createdAt: string;
   updatedAt: string;
@@ -247,6 +263,7 @@ export interface DesignArtifact {
   palette: string[];
   keyFeatures: string[];
   isApproved: boolean;
+  approvedAt?: string;
   createdAt: string;
 }
 

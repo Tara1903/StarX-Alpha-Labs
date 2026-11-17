@@ -14,6 +14,7 @@ import type {
   DesignStudioBrief,
   StitchModelId,
   StitchDeviceType,
+  DesignStudioContactProfile,
 } from "./types";
 import { stitchClient } from "./client";
 import { createClient } from "@supabase/supabase-js";
@@ -284,6 +285,28 @@ export class DesignStudioOrchestrator {
     localProjects.set(id, project);
 
     // Save to PostgreSQL
+    await this.persistProjectToDb(project);
+
+    return project;
+  }
+
+  /**
+   * Updates contact profile on a Design Studio project draft.
+   */
+  public async updateProjectContactProfile(
+    projectId: string,
+    profile: DesignStudioContactProfile
+  ): Promise<DesignStudioProject | null> {
+    const project = await this.getProject(projectId);
+    if (!project) return null;
+
+    project.contactProfile = profile;
+    project.contactName = profile.fullName;
+    project.contactEmail = profile.email;
+    project.contactPhone = `${profile.countryCode} ${profile.phone}`.trim();
+    project.updatedAt = new Date().toISOString();
+
+    localProjects.set(projectId, project);
     await this.persistProjectToDb(project);
 
     return project;
@@ -907,10 +930,12 @@ export class DesignStudioOrchestrator {
     contactEmail?: string;
     contactPhone?: string;
     quoteRequestId?: string;
-  }): Promise<{ ok: boolean }> {
+  }): Promise<{ ok: boolean; artifact?: DesignArtifact }> {
     const artifact = await this.getArtifact(params.artifactId);
     if (artifact) {
       artifact.isApproved = true;
+      artifact.approvedAt = new Date().toISOString();
+      localArtifacts.set(artifact.id, artifact);
       await this.persistArtifactToDb(artifact);
     }
 
@@ -928,7 +953,7 @@ export class DesignStudioOrchestrator {
       await this.persistProjectToDb(project);
     }
 
-    return { ok: true };
+    return { ok: true, artifact: artifact || undefined };
   }
 
   /**

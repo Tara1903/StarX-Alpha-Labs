@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { CreateDesignProjectSchema } from "@/lib/stitch/schemas";
+import { CreateDesignProjectSchema, ContactProfileSchema } from "@/lib/stitch/schemas";
 import { designStudioOrchestrator } from "@/lib/stitch/jobs";
 
 export async function GET(request: NextRequest) {
@@ -69,6 +69,54 @@ export async function POST(request: NextRequest) {
     const project = await designStudioOrchestrator.createProject(brief as any, finalContact);
 
     return NextResponse.json({ ok: true, project }, { status: 201 });
+  } catch (err: any) {
+    return NextResponse.json(
+      { ok: false, error: err?.message || "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const json = await request.json();
+    const { projectId, contactProfile } = json;
+
+    if (!projectId) {
+      return NextResponse.json(
+        { ok: false, error: "Missing required projectId" },
+        { status: 400 }
+      );
+    }
+
+    if (!contactProfile) {
+      return NextResponse.json(
+        { ok: false, error: "Missing contactProfile" },
+        { status: 400 }
+      );
+    }
+
+    const parsed = ContactProfileSchema.safeParse(contactProfile);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { ok: false, errors: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      );
+    }
+
+    const project = await designStudioOrchestrator.updateProjectContactProfile(
+      projectId,
+      parsed.data
+    );
+
+    if (!project) {
+      return NextResponse.json(
+        { ok: false, error: "Project not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ ok: true, project });
   } catch (err: any) {
     return NextResponse.json(
       { ok: false, error: err?.message || "Internal server error" },

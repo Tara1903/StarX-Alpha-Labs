@@ -22,6 +22,13 @@ export const QuoteFormSchema = z.object({
   timeline: z.string().trim().max(50).optional().or(z.literal('')),
   projectDetails: z.string().trim().min(15, 'Please provide at least 15 characters describing your requirements').max(5000),
   website_hp: z.string().optional(),
+  projectId: z.string().optional(),
+  artifactId: z.string().optional(),
+  contactProfile: z.record(z.any()).optional(),
+  consent: z.boolean().optional(),
+  consentTimestamp: z.string().optional(),
+  enquiryRef: z.string().optional(),
+  sourcePage: z.string().optional(),
 });
 
 export const ConsultationFormSchema = z.object({

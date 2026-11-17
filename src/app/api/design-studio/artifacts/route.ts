@@ -40,3 +40,46 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export async function POST(request: NextRequest) {
+  try {
+    const json = await request.json();
+    const { action, projectId, artifactId, contactName, contactEmail, contactPhone, quoteRequestId } = json;
+
+    if (action === "approve") {
+      if (!projectId || !artifactId) {
+        return NextResponse.json(
+          { ok: false, error: "Missing required projectId or artifactId" },
+          { status: 400 }
+        );
+      }
+
+      const res = await designStudioOrchestrator.approveArtifact({
+        projectId,
+        artifactId,
+        contactName,
+        contactEmail,
+        contactPhone,
+        quoteRequestId,
+      });
+
+      const updatedArtifact = await designStudioOrchestrator.getArtifact(artifactId);
+
+      return NextResponse.json({
+        ok: true,
+        success: true,
+        artifact: updatedArtifact || res.artifact,
+      });
+    }
+
+    return NextResponse.json(
+      { ok: false, error: `Unsupported action: ${action}` },
+      { status: 400 }
+    );
+  } catch (err: any) {
+    return NextResponse.json(
+      { ok: false, error: err?.message || "Internal server error" },
+      { status: 500 }
+    );
+  }
+}

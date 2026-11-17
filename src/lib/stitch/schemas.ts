@@ -19,6 +19,18 @@ export const DesignBriefInputSchema = z.object({
   specialInstructions: z.string().max(1000).optional(),
 });
 
+export const ContactProfileSchema = z.object({
+  fullName: z.string().min(2, "Full name must be at least 2 characters"),
+  countryCode: z.string().default("+91"),
+  phone: z.string().min(6, "Valid phone number required"),
+  email: z.string().email("Valid email required"),
+  company: z.string().optional(),
+  preferredContactMethod: z.enum(["phone", "whatsapp", "email"]).default("phone"),
+  preferredContactTime: z.enum(["morning", "afternoon", "evening", "flexible"]).default("flexible"),
+  consent: z.boolean().refine((val) => val === true, "Consent is required"),
+  consentTimestamp: z.string().optional(),
+});
+
 export const CreateDesignProjectSchema = z.object({
   brief: DesignBriefInputSchema,
   contact: z
@@ -31,6 +43,7 @@ export const CreateDesignProjectSchema = z.object({
       sessionId: z.string().optional(),
     })
     .optional(),
+  contactProfile: ContactProfileSchema.optional(),
   sessionId: z.string().optional(),
   organizationId: z.string().optional(),
 });
