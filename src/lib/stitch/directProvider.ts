@@ -228,15 +228,16 @@ export class DirectStitchProvider {
 
   /**
    * Uploads an artifact asset (HTML or Screenshot) to the dedicated Supabase Storage bucket.
+   * Generates a short-lived cryptographically signed URL (3600s / 1hr) for secure private access.
    */
   public async uploadAssetToStorage(
     fileName: string,
     content: string | Buffer,
     contentType: string
-  ): Promise<string | null> {
+  ): Promise<{ signedUrl: string | null; storagePath: string }> {
     try {
       if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-        return null;
+        return { signedUrl: null, storagePath: fileName };
       }
       const admin = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -253,13 +254,49 @@ export class DirectStitchProvider {
 
       if (error) {
         console.warn(`[DirectStitchProvider] Storage upload error for ${fileName}:`, error.message);
-        return null;
+        return { signedUrl: null, storagePath: fileName };
       }
 
-      const { data: pubData } = admin.storage.from(bucketName).getPublicUrl(fileName);
-      return pubData?.publicUrl || null;
+      // Generate a secure 1-hour signed URL (bucket is private)
+      const { data: signedData, error: signErr } = await admin.storage
+        .from(bucketName)
+        .createSignedUrl(fileName, 3600);
+
+      if (signErr) {
+        console.warn(`[DirectStitchProvider] Signed URL generation error:`, signErr.message);
+        return { signedUrl: null, storagePath: fileName };
+      }
+
+      return { signedUrl: signedData?.signedUrl || null, storagePath: fileName };
     } catch (err: any) {
       console.warn(`[DirectStitchProvider] Storage upload exception:`, err?.message);
+      return { signedUrl: null, storagePath: fileName };
+    }
+  }
+
+  /**
+   * Generates an authorized fresh signed URL for any private artifact asset path.
+   */
+  public async createSignedUrl(storagePath: string, expiresInSeconds = 3600): Promise<string | null> {
+    try {
+      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        return null;
+      }
+      const admin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        { auth: { persistSession: false, autoRefreshToken: false } }
+      );
+      const { data, error } = await admin.storage
+        .from("design-studio-artifacts")
+        .createSignedUrl(storagePath, expiresInSeconds);
+
+      if (error) {
+        console.warn(`[DirectStitchProvider] createSignedUrl error for ${storagePath}:`, error.message);
+        return null;
+      }
+      return data?.signedUrl || null;
+    } catch {
       return null;
     }
   }
@@ -336,6 +373,8 @@ export class DirectStitchProvider {
       let htmlCode = "";
       let htmlUrl: string | undefined = primaryScreenMeta.htmlCode?.downloadUrl;
       let screenshotUrl: string | undefined = primaryScreenMeta.screenshot?.downloadUrl;
+      let storagePathHtml: string | undefined;
+      let storagePathScreenshot: string | undefined;
 
       // 5. Download HTML and Screenshot assets and store in Supabase Storage
       const htmlFileName = primaryScreenMeta.htmlCode?.name;
@@ -349,8 +388,11 @@ export class DirectStitchProvider {
           if (rawHtml) {
             htmlCode = rawHtml;
             const storageFileName = `projects/${params.projectId}/v${versionNumber}_screen_${providerScreenId}.html`;
-            const uploadedUrl = await this.uploadAssetToStorage(storageFileName, htmlCode, "text/html");
-            if (uploadedUrl) htmlUrl = uploadedUrl;
+            const uploadResult = await this.uploadAssetToStorage(storageFileName, htmlCode, "text/html");
+            if (uploadResult.signedUrl) {
+              htmlUrl = uploadResult.signedUrl;
+              storagePathHtml = uploadResult.storagePath;
+            }
           }
         } catch (htmlErr: any) {
           log(`HTML download note: ${htmlErr.message}`, "Asset Download");
@@ -366,8 +408,11 @@ export class DirectStitchProvider {
           if (imageBase64) {
             const imageBuffer = Buffer.from(imageBase64, "base64");
             const storageFileName = `projects/${params.projectId}/v${versionNumber}_screenshot_${providerScreenId}.png`;
-            const uploadedUrl = await this.uploadAssetToStorage(storageFileName, imageBuffer, "image/png");
-            if (uploadedUrl) screenshotUrl = uploadedUrl;
+            const uploadResult = await this.uploadAssetToStorage(storageFileName, imageBuffer, "image/png");
+            if (uploadResult.signedUrl) {
+              screenshotUrl = uploadResult.signedUrl;
+              storagePathScreenshot = uploadResult.storagePath;
+            }
           }
         } catch (imgErr: any) {
           log(`Screenshot download note: ${imgErr.message}`, "Asset Download");
@@ -404,6 +449,8 @@ export class DirectStitchProvider {
         designMd: `# ${params.brief.projectName}\n\nGenerated with Google Stitch AI (${modelId}) on ${new Date().toLocaleDateString()}.\n\n### Key Features\n${params.brief.selectedFeatures.map((f) => `- ${f}`).join("\n")}`,
         thumbnailUrl: screenshotUrl || htmlUrl || `https://placehold.co/1280x720/0a0e17/00f2fe?text=${encodeURIComponent(params.brief.projectName)}`,
         downloadUrl: htmlUrl,
+        storagePathHtml,
+        storagePathScreenshot,
         htmlCode: htmlCode || undefined,
         palette: defaultPalette,
         keyFeatures: params.brief.selectedFeatures,
@@ -476,6 +523,9 @@ export class DirectStitchProvider {
       let htmlUrl: string | undefined = revisedScreenMeta.htmlCode?.downloadUrl;
       let screenshotUrl: string | undefined = revisedScreenMeta.screenshot?.downloadUrl;
 
+      let storagePathHtml: string | undefined = params.currentArtifact.storagePathHtml;
+      let storagePathScreenshot: string | undefined = params.currentArtifact.storagePathScreenshot;
+
       const htmlFileName = revisedScreenMeta.htmlCode?.name;
       if (htmlFileName) {
         try {
@@ -486,8 +536,11 @@ export class DirectStitchProvider {
           if (rawHtml) {
             htmlCode = rawHtml;
             const storageFileName = `projects/${params.projectId}/v${versionNumber}_revised_${newScreenId}.html`;
-            const uploadedUrl = await this.uploadAssetToStorage(storageFileName, htmlCode, "text/html");
-            if (uploadedUrl) htmlUrl = uploadedUrl;
+            const uploadResult = await this.uploadAssetToStorage(storageFileName, htmlCode, "text/html");
+            if (uploadResult.signedUrl) {
+              htmlUrl = uploadResult.signedUrl;
+              storagePathHtml = uploadResult.storagePath;
+            }
           }
         } catch (htmlErr: any) {
           log(`Revised HTML download note: ${htmlErr.message}`, "Revision Download");
@@ -502,8 +555,11 @@ export class DirectStitchProvider {
           if (imageBase64) {
             const imageBuffer = Buffer.from(imageBase64, "base64");
             const storageFileName = `projects/${params.projectId}/v${versionNumber}_revised_${newScreenId}.png`;
-            const uploadedUrl = await this.uploadAssetToStorage(storageFileName, imageBuffer, "image/png");
-            if (uploadedUrl) screenshotUrl = uploadedUrl;
+            const uploadResult = await this.uploadAssetToStorage(storageFileName, imageBuffer, "image/png");
+            if (uploadResult.signedUrl) {
+              screenshotUrl = uploadResult.signedUrl;
+              storagePathScreenshot = uploadResult.storagePath;
+            }
           }
         } catch (imgErr: any) {
           log(`Revised screenshot download note: ${imgErr.message}`, "Revision Download");
@@ -519,6 +575,8 @@ export class DirectStitchProvider {
         title: revisedScreenMeta.title || `${params.currentArtifact.title} (Revision ${versionNumber})`,
         thumbnailUrl: screenshotUrl || htmlUrl || params.currentArtifact.thumbnailUrl,
         downloadUrl: htmlUrl || params.currentArtifact.downloadUrl,
+        storagePathHtml,
+        storagePathScreenshot,
         htmlCode: htmlCode || params.currentArtifact.htmlCode,
         isApproved: false,
         createdAt: new Date().toISOString(),

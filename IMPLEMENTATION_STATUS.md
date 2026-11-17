@@ -161,6 +161,19 @@
 
 ---
 
+### Phase 4b: Google Stitch Production Deployment & Security Audit
+- **Status**: **COMPLETE**
+- **Milestones**:
+  - [x] Worker Hosting Architecture: Inspected Vercel serverless environment; decoupled worker from ephemeral routes and established standalone queue worker daemon architecture.
+  - [x] Container & Process Management: Created `Dockerfile.worker`, `docker-compose.worker.yml`, `systemd/starx-stitch-worker.service`, and `ecosystem.config.cjs` (PM2) for persistent Node 22 hosts (Railway, Render, Fly.io, Cloud Run, VMs).
+  - [x] Storage Privacy: Transitioned `design-studio-artifacts` Supabase bucket from public to **PRIVATE** (`public: false`). Direct public HTTP fetch returns HTTP 400 (`NoSuchBucket`).
+  - [x] Short-Lived Signed URLs: Implemented 1-hour signed URL generation (`admin.storage.createSignedUrl(path, 3600)`) in `directProvider.ts`, `jobs.ts`, and `stitch-worker.mjs`.
+  - [x] Authorized File Endpoint: Created `/api/design-studio/artifacts/[id]/file` with strict cross-organization tenant isolation checking (`verifyArtifactAccess`).
+  - [x] Queue Fault-Tolerance: Implemented atomic conditional claiming (`metadata->job->>status == 'queued'`), lease heartbeats (20s interval), and automatic expired lock reclamation (>10m lease without heartbeat) with retry tracking (`retryCount < maxRetries`), preventing permanently stuck jobs.
+  - [x] Comprehensive Security & Isolation Suite: Executed `scripts/test-stitch-security-isolation.mjs` verifying concurrency races, worker crash recovery, retry exhaustion, storage privacy, tenant isolation, and end-to-end customer lifecycle with server restart recovery — **6/6 PASSED (100%)**.
+
+---
+
 ### Phase 6: STARX Ecosystem
 - **Status**: **PENDING**
 - **Target Scope**: Contextual links to STARX FLOW, referral parameterization, strict separation of automation vs development services.

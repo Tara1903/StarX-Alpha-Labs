@@ -1,0 +1,43 @@
+# ==============================================================================
+# STARX ALPHA LABS — GOOGLE STITCH PRODUCTION EXECUTION WORKER
+# Standalone Container Definition for Persistent Node.js Queue Workers
+# Compatible with Docker, Docker Compose, Railway, Render, Fly.io & Cloud Run
+# ==============================================================================
+
+FROM node:22-slim
+
+# Install system utilities needed for npx and network requests
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Set production environment flags
+ENV NODE_ENV=production
+ENV DOTENV_CONFIG_QUIET=true
+ENV DOTENV_QUIET=true
+ENV NO_COLOR=1
+
+# Copy dependency manifests
+COPY package.json package-lock.json ./
+
+# Install required dependencies
+RUN npm ci --only=production
+
+# Pre-cache @_davideast/stitch-mcp so worker starts instantly
+RUN npx -y @_davideast/stitch-mcp --version || true
+
+# Copy worker script and necessary application libraries
+COPY scripts/stitch-worker.mjs ./scripts/stitch-worker.mjs
+
+# Non-root security user
+USER node
+
+# Health check to ensure worker process is alive
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD node scripts/stitch-worker.mjs --status || exit 1
+
+# Start long-lived queue processing daemon
+CMD ["node", "scripts/stitch-worker.mjs"]

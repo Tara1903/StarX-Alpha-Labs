@@ -1,0 +1,27 @@
+# ==============================================================================
+# STARX ALPHA LABS — GOOGLE STITCH WORKER CONTAINER COMPOSER
+# Local & Staging Daemon Orchestration
+# ==============================================================================
+
+version: '3.8'
+
+services:
+  stitch-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: starx-stitch-worker
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - STITCH_API_KEY=${STITCH_API_KEY}
+      - STITCH_JOB_LEASE_MS=600000
+      - STITCH_MAX_RETRIES=3
+      - WORKER_ID=worker-docker-1
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

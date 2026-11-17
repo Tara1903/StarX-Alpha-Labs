@@ -48,11 +48,16 @@
 
 ---
 
-## 3. Design Studio Verification
+## 3. Design Studio Verification & Production Deployment
 - [x] `GET /design-studio` returns HTTP 200 OK.
-- [x] `POST /api/design-studio/projects` records structured brief.
-- [x] `POST /api/design-studio/jobs` executes Stitch generation lifecycle.
+- [x] `POST /api/design-studio/projects` records structured brief with customer & organization isolation.
+- [x] `POST /api/design-studio/jobs` executes Stitch generation lifecycle with idempotency and atomic locking.
 - [x] `GET /api/design-studio/artifacts` returns Material You tokens and Design.md spec.
+- [x] `GET /api/design-studio/artifacts/[id]/file` serves private artifacts via temporary 1-hr signed URLs with cross-organization authorization checks.
 - [x] `POST /api/design-studio/revisions` logs versioned adjustment notes.
 - [x] `PATCH /api/design-studio/revisions` approves design direction.
 - [x] `POST /api/quote` locks approved direction and issues formal proposal reference.
+- [x] Storage Bucket `design-studio-artifacts` secured as **PRIVATE** (`public: false`).
+- [x] Decoupled Queue Worker Daemon (`scripts/stitch-worker.mjs`) containerized via `Dockerfile.worker` and systemd/PM2 configs.
+- [x] Automated Lock Recovery: Orphaned jobs (>10m lease without heartbeat) automatically reclaimed up to 3 attempts.
+- [x] Concurrency Tested: 2-worker race conditions, worker crashes, retry boundaries, and cross-organization isolation verified 100% PASS (6/6).

@@ -177,6 +177,9 @@ export interface DesignStudioBrief {
 export interface DesignStudioProject {
   id: string;
   projectCode: string;
+  organizationId?: string;
+  customerId?: string;
+  sessionId?: string;
   title: string;
   industrySlug: string;
   divisionSlug: string;
@@ -199,6 +202,7 @@ export interface DesignGenerationJob {
   id: string;
   jobCode: string;
   projectId: string;
+  organizationId?: string;
   provider: "stitch";
   modelId: StitchModelId;
   deviceType: StitchDeviceType;
@@ -211,6 +215,12 @@ export interface DesignGenerationJob {
   providerScreenId?: string;
   errorMessage?: string;
   executionLogs: Array<{ timestamp: string; message: string; stage?: string }>;
+  retryCount?: number;
+  maxRetries?: number;
+  lockedBy?: string;
+  lockedAt?: string;
+  heartbeatAt?: string;
+  idempotencyKey?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -218,6 +228,7 @@ export interface DesignGenerationJob {
 export interface DesignArtifact {
   id: string;
   projectId: string;
+  organizationId?: string;
   jobId?: string;
   versionNumber: number;
   provider: "stitch";
@@ -230,6 +241,8 @@ export interface DesignArtifact {
   designMd: string;
   thumbnailUrl: string;
   downloadUrl?: string;
+  storagePathHtml?: string;
+  storagePathScreenshot?: string;
   htmlCode?: string;
   palette: string[];
   keyFeatures: string[];

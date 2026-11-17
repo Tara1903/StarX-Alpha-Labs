@@ -65,6 +65,9 @@ export class DesignStudioOrchestrator {
         {
           id: project.id,
           project_code: project.projectCode,
+          organization_id: project.organizationId || null,
+          customer_id: project.customerId || null,
+          session_id: project.sessionId || null,
           title: project.title,
           industry_slug: project.industrySlug,
           division_slug: project.divisionSlug,
@@ -244,7 +247,14 @@ export class DesignStudioOrchestrator {
    */
   public async createProject(
     brief: DesignStudioBrief,
-    contact?: { name?: string; email?: string; phone?: string }
+    contact?: {
+      name?: string;
+      email?: string;
+      phone?: string;
+      organizationId?: string;
+      customerId?: string;
+      sessionId?: string;
+    }
   ): Promise<DesignStudioProject> {
     const id = `dsp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const projectCode = `DS-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -252,6 +262,9 @@ export class DesignStudioOrchestrator {
     const project: DesignStudioProject = {
       id,
       projectCode,
+      organizationId: contact?.organizationId,
+      customerId: contact?.customerId,
+      sessionId: contact?.sessionId,
       title: brief.projectName,
       industrySlug: brief.industrySlug,
       divisionSlug: brief.divisionSlug,
@@ -300,6 +313,9 @@ export class DesignStudioOrchestrator {
         const project: DesignStudioProject = {
           id: p.id,
           projectCode: p.project_code,
+          organizationId: p.organization_id || undefined,
+          customerId: p.customer_id || undefined,
+          sessionId: p.session_id || undefined,
           title: p.title,
           industrySlug: p.industry_slug,
           divisionSlug: p.division_slug,
@@ -341,7 +357,7 @@ export class DesignStudioOrchestrator {
   }
 
   /**
-   * Creates and executes a design generation job with atomic locking.
+   * Creates and executes a design generation job with atomic locking and idempotency protection.
    */
   public async submitGenerationJob(params: {
     projectId: string;
@@ -349,14 +365,29 @@ export class DesignStudioOrchestrator {
     deviceType?: StitchDeviceType;
     customPrompt?: string;
     previewOnly?: boolean;
-  }): Promise<{ job: DesignGenerationJob; artifact?: DesignArtifact }> {
+    idempotencyKey?: string;
+  }): Promise<{ job: DesignGenerationJob; artifact?: DesignArtifact; isDuplicate?: boolean }> {
     const project = await this.getProject(params.projectId);
     if (!project) {
       throw new Error(`Project ${params.projectId} not found in database.`);
     }
 
+    // Idempotency check: if an active job for this project is currently queued or processing, return it
+    const existingActive = Array.from(localJobs.values()).find(
+      (j) =>
+        j.projectId === params.projectId &&
+        (j.status === "queued" || j.status === "processing")
+    );
+    if (existingActive) {
+      return { job: existingActive, isDuplicate: true };
+    }
+
     // Atomic lock to protect against duplicate concurrent executions
     if (activeJobLocks.has(params.projectId)) {
+      const active = Array.from(localJobs.values()).find((j) => j.projectId === params.projectId);
+      if (active) {
+        return { job: active, isDuplicate: true };
+      }
       throw new Error(
         `A generation job for project "${project.projectCode}" is already in progress.`
       );
@@ -372,6 +403,7 @@ export class DesignStudioOrchestrator {
       id: jobId,
       jobCode,
       projectId: project.id,
+      organizationId: project.organizationId,
       provider: "stitch",
       modelId,
       deviceType,
@@ -384,7 +416,12 @@ export class DesignStudioOrchestrator {
         deviceType,
         industry: project.industrySlug,
         features: project.featureRequirements,
+        idempotencyKey: params.idempotencyKey,
       },
+      retryCount: 0,
+      maxRetries: 3,
+      heartbeatAt: new Date().toISOString(),
+      idempotencyKey: params.idempotencyKey,
       executionLogs: [
         {
           timestamp: new Date().toISOString(),
@@ -424,6 +461,7 @@ export class DesignStudioOrchestrator {
       if (res.ok && res.artifact) {
         const artifact = res.artifact;
         artifact.jobId = jobId;
+        artifact.organizationId = project.organizationId;
 
         job.status = "completed";
         job.stage = "Design artifact generated, verified, and stored";
@@ -704,6 +742,246 @@ export class DesignStudioOrchestrator {
     }
 
     return { ok: true };
+  }
+
+  /**
+   * Scans for orphaned jobs stuck in 'processing' state where the worker lease has expired.
+   * Automatically reclaims or fails them based on retry count.
+   */
+  public async reclaimExpiredProcessingJobs(
+    leaseTimeoutMs = 600000
+  ): Promise<{ reclaimedCount: number; failedCount: number }> {
+    const admin = this.getAdminClient();
+    if (!admin) return { reclaimedCount: 0, failedCount: 0 };
+
+    const cutoffIso = new Date(Date.now() - leaseTimeoutMs).toISOString();
+    let reclaimedCount = 0;
+    let failedCount = 0;
+
+    // 1. Check primary table if available
+    try {
+      const { data: staleJobs } = await admin
+        .from("design_generation_jobs" as any)
+        .select("*")
+        .eq("status", "processing")
+        .lt("updated_at", cutoffIso);
+
+      if (staleJobs && staleJobs.length > 0) {
+        for (const j of staleJobs) {
+          const retries = (j.input_parameters?.retry_count || 0) + 1;
+          const maxRetries = j.input_parameters?.max_retries || 3;
+          if (retries >= maxRetries) {
+            await admin
+              .from("design_generation_jobs" as any)
+              .update({
+                status: "failed",
+                error_message: `Execution lease expired (exceeded max retries ${maxRetries}).`,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", j.id);
+            failedCount++;
+          } else {
+            await admin
+              .from("design_generation_jobs" as any)
+              .update({
+                status: "queued",
+                stage: `Reclaimed from abandoned worker lease (Retry ${retries}/${maxRetries})`,
+                input_parameters: { ...j.input_parameters, retry_count: retries },
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", j.id);
+            reclaimedCount++;
+          }
+        }
+      }
+    } catch {}
+
+    // 2. Check fallback quote_requests store
+    try {
+      const { data: staleRows } = await admin
+        .from("quote_requests")
+        .select("id, metadata, updated_at")
+        .eq("metadata->job->>status", "processing");
+
+      if (staleRows && staleRows.length > 0) {
+        for (const row of staleRows) {
+          const job = row.metadata?.job as DesignGenerationJob;
+          if (!job) continue;
+
+          // Check application heartbeat timestamp or row timestamp
+          const jobTimestamp = job.heartbeatAt || job.updatedAt;
+          const isStale = jobTimestamp
+            ? new Date(jobTimestamp).getTime() <= Date.now() - leaseTimeoutMs
+            : new Date(row.updated_at).getTime() <= Date.now() - leaseTimeoutMs;
+
+          if (!isStale) continue;
+
+          const retries = (job.retryCount || 0) + 1;
+          const maxRetries = job.maxRetries || 3;
+
+          if (retries >= maxRetries) {
+            job.status = "failed";
+            job.errorMessage = `Execution lease expired (exceeded max retries ${maxRetries}).`;
+            failedCount++;
+          } else {
+            job.status = "queued";
+            job.stage = `Reclaimed from abandoned worker lease (Retry ${retries}/${maxRetries})`;
+            job.retryCount = retries;
+            reclaimedCount++;
+          }
+          job.updatedAt = new Date().toISOString();
+          const meta = { ...row.metadata, job };
+          await admin
+            .from("quote_requests")
+            .update({ metadata: meta, updated_at: new Date().toISOString() })
+            .eq("id", row.id);
+        }
+      }
+    } catch {}
+
+    return { reclaimedCount, failedCount };
+  }
+
+  /**
+   * Updates heartbeat timestamp for an active job to keep the lease active during long tasks.
+   */
+  public async updateJobHeartbeat(jobId: string, stage?: string): Promise<boolean> {
+    const admin = this.getAdminClient();
+    const nowIso = new Date().toISOString();
+
+    const job = localJobs.get(jobId);
+    if (job) {
+      job.heartbeatAt = nowIso;
+      job.updatedAt = nowIso;
+      if (stage) job.stage = stage;
+    }
+
+    if (!admin) return true;
+
+    try {
+      await admin
+        .from("design_generation_jobs" as any)
+        .update({ updated_at: nowIso, stage })
+        .eq("id", jobId);
+    } catch {}
+
+    try {
+      const existing = await admin
+        .from("quote_requests")
+        .select("id, metadata")
+        .eq("metadata->>jobId", jobId)
+        .maybeSingle();
+
+      if (existing?.data?.id && existing.data.metadata?.job) {
+        const meta = existing.data.metadata as any;
+        meta.job.heartbeatAt = nowIso;
+        meta.job.updatedAt = nowIso;
+        if (stage) meta.job.stage = stage;
+        await admin
+          .from("quote_requests")
+          .update({ metadata: meta, updated_at: nowIso })
+          .eq("id", existing.data.id);
+      }
+    } catch {}
+
+    return true;
+  }
+
+  /**
+   * Generates a fresh temporary signed URL (default 3600s / 1 hr) for an artifact file.
+   */
+  public async getSignedArtifactUrl(
+    artifactId: string,
+    assetType: "html" | "screenshot" = "html"
+  ): Promise<{ ok: boolean; signedUrl?: string; error?: string }> {
+    const artifact = await this.getArtifact(artifactId);
+    if (!artifact) {
+      return { ok: false, error: "Artifact not found." };
+    }
+
+    const admin = this.getAdminClient();
+    if (!admin) {
+      return { ok: false, error: "Database client unavailable." };
+    }
+
+    let storagePath = assetType === "html" ? artifact.storagePathHtml : artifact.storagePathScreenshot;
+
+    if (!storagePath) {
+      const url = assetType === "html" ? artifact.downloadUrl : artifact.thumbnailUrl;
+      if (url && url.includes("design-studio-artifacts/")) {
+        const parts = url.split("design-studio-artifacts/")[1]?.split("?")[0];
+        if (parts) storagePath = parts;
+      }
+    }
+
+    if (!storagePath && assetType === "html" && artifact.htmlCode) {
+      const path = `projects/${artifact.projectId}/${artifact.id}.html`;
+      await admin.storage.from("design-studio-artifacts").upload(path, Buffer.from(artifact.htmlCode, "utf8"), {
+        contentType: "text/html",
+        upsert: true,
+      });
+      storagePath = path;
+    }
+
+    if (!storagePath) {
+      return { ok: false, error: `No storage asset path available for artifact (${assetType})` };
+    }
+
+    const { data, error } = await admin.storage
+      .from("design-studio-artifacts")
+      .createSignedUrl(storagePath, 3600);
+
+    if (error || !data?.signedUrl) {
+      return { ok: false, error: error?.message || "Failed to generate signed URL" };
+    }
+
+    return { ok: true, signedUrl: data.signedUrl };
+  }
+
+  /**
+   * Verifies that the requesting actor has permission to access the artifact.
+   * Prevents cross-organization data leakage.
+   */
+  public async verifyArtifactAccess(
+    artifactId: string,
+    options: { organizationId?: string; customerId?: string; sessionId?: string }
+  ): Promise<{ authorized: boolean; reason?: string; artifact?: DesignArtifact }> {
+    const artifact = await this.getArtifact(artifactId);
+    if (!artifact) {
+      return { authorized: false, reason: "Artifact not found." };
+    }
+
+    const project = await this.getProject(artifact.projectId);
+    if (!project) {
+      return { authorized: true, artifact }; // Public preview or unassigned
+    }
+
+    // Check organization boundary: if project belongs to an organization, caller MUST match
+    if (project.organizationId && options.organizationId) {
+      if (project.organizationId !== options.organizationId) {
+        return {
+          authorized: false,
+          reason: "Access denied: Unauthorized cross-organization artifact access.",
+        };
+      }
+    } else if (project.organizationId && !options.organizationId) {
+      return {
+        authorized: false,
+        reason: "Access denied: Artifact belongs to a private organization.",
+      };
+    }
+
+    // Check customer boundary if project is customer-assigned
+    if (project.customerId && options.customerId) {
+      if (project.customerId !== options.customerId) {
+        return {
+          authorized: false,
+          reason: "Access denied: Artifact belongs to a different customer account.",
+        };
+      }
+    }
+
+    return { authorized: true, artifact };
   }
 }
 
