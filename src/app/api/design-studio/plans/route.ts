@@ -5,19 +5,22 @@ import {
   getPlansByDivision,
   normalizeDivisionSlug,
   getAllPlans,
+  getSolutionsByDivision,
+  getPlanById,
 } from '@/data/plans';
-import { recommendPlan, calculateComplexityScore } from '@/lib/plans/recommendationEngine';
+import { recommendPlan } from '@/lib/plans/recommendationEngine';
 
 export const dynamic = 'force-dynamic';
 
 /**
  * Public Design Studio Plans API
- * GET /api/design-studio/plans?division=starx-web&industry=retail-commerce
+ * GET /api/design-studio/plans?division=starx-web&solution=ecommerce-websites&industry=retail-commerce&complexity=5
  */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const rawDivision = searchParams.get('division');
+    const solution = searchParams.get('solution') || undefined;
     const industry = searchParams.get('industry') || 'general';
     const complexityParam = searchParams.get('complexity');
     const complexityScore = complexityParam ? parseInt(complexityParam, 10) : 4;
@@ -31,10 +34,12 @@ export async function GET(request: NextRequest) {
     }
 
     const division = normalizeDivisionSlug(rawDivision);
-    const plans = getPlansByDivision(division);
+    const availableSolutions = getSolutionsByDivision(division);
+    const plans = getPlansByDivision(division, solution);
 
     const recommendation = recommendPlan({
       divisionSlug: division,
+      solutionSlugOrId: solution,
       industrySlug: industry,
       platforms: ['Web Desktop', 'Mobile Responsive'],
       selectedFeatures: [],
@@ -51,11 +56,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       division,
+      solution,
+      availableSolutions,
       plans,
       recommendedPlan: recommendation.recommendedPlan,
       alternativePlans: recommendation.alternativePlans,
       recommendationData: recommendation,
-      addons: GLOBAL_PLAN_ADDONS,
+      addons: recommendation.suggestedAddons.length > 0 ? recommendation.suggestedAddons : GLOBAL_PLAN_ADDONS,
     }, {
       headers: {
         'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',

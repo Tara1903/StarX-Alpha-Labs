@@ -1,5 +1,13 @@
-import type { CanonicalPlan, PlanAddon, PlanDivisionSlug } from "../../types/plans";
-import { getPlansByDivision, normalizeDivisionSlug, GLOBAL_PLAN_ADDONS, CANONICAL_PLANS } from "@/data/plans";
+import type { CanonicalPlan, PlanAddon, PlanDivisionSlug } from "@/types/plans";
+import {
+  getPlansByDivision,
+  normalizeDivisionSlug,
+  GLOBAL_PLAN_ADDONS,
+  CANONICAL_PLANS,
+  getPlanById,
+  matchRecommendationRule,
+  getAddonsForPlan,
+} from "@/data/plans";
 
 export interface ComplexityFactors {
   integrations: number;   // 1 to 10
@@ -12,6 +20,7 @@ export interface ComplexityFactors {
 export interface RecommendationRequest {
   divisionSlug: PlanDivisionSlug;
   industrySlug: string;
+  solutionSlugOrId?: string;
   platforms: string[];
   selectedFeatures: string[];
   complexityScore: number;
@@ -63,147 +72,132 @@ export function calculateComplexityScore(params: {
   // 2. Division Baseline
   if (divisionSlug === "starx-ai" || divisionSlug === "starx-saas") {
     security += 3;
-    scale += 3;
-    breakdown.push("Advanced multi-tenancy & AI compute tier");
-  } else if (divisionSlug === "starx-business" || divisionSlug === "starx-custom") {
     integrations += 3;
-    security += 3;
-    breakdown.push("Enterprise database schemas & ACID compliance");
+    scale += 2;
+    breakdown.push("Frontier AI / Multi-Tenant SaaS baseline complexity");
+  } else if (divisionSlug === "starx-business") {
+    integrations += 3;
+    security += 2;
+    breakdown.push("Operational ERP / Multi-Warehouse sync requirements");
   }
 
-  // 3. Keyword / Feature Analysis
-  const text = `${selectedFeatures.join(" ")} ${rawDescription}`.toLowerCase();
+  // 3. Feature Count & Keyword Multiplier
+  const featCount = selectedFeatures.length;
+  if (featCount >= 8) {
+    scale += 4;
+    integrations += 3;
+    breakdown.push("High feature density (8+ architectural capabilities)");
+  } else if (featCount >= 4) {
+    scale += 2;
+    integrations += 1;
+    breakdown.push("Moderate feature density (4–7 capabilities)");
+  }
 
-  if (text.includes("real-time") || text.includes("telemetry") || text.includes("gps") || text.includes("chat")) {
+  const descLower = rawDescription.toLowerCase();
+  if (descLower.includes("real-time") || descLower.includes("live") || descLower.includes("stream") || descLower.includes("instant")) {
     realTime = Math.min(10, realTime + 4);
-    breakdown.push("Real-time bidirectional synchronization / live telemetry");
+    breakdown.push("Real-time streaming / live WebSocket requirement");
   }
-
-  if (text.includes("payment") || text.includes("stripe") || text.includes("upi") || text.includes("checkout") || text.includes("pos")) {
-    integrations = Math.min(10, integrations + 3);
-    security = Math.min(10, security + 2);
-    breakdown.push("Payment gateway switch & transactional settlement");
-  }
-
-  if (text.includes("multi-tenant") || text.includes("sso") || text.includes("rbac") || text.includes("hipaa") || text.includes("audit")) {
+  if (descLower.includes("hipaa") || descLower.includes("pci") || descLower.includes("soc-2") || descLower.includes("finance") || descLower.includes("bank")) {
     security = Math.min(10, security + 4);
-    scale = Math.min(10, scale + 3);
-    breakdown.push("Enterprise security, role permissions & compliance audits");
+    breakdown.push("Regulated compliance / banking-grade security tier");
+  }
+  if (descLower.includes("enterprise") || descLower.includes("millions") || descLower.includes("high traffic") || descLower.includes("concurrency")) {
+    scale = Math.min(10, scale + 4);
+    breakdown.push("High-concurrency enterprise scale requirement");
   }
 
-  if (text.includes("offline") || text.includes("barcode") || text.includes("hardware") || text.includes("printer")) {
-    integrations = Math.min(10, integrations + 3);
-    breakdown.push("Hardware peripheral / offline database sync");
-  }
-
-  // Calculate weighted overall score (1 to 10)
-  const rawScore = (
-    integrations * 0.25 +
-    realTime * 0.20 +
-    security * 0.25 +
-    platformFactor * 0.15 +
-    scale * 0.15
-  );
-
-  const finalScore = Math.max(1, Math.min(10, Math.round(rawScore)));
+  // Clamped weighted composite score
+  const rawScore = (integrations * 0.2) + (realTime * 0.15) + (security * 0.25) + (platformFactor * 0.2) + (scale * 0.2);
+  const score = Math.max(1, Math.min(10, Math.round(rawScore)));
 
   return {
-    score: finalScore,
+    score,
     factors: {
-      integrations,
-      realTime,
-      security,
-      platforms: platformFactor,
-      scale,
+      integrations: Math.min(10, integrations),
+      realTime: Math.min(10, realTime),
+      security: Math.min(10, security),
+      platforms: Math.min(10, platformFactor),
+      scale: Math.min(10, scale),
     },
     breakdown,
   };
 }
 
 /**
- * Deterministic Plan Recommendation Engine with AI Explanatory Layer
- * Matches client requirements against canonical plans with 0 arbitrary budget sliders.
+ * Deterministically recommends the optimal StarX plan based on division,
+ * solution archetype, feature count, platforms, and computed complexity score.
  */
 export function recommendPlan(request: RecommendationRequest): RecommendationResult {
-  const {
-    divisionSlug,
-    complexityScore = 4,
-    platforms = [],
-    selectedFeatures = [],
-  } = request;
-  
-  const normalizedSlug = normalizeDivisionSlug(divisionSlug);
-  let plans = getPlansByDivision(normalizedSlug);
+  const normDivision = normalizeDivisionSlug(request.divisionSlug);
+  const score = request.complexityScore || 4;
 
-  if (!plans || plans.length === 0) {
-    plans = CANONICAL_PLANS.filter((p) => p.divisionSlug === "starx-web");
+  // 1. Evaluate deterministic recommendation rule from Master Commercial Catalogue
+  const ruleResult = matchRecommendationRule({
+    divisionSlug: normDivision,
+    solutionSlugOrId: request.solutionSlugOrId,
+    complexityScore: score,
+  });
+
+  // Convert recommended plan record to CanonicalPlan interface
+  const recommended = getPlanById(ruleResult.recommendedPlan.id) || 
+    getPlansByDivision(normDivision, request.solutionSlugOrId)[0] || 
+    CANONICAL_PLANS[0];
+
+  // Map alternative plans
+  const alternatives = ruleResult.alternativePlans
+    .map(p => getPlanById(p.id))
+    .filter((p): p is CanonicalPlan => p !== undefined && p.id !== recommended.id);
+
+  // If no alternatives returned by rule, pick eligible division plans
+  if (alternatives.length === 0) {
+    const allDivPlans = getPlansByDivision(normDivision, request.solutionSlugOrId);
+    allDivPlans.forEach(p => {
+      if (p.id !== recommended.id && alternatives.length < 2) {
+        alternatives.push(p);
+      }
+    });
   }
 
-  let recommendedTier: "starter" | "growth" | "enterprise" | "custom" = "growth";
-  let confidence = 88;
-  const keyMatches: string[] = [];
+  // 2. Identify key feature matches
+  const keyMatches: string[] = [
+    `Aligned with ${recommended.screenOrPageScope} specification`,
+    `Delivers ${recommended.slaLevel} SLA guarantee and ${recommended.postLaunchWarrantyDays}-day warranty`,
+  ];
+  if (request.platforms.length > 0) {
+    keyMatches.push(`Native deployment on ${recommended.supportedPlatforms.join(', ')}`);
+  }
+  if (recommended.includedFeatures.length > 0) {
+    keyMatches.push(`Includes ${recommended.includedFeatures.slice(0, 3).map(f => f.name).join(', ')}`);
+  }
+
+  // 3. Upgrade reasons (what higher tier provides)
   const upgradeReasons: string[] = [];
-
-  // Deterministic rule engine
-  if (complexityScore <= 3) {
-    recommendedTier = "starter";
-    confidence = 94;
-    keyMatches.push("Rapid turnaround timeline within 1–3 weeks");
-    keyMatches.push("Lean scope optimized for essential operational readiness");
-    keyMatches.push("Single to dual platform deployment target");
-    upgradeReasons.push("Consider Growth tier if you require multi-user role permissions or dynamic CMS");
-  } else if (complexityScore <= 6) {
-    recommendedTier = "growth";
-    confidence = 96;
-    keyMatches.push("Full-featured platform supporting scaling operations");
-    keyMatches.push("Dynamic database backend with automated notifications and webhooks");
-    keyMatches.push("Priority 24-hour SLA response and 60-day warranty coverage");
-    upgradeReasons.push("Consider Enterprise tier if you require custom hardware integrations, SAML SSO, or dedicated SLA pods");
-  } else if (complexityScore <= 8) {
-    recommendedTier = "enterprise";
-    confidence = 92;
-    keyMatches.push("Mission-critical architecture with hardened security and compliance");
-    keyMatches.push("High-concurrency queues, multi-role workspaces, and automated sync");
-    keyMatches.push("Mission-Critical 2-hour SLA response and 90-day warranty");
-    upgradeReasons.push("Custom engineering tier recommended for bespoke proprietary foundation models or legacy mainframe bridges");
+  const higherTier = alternatives.find(p => p.priceINR > recommended.priceINR);
+  if (higherTier) {
+    upgradeReasons.push(`Upgrade to ${higherTier.name} for extended scope (${higherTier.screenOrPageScope}) and ${higherTier.slaLevel} response SLA`);
   } else {
-    recommendedTier = "custom";
-    confidence = 95;
-    keyMatches.push("Bespoke proprietary software architecture with dedicated engineering squad");
-    keyMatches.push("Complex non-standard integrations, multi-cloud VPC, or deep hardware firmware");
-    keyMatches.push("Dedicated Solutions Architect with 100% intellectual property transfer");
+    upgradeReasons.push("Consider modular add-ons for custom integrations and managed operations");
   }
 
-  // Find exact plan match
-  const recommendedPlan = plans.find((p) => p.tier === recommendedTier) || plans[0];
-  const alternativePlans = plans.filter((p) => p.id !== recommendedPlan.id);
+  // 4. Suggested Addons
+  const suggestedAddons = getAddonsForPlan(recommended.id).map(a => ({
+    id: a.id,
+    name: a.name,
+    description: a.description,
+    priceINR: a.priceINR,
+    priceUSD: a.priceUSD,
+    billingPeriod: a.billingModel === 'MONTHLY' ? 'monthly' as const : 'one_time' as const,
+    category: a.category,
+  }));
 
-  // Generate transparent justification
-  const justification = `Based on your multi-factor complexity rating of ${complexityScore}/10 across ${platforms.length} target platform(s) and ${selectedFeatures.length} selected capabilities, the ${recommendedPlan.name} is the optimal architectural match. It delivers complete technical scope, native compliance, and verified milestone deliverables without paying for unnecessary enterprise overhead.`;
-
-  // Recommend relevant modular addons
-  const suggestedAddons: PlanAddon[] = [];
-  if (platforms.some((p) => p.toLowerCase().includes("web"))) {
-    const seo = GLOBAL_PLAN_ADDONS.find((a) => a.id === "addon-seo-mastery");
-    if (seo) suggestedAddons.push(seo);
-  }
-  if (selectedFeatures.some((f) => f.toLowerCase().includes("payment") || f.toLowerCase().includes("checkout"))) {
-    const pay = GLOBAL_PLAN_ADDONS.find((a) => a.id === "addon-payment-gateway");
-    if (pay) suggestedAddons.push(pay);
-  }
-  if (complexityScore >= 6) {
-    const pentest = GLOBAL_PLAN_ADDONS.find((a) => a.id === "addon-security-pentest");
-    if (pentest) suggestedAddons.push(pentest);
-  }
-  if (suggestedAddons.length === 0) {
-    suggestedAddons.push(GLOBAL_PLAN_ADDONS[0], GLOBAL_PLAN_ADDONS[3]);
-  }
+  const matchConfidence = Math.min(98, Math.max(85, 90 + Math.round((score % 3) * 3)));
 
   return {
-    recommendedPlan,
-    alternativePlans,
-    matchConfidence: confidence,
-    justification,
+    recommendedPlan: recommended,
+    alternativePlans: alternatives,
+    matchConfidence,
+    justification: ruleResult.justification,
     keyMatches,
     upgradeReasons,
     suggestedAddons,

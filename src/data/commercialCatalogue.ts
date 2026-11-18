@@ -1,0 +1,2278 @@
+/**
+ * STARX ALPHA LABS — MASTER COMMERCIAL CATALOGUE & PRICING ENGINE
+ * The Authoritative Single Source of Truth for Services, Solutions, Plans, Features, Pricing & Add-ons
+ */
+
+import type {
+  CanonicalDivisionSlug,
+  CanonicalIndustrySlug,
+  CommercialPricingStatus,
+  PricingModelType,
+  FeatureClassification,
+  FeatureGroupCategory,
+  PlanTierLevel,
+  ServiceCategory,
+  SolutionArchetype,
+  PlanFamily,
+  PricingComponent,
+  PlanRestrictionLimits,
+  PlanFeatureMapping,
+  CanonicalPlanRecord,
+  CanonicalFeatureRecord,
+  CanonicalAddonRecord,
+  RecommendationRuleRecord,
+  InvestmentSummaryCalculation,
+} from '@/types/commercial';
+
+// ==============================================================================
+// 1. CANONICAL DIVISIONS
+// ==============================================================================
+export interface DivisionMeta {
+  slug: CanonicalDivisionSlug;
+  name: string;
+  tagline: string;
+  description: string;
+  badge: string;
+  serviceCount: number;
+}
+
+export const CANONICAL_DIVISIONS: Record<CanonicalDivisionSlug, DivisionMeta> = {
+  'starx-web': {
+    slug: 'starx-web',
+    name: 'StarX Web',
+    tagline: 'High-Performance Web Platforms, Portals & Digital Flagships',
+    description: 'Next.js 15 App Router architecture, obsidian glassmorphism UI, sub-second latency, and enterprise edge deployment.',
+    badge: 'Core Division',
+    serviceCount: 6,
+  },
+  'starx-apps': {
+    slug: 'starx-apps',
+    name: 'StarX Apps',
+    tagline: 'Native & Universal Mobile Applications Built for Scale',
+    description: 'Native Kotlin/Compose for Android, Swift/SwiftUI for iOS, and high-performance universal React Native architectures.',
+    badge: 'Mobile Division',
+    serviceCount: 5,
+  },
+  'starx-business': {
+    slug: 'starx-business',
+    name: 'StarX Business',
+    tagline: 'Cloud POS, Inventory, Operational ERP & Commercial Suites',
+    description: 'Unified billing, barcode sync, multi-warehouse stock management, restaurant dispatch, and custom CRM systems.',
+    badge: 'Enterprise Ops',
+    serviceCount: 6,
+  },
+  'starx-saas': {
+    slug: 'starx-saas',
+    name: 'StarX SaaS',
+    tagline: 'Multi-Tenant Cloud Software Products & Subscription Platforms',
+    description: 'Isolated multi-tenant schemas, metered usage tracking, Stripe/Razorpay billing scaffolding, and admin management.',
+    badge: 'Product Division',
+    serviceCount: 4,
+  },
+  'starx-ai': {
+    slug: 'starx-ai',
+    name: 'StarX AI',
+    tagline: 'Autonomous AI Agents, Copilots, RAG Systems & Voice Assistants',
+    description: 'Multi-agent orchestration, tool calling, vector database retrieval, and sub-200ms conversational voice pipelines.',
+    badge: 'Frontier AI',
+    serviceCount: 5,
+  },
+  'starx-custom': {
+    slug: 'starx-custom',
+    name: 'StarX Custom',
+    tagline: 'Bespoke Engineering, Cloud Infrastructure & Dedicated Pods',
+    description: 'High-throughput microservices, legacy modernisation, Kubernetes clusters, and dedicated senior engineering teams.',
+    badge: 'Bespoke Squads',
+    serviceCount: 4,
+  },
+};
+
+// ==============================================================================
+// 2. CANONICAL SERVICE CATEGORIES
+// ==============================================================================
+export const CANONICAL_SERVICE_CATEGORIES: ServiceCategory[] = [
+  // Web Categories
+  { id: 'cat-web-presence', divisionSlug: 'starx-web', slug: 'web-presence', name: 'Web Presence & Flagships', description: 'Business websites, corporate portals, and brand flagships.', displayOrder: 1 },
+  { id: 'cat-web-commerce', divisionSlug: 'starx-web', slug: 'web-commerce', name: 'Ecommerce & Marketplaces', description: 'Headless digital storefronts, shopping carts, and inventory sync.', displayOrder: 2 },
+  { id: 'cat-web-apps', divisionSlug: 'starx-web', slug: 'web-apps', name: 'Web Applications & Portals', description: 'Dynamic authenticated portals, booking engines, and dashboards.', displayOrder: 3 },
+  // Apps Categories
+  { id: 'cat-apps-native', divisionSlug: 'starx-apps', slug: 'apps-native', name: 'Native Mobile Engineering', description: 'Platform-optimized native Android and iOS applications.', displayOrder: 1 },
+  { id: 'cat-apps-universal', divisionSlug: 'starx-apps', slug: 'apps-universal', name: 'Cross-Platform Mobile', description: 'Single-codebase React Native & Flutter mobile ecosystems.', displayOrder: 2 },
+  // Business Categories
+  { id: 'cat-biz-retail', divisionSlug: 'starx-business', slug: 'biz-retail', name: 'Retail & POS Systems', description: 'Point-of-sale terminals, barcode scanners, and counter billing.', displayOrder: 1 },
+  { id: 'cat-biz-operations', divisionSlug: 'starx-business', slug: 'biz-operations', name: 'Operations & ERP', description: 'Inventory management, warehouse logistics, and ERP modules.', displayOrder: 2 },
+  // SaaS Categories
+  { id: 'cat-saas-core', divisionSlug: 'starx-saas', slug: 'saas-core', name: 'Core SaaS Engineering', description: 'Multi-tenant architecture, subscription billing, and user quotas.', displayOrder: 1 },
+  // AI Categories
+  { id: 'cat-ai-agents', divisionSlug: 'starx-ai', slug: 'ai-agents', name: 'Autonomous Agent Workflows', description: 'Tool-calling agents, scheduled background automation, and reasoning.', displayOrder: 1 },
+  { id: 'cat-ai-knowledge', divisionSlug: 'starx-ai', slug: 'ai-knowledge', name: 'RAG & Document Intelligence', description: 'Vector embeddings, semantic search, and document ingestion.', displayOrder: 2 },
+  // Custom Categories
+  { id: 'cat-cust-infra', divisionSlug: 'starx-custom', slug: 'custom-infra', name: 'Cloud & Infrastructure', description: 'Kubernetes orchestration, distributed databases, and high-availability.', displayOrder: 1 },
+  { id: 'cat-cust-squads', divisionSlug: 'starx-custom', slug: 'custom-squads', name: 'Dedicated Engineering Pods', description: 'Full-time senior full-stack and AI engineering retainers.', displayOrder: 2 },
+];
+
+// ==============================================================================
+// 3. CANONICAL SOLUTIONS (28 Core Solutions)
+// ==============================================================================
+export const CANONICAL_SOLUTIONS: SolutionArchetype[] = [
+  // Division 1: StarX Web
+  {
+    id: 'sol-web-biz',
+    divisionSlug: 'starx-web',
+    serviceCategoryId: 'cat-web-presence',
+    slug: 'business-websites',
+    name: 'Corporate & Business Websites',
+    tagline: 'High-trust digital flagship for modern brands and enterprises',
+    description: 'Ultra-responsive Next.js architecture, obsidian glass aesthetic, dynamic CMS, structured SEO, and instant contact workflows.',
+    applicableIndustries: ['retail-commerce', 'healthcare-life-sciences', 'real-estate-property', 'education-edtech', 'financial-services', 'professional-services', 'hospitality-travel'],
+    supportedPlatforms: ['Web Desktop', 'Web Mobile', 'Tablet'],
+    defaultPlanFamilyId: 'fam-web-biz',
+    isPopular: true,
+    displayOrder: 1,
+  },
+  {
+    id: 'sol-web-ecom',
+    divisionSlug: 'starx-web',
+    serviceCategoryId: 'cat-web-commerce',
+    slug: 'ecommerce-websites',
+    name: 'Custom Headless Ecommerce Store',
+    tagline: 'Sub-second shopping experiences that turn visitors into loyal buyers',
+    description: 'High-conversion checkout, multi-tier product catalog, variant matrix, Razorpay/Stripe integration, and real-time inventory.',
+    applicableIndustries: ['retail-commerce', 'media-entertainment', 'fitness-wellness', 'manufacturing-industrial'],
+    supportedPlatforms: ['Web Desktop', 'Web Mobile'],
+    defaultPlanFamilyId: 'fam-web-ecom',
+    isPopular: true,
+    displayOrder: 2,
+  },
+  {
+    id: 'sol-web-land',
+    divisionSlug: 'starx-web',
+    serviceCategoryId: 'cat-web-presence',
+    slug: 'landing-pages',
+    name: 'High-Conversion Landing Funnels',
+    tagline: 'Laser-focused lead capture and product launch pages',
+    description: 'A/B testing ready, sub-500ms TTFB, interactive pricing calculators, lead routing to CRM, and WhatsApp click-to-chat.',
+    applicableIndustries: ['retail-commerce', 'financial-services', 'education-edtech', 'real-estate-property'],
+    supportedPlatforms: ['Web Desktop', 'Web Mobile'],
+    defaultPlanFamilyId: 'fam-web-land',
+    displayOrder: 3,
+  },
+  {
+    id: 'sol-web-app',
+    divisionSlug: 'starx-web',
+    serviceCategoryId: 'cat-web-apps',
+    slug: 'web-applications',
+    name: 'Full-Stack Web Applications',
+    tagline: 'Custom business logic, authenticated dashboards & operational workflows',
+    description: 'Role-based access control, PostgreSQL data schemas, real-time WebSocket sync, background workers, and audit ledgers.',
+    applicableIndustries: ['financial-services', 'healthcare-life-sciences', 'logistics-supply-chain', 'education-edtech', 'public-sector-gov'],
+    supportedPlatforms: ['Web Desktop', 'Web Mobile', 'Tablet'],
+    defaultPlanFamilyId: 'fam-web-app',
+    isPopular: true,
+    displayOrder: 4,
+  },
+  {
+    id: 'sol-web-book',
+    divisionSlug: 'starx-web',
+    serviceCategoryId: 'cat-web-apps',
+    slug: 'booking-portals',
+    name: 'Interactive Booking & Scheduling Portals',
+    tagline: 'Automated appointments, service calendars & client self-service',
+    description: 'Slot concurrency protection, practitioner scheduling, automated SMS/WhatsApp reminders, and upfront deposit payments.',
+    applicableIndustries: ['healthcare-life-sciences', 'hospitality-travel', 'fitness-wellness', 'professional-services'],
+    supportedPlatforms: ['Web Desktop', 'Web Mobile'],
+    defaultPlanFamilyId: 'fam-web-book',
+    displayOrder: 5,
+  },
+  {
+    id: 'sol-web-dash',
+    divisionSlug: 'starx-web',
+    serviceCategoryId: 'cat-web-apps',
+    slug: 'enterprise-portals',
+    name: 'Enterprise Intranet & Operational Dashboards',
+    tagline: 'Mission-critical control rooms for executive decision-making',
+    description: 'Executive KPI monitoring, department-level permissions, custom SQL queries, scheduled PDF export, and enterprise SSO.',
+    applicableIndustries: ['logistics-supply-chain', 'manufacturing-industrial', 'financial-services', 'public-sector-gov'],
+    supportedPlatforms: ['Web Desktop', 'Tablet'],
+    defaultPlanFamilyId: 'fam-web-dash',
+    displayOrder: 6,
+  },
+
+  // Division 2: StarX Apps
+  {
+    id: 'sol-app-and',
+    divisionSlug: 'starx-apps',
+    serviceCategoryId: 'cat-apps-native',
+    slug: 'android-applications',
+    name: 'Native Android Application (Kotlin)',
+    tagline: 'Hardware-accelerated mobile experiences for Google Play ecosystem',
+    description: 'Built with Jetpack Compose, background services, Google Pay, push notifications, and offline SQLite caching.',
+    applicableIndustries: ['retail-commerce', 'logistics-supply-chain', 'healthcare-life-sciences', 'education-edtech'],
+    supportedPlatforms: ['Android Phone', 'Android Tablet'],
+    defaultPlanFamilyId: 'fam-app-and',
+    displayOrder: 1,
+  },
+  {
+    id: 'sol-app-ios',
+    divisionSlug: 'starx-apps',
+    serviceCategoryId: 'cat-apps-native',
+    slug: 'ios-applications',
+    name: 'Native iOS Application (Swift)',
+    tagline: 'Pixel-perfect, fluid Apple ecosystem apps for iPhone and iPad',
+    description: 'SwiftUI architecture, Apple Pay integration, biometric FaceID auth, CoreAnimation, and App Store submission support.',
+    applicableIndustries: ['retail-commerce', 'financial-services', 'fitness-wellness', 'media-entertainment'],
+    supportedPlatforms: ['iOS Phone', 'iOS Tablet'],
+    defaultPlanFamilyId: 'fam-app-ios',
+    displayOrder: 2,
+  },
+  {
+    id: 'sol-app-xplat',
+    divisionSlug: 'starx-apps',
+    serviceCategoryId: 'cat-apps-universal',
+    slug: 'cross-platform-applications',
+    name: 'Universal Mobile App (iOS & Android)',
+    tagline: 'Unified codebase delivering 60fps native feel on both platforms',
+    description: 'Engineered with React Native / Flutter, single business logic layer, native bridge modules, and unified push notifications.',
+    applicableIndustries: ['retail-commerce', 'healthcare-life-sciences', 'education-edtech', 'real-estate-property', 'hospitality-travel'],
+    supportedPlatforms: ['iOS Phone', 'Android Phone', 'Tablet'],
+    defaultPlanFamilyId: 'fam-app-xplat',
+    isPopular: true,
+    displayOrder: 3,
+  },
+  {
+    id: 'sol-app-ecom',
+    divisionSlug: 'starx-apps',
+    serviceCategoryId: 'cat-apps-universal',
+    slug: 'ecommerce-mobile-apps',
+    name: 'Mobile Shopping & D2C Store App',
+    tagline: 'Frictionless one-tap checkout and personalized customer shopping',
+    description: 'Push-driven flash sales, wishlist sync, order tracking timeline, localized UPI one-click payments, and product reviews.',
+    applicableIndustries: ['retail-commerce', 'fitness-wellness', 'media-entertainment'],
+    supportedPlatforms: ['iOS Phone', 'Android Phone'],
+    defaultPlanFamilyId: 'fam-app-ecom',
+    displayOrder: 4,
+  },
+  {
+    id: 'sol-app-deliv',
+    divisionSlug: 'starx-apps',
+    serviceCategoryId: 'cat-apps-universal',
+    slug: 'delivery-logistics-apps',
+    name: 'On-Demand Delivery & Rider App',
+    tagline: 'Real-time GPS dispatch, driver tracking & delivery verification',
+    description: 'Customer ordering app, rider dispatch companion app, live route tracking with Google Maps, and proof-of-delivery OTPs.',
+    applicableIndustries: ['logistics-supply-chain', 'hospitality-travel', 'retail-commerce'],
+    supportedPlatforms: ['iOS Phone', 'Android Phone'],
+    defaultPlanFamilyId: 'fam-app-deliv',
+    displayOrder: 5,
+  },
+
+  // Division 3: StarX Business
+  {
+    id: 'sol-biz-pos',
+    divisionSlug: 'starx-business',
+    serviceCategoryId: 'cat-biz-retail',
+    slug: 'pos-billing-systems',
+    name: 'Cloud POS & Retail Billing Engine',
+    tagline: 'High-velocity checkout, thermal printing & multi-counter sync',
+    description: 'Barcode scanning, GST invoice generation, offline-first counter sync, split payments, and daily cash drawer reconciliation.',
+    applicableIndustries: ['retail-commerce', 'hospitality-travel', 'healthcare-life-sciences'],
+    supportedPlatforms: ['Web Desktop', 'Tablet', 'POS Terminal'],
+    defaultPlanFamilyId: 'fam-biz-pos',
+    isPopular: true,
+    displayOrder: 1,
+  },
+  {
+    id: 'sol-biz-inv',
+    divisionSlug: 'starx-business',
+    serviceCategoryId: 'cat-biz-operations',
+    slug: 'inventory-stock-management',
+    name: 'Multi-Warehouse Inventory & Stock Suite',
+    tagline: 'End-to-end stock visibility, low-stock reorders & batch tracking',
+    description: 'Inter-branch transfers, SKU variant tracking, vendor purchase orders, automated low-stock warnings, and FIFO valuation.',
+    applicableIndustries: ['retail-commerce', 'manufacturing-industrial', 'logistics-supply-chain', 'healthcare-life-sciences'],
+    supportedPlatforms: ['Web Desktop', 'Web Mobile', 'Barcode Handheld'],
+    defaultPlanFamilyId: 'fam-biz-inv',
+    displayOrder: 2,
+  },
+  {
+    id: 'sol-biz-rest',
+    divisionSlug: 'starx-business',
+    serviceCategoryId: 'cat-biz-retail',
+    slug: 'restaurant-management',
+    name: 'Restaurant & Kitchen Operational Suite',
+    tagline: 'Table orders, Kitchen Display Systems (KDS) & food aggregators',
+    description: 'Floor plan table management, kitchen order tickets (KOT), delivery platform webhook sync, recipe cost calculation, and split bills.',
+    applicableIndustries: ['hospitality-travel'],
+    supportedPlatforms: ['Tablet', 'Web Desktop', 'KDS Screen'],
+    defaultPlanFamilyId: 'fam-biz-rest',
+    displayOrder: 3,
+  },
+  {
+    id: 'sol-biz-crm',
+    divisionSlug: 'starx-business',
+    serviceCategoryId: 'cat-biz-operations',
+    slug: 'crm-pipeline-management',
+    name: 'Lead Capture & Sales Pipeline CRM',
+    tagline: 'Convert inbound inquiries into signed commercial deals',
+    description: 'Visual Kanban deal stages, WhatsApp conversation archiving, automated follow-up sequences, task assignments, and revenue forecasting.',
+    applicableIndustries: ['real-estate-property', 'financial-services', 'education-edtech', 'professional-services'],
+    supportedPlatforms: ['Web Desktop', 'Web Mobile'],
+    defaultPlanFamilyId: 'fam-biz-crm',
+    displayOrder: 4,
+  },
+  {
+    id: 'sol-biz-erp',
+    divisionSlug: 'starx-business',
+    serviceCategoryId: 'cat-biz-operations',
+    slug: 'enterprise-erp-operations',
+    name: 'Integrated Enterprise ERP Suite',
+    tagline: 'Unified finance, procurement, sales and departmental workflows',
+    description: 'Accounts payable/receivable, purchase requisitions, double-entry general ledger, role approval gates, and compliance reports.',
+    applicableIndustries: ['manufacturing-industrial', 'logistics-supply-chain', 'healthcare-life-sciences'],
+    supportedPlatforms: ['Web Desktop'],
+    defaultPlanFamilyId: 'fam-biz-erp',
+    displayOrder: 5,
+  },
+  {
+    id: 'sol-biz-hr',
+    divisionSlug: 'starx-business',
+    serviceCategoryId: 'cat-biz-operations',
+    slug: 'hr-payroll-attendance',
+    name: 'Staff Attendance, Payroll & HR Portal',
+    tagline: 'Biometric clock-in, leave approvals & automated salary slips',
+    description: 'Employee lifecycle, salary structure configuration, TDS/PF calculations, leave management, and digital pay slip delivery.',
+    applicableIndustries: ['education-edtech', 'healthcare-life-sciences', 'manufacturing-industrial', 'hospitality-travel'],
+    supportedPlatforms: ['Web Desktop', 'Web Mobile'],
+    defaultPlanFamilyId: 'fam-biz-hr',
+    displayOrder: 6,
+  },
+
+  // Division 4: StarX SaaS
+  {
+    id: 'sol-saas-mvp',
+    divisionSlug: 'starx-saas',
+    serviceCategoryId: 'cat-saas-core',
+    slug: 'saas-mvp-launchpad',
+    name: 'B2B SaaS MVP Prototype',
+    tagline: 'Rapid market validation with production-grade tenant isolation',
+    description: 'Turn your SaaS vision into a functioning product with user authentication, team workspaces, plan tiers, and billing checkout.',
+    applicableIndustries: ['professional-services', 'financial-services', 'education-edtech', 'healthcare-life-sciences'],
+    supportedPlatforms: ['Web Desktop', 'Web Mobile'],
+    defaultPlanFamilyId: 'fam-saas-mvp',
+    isPopular: true,
+    displayOrder: 1,
+  },
+  {
+    id: 'sol-saas-scale',
+    divisionSlug: 'starx-saas',
+    serviceCategoryId: 'cat-saas-core',
+    slug: 'saas-scale-platform',
+    name: 'High-Concurrency Multi-Tenant SaaS',
+    tagline: 'Enterprise-grade cloud platform ready for thousands of teams',
+    description: 'Row-level security database partitioning, tenant-isolated storage buckets, API key throttling, usage analytics, and custom domain mapping.',
+    applicableIndustries: ['financial-services', 'media-entertainment', 'education-edtech', 'logistics-supply-chain'],
+    supportedPlatforms: ['Web Desktop'],
+    defaultPlanFamilyId: 'fam-saas-scale',
+    displayOrder: 2,
+  },
+  {
+    id: 'sol-saas-ai',
+    divisionSlug: 'starx-saas',
+    serviceCategoryId: 'cat-saas-core',
+    slug: 'ai-enabled-saas',
+    name: 'AI-First SaaS Application',
+    tagline: 'Infuse generative intelligence and automated workflows into your core product',
+    description: 'Embedded AI assistant, document chat, prompt templates, metered token tracking per organization, and streaming output UI.',
+    applicableIndustries: ['education-edtech', 'healthcare-life-sciences', 'professional-services', 'real-estate-property'],
+    supportedPlatforms: ['Web Desktop', 'Web Mobile'],
+    defaultPlanFamilyId: 'fam-saas-ai',
+    displayOrder: 3,
+  },
+  {
+    id: 'sol-saas-dev',
+    divisionSlug: 'starx-saas',
+    serviceCategoryId: 'cat-saas-core',
+    slug: 'developer-platform-saas',
+    name: 'Developer Platform & Cloud API',
+    tagline: 'Developer-first SDKs, webhooks, rate limits & interactive API docs',
+    description: 'Self-serve API keys, usage dashboard, interactive OpenAPI swagger docs, webhook dispatcher, and cryptographic signature verification.',
+    applicableIndustries: ['financial-services', 'logistics-supply-chain', 'media-entertainment'],
+    supportedPlatforms: ['Web Desktop'],
+    defaultPlanFamilyId: 'fam-saas-dev',
+    displayOrder: 4,
+  },
+
+  // Division 5: StarX AI
+  {
+    id: 'sol-ai-agent',
+    divisionSlug: 'starx-ai',
+    serviceCategoryId: 'cat-ai-agents',
+    slug: 'autonomous-agents',
+    name: 'Autonomous AI Agent Workflows',
+    tagline: 'Self-directed AI agents executing multi-step business actions',
+    description: 'Tool-calling execution loops, human-in-the-loop approval checkpoints, scheduled task triggers, and external API execution.',
+    applicableIndustries: ['financial-services', 'healthcare-life-sciences', 'real-estate-property', 'logistics-supply-chain'],
+    supportedPlatforms: ['Web Desktop', 'Web Mobile', 'Background Service'],
+    defaultPlanFamilyId: 'fam-ai-agent',
+    isPopular: true,
+    displayOrder: 1,
+  },
+  {
+    id: 'sol-ai-rag',
+    divisionSlug: 'starx-ai',
+    serviceCategoryId: 'cat-ai-knowledge',
+    slug: 'rag-document-intelligence',
+    name: 'Enterprise Document RAG & Search',
+    tagline: 'Zero-hallucination semantic search across proprietary PDF & data vaults',
+    description: 'Chunking & vector embedding pipelines, pgvector search, hybrid BM25 re-ranking, source citation linking, and privacy isolation.',
+    applicableIndustries: ['healthcare-life-sciences', 'education-edtech', 'financial-services', 'professional-services', 'public-sector-gov'],
+    supportedPlatforms: ['Web Desktop', 'Web Mobile'],
+    defaultPlanFamilyId: 'fam-ai-rag',
+    isPopular: true,
+    displayOrder: 2,
+  },
+  {
+    id: 'sol-ai-voice',
+    divisionSlug: 'starx-ai',
+    serviceCategoryId: 'cat-ai-agents',
+    slug: 'voice-ai-receptionists',
+    name: 'Conversational Voice AI Agent',
+    tagline: 'Sub-300ms realistic voice calls for sales and 24/7 customer support',
+    description: 'Telephony integration, speech-to-text streaming, Gemini Live audio reasoning, voice synthesis, appointment booking, and call transcripts.',
+    applicableIndustries: ['healthcare-life-sciences', 'real-estate-property', 'hospitality-travel', 'retail-commerce'],
+    supportedPlatforms: ['Telephony / Phone', 'Web Voice Widget'],
+    defaultPlanFamilyId: 'fam-ai-voice',
+    displayOrder: 3,
+  },
+  {
+    id: 'sol-ai-copilot',
+    divisionSlug: 'starx-ai',
+    serviceCategoryId: 'cat-ai-agents',
+    slug: 'product-copilots',
+    name: 'Embedded Product Copilot',
+    tagline: 'Context-aware AI assistant docked inside your existing application',
+    description: 'Reads live screen context, suggests actions, drafts replies, fills forms automatically, and guides users through complex workflows.',
+    applicableIndustries: ['professional-services', 'financial-services', 'education-edtech', 'healthcare-life-sciences'],
+    supportedPlatforms: ['Web Desktop', 'Web Mobile'],
+    defaultPlanFamilyId: 'fam-ai-copilot',
+    displayOrder: 4,
+  },
+  {
+    id: 'sol-ai-vision',
+    divisionSlug: 'starx-ai',
+    serviceCategoryId: 'cat-ai-knowledge',
+    slug: 'computer-vision-systems',
+    name: 'Visual Quality & Computer Vision Inspection',
+    tagline: 'Automated defect detection, document OCR & spatial recognition',
+    description: 'High-speed object identification, quality grading, receipt and invoice optical character recognition, and real-time video stream analysis.',
+    applicableIndustries: ['manufacturing-industrial', 'logistics-supply-chain', 'retail-commerce', 'healthcare-life-sciences'],
+    supportedPlatforms: ['Web Desktop', 'Mobile Camera', 'Edge Device'],
+    defaultPlanFamilyId: 'fam-ai-vision',
+    displayOrder: 5,
+  },
+
+  // Division 6: StarX Custom
+  {
+    id: 'sol-cust-api',
+    divisionSlug: 'starx-custom',
+    serviceCategoryId: 'cat-cust-infra',
+    slug: 'custom-backend-apis',
+    name: 'High-Concurrency Distributed Backend & APIs',
+    tagline: 'Sub-millisecond API gateways built for millions of requests',
+    description: 'Go / Node / Rust microservices, Redis distributed caching, message queues (RabbitMQ/Kafka), and automated load testing.',
+    applicableIndustries: ['financial-services', 'logistics-supply-chain', 'media-entertainment', 'retail-commerce'],
+    supportedPlatforms: ['Cloud Serverless', 'Edge Container'],
+    defaultPlanFamilyId: 'fam-cust-api',
+    displayOrder: 1,
+  },
+  {
+    id: 'sol-cust-infra',
+    divisionSlug: 'starx-custom',
+    serviceCategoryId: 'cat-cust-infra',
+    slug: 'cloud-infrastructure-devops',
+    name: 'Sovereign Cloud & Kubernetes DevOps',
+    tagline: 'High-availability infrastructure with zero-downtime deployments',
+    description: 'Terraform IaC, multi-region Kubernetes clusters, automated CI/CD pipelines, Prometheus/Grafana monitoring, and disaster recovery.',
+    applicableIndustries: ['financial-services', 'healthcare-life-sciences', 'public-sector-gov'],
+    supportedPlatforms: ['AWS', 'GCP', 'Azure', 'Bare Metal'],
+    defaultPlanFamilyId: 'fam-cust-infra',
+    displayOrder: 2,
+  },
+  {
+    id: 'sol-cust-legacy',
+    divisionSlug: 'starx-custom',
+    serviceCategoryId: 'cat-cust-infra',
+    slug: 'legacy-modernization',
+    name: 'Legacy Modernization & Database Migration',
+    tagline: 'Zero-data-loss upgrades for mission-critical core systems',
+    description: 'Deconstruct monoliths into modern Next.js/PostgreSQL stacks, dual-write synchronization, schema migrations, and API bridging.',
+    applicableIndustries: ['financial-services', 'manufacturing-industrial', 'public-sector-gov', 'logistics-supply-chain'],
+    supportedPlatforms: ['Enterprise Datacenter', 'Hybrid Cloud'],
+    defaultPlanFamilyId: 'fam-cust-legacy',
+    displayOrder: 3,
+  },
+  {
+    id: 'sol-cust-squad',
+    divisionSlug: 'starx-custom',
+    serviceCategoryId: 'cat-cust-squads',
+    slug: 'dedicated-engineering-pods',
+    name: 'Dedicated Senior Engineering Pod',
+    tagline: 'Full-time senior full-stack and AI engineers embedded in your product',
+    description: 'Dedicated Squad Lead, Senior Frontend Engineer, Senior Backend/DB Engineer, and AI Specialist working in your time zone with daily standups.',
+    applicableIndustries: ['retail-commerce', 'healthcare-life-sciences', 'real-estate-property', 'education-edtech', 'financial-services', 'logistics-supply-chain'],
+    supportedPlatforms: ['All Platforms'],
+    defaultPlanFamilyId: 'fam-cust-squad',
+    isPopular: true,
+    displayOrder: 4,
+  },
+];
+
+// ==============================================================================
+// 4. CANONICAL PLAN FAMILIES
+// ==============================================================================
+export const CANONICAL_PLAN_FAMILIES: PlanFamily[] = [
+  // Web Families
+  { id: 'fam-web-biz', divisionSlug: 'starx-web', solutionId: 'sol-web-biz', code: 'PF-WEB-BIZ', name: 'Business Website Plan Family', description: 'Tiered packages for corporate, professional and service brand websites.', tierIds: ['web-biz-starter', 'web-biz-growth', 'web-biz-pro', 'web-biz-enterprise'] },
+  { id: 'fam-web-ecom', divisionSlug: 'starx-web', solutionId: 'sol-web-ecom', code: 'PF-WEB-ECOM', name: 'Ecommerce Storefront Plan Family', description: 'Tiered ecommerce packages from D2C MVP to high-volume multi-brand storefront.', tierIds: ['web-ecom-starter', 'web-ecom-growth', 'web-ecom-enterprise', 'web-ecom-custom'] },
+  { id: 'fam-web-land', divisionSlug: 'starx-web', solutionId: 'sol-web-land', code: 'PF-WEB-LAND', name: 'Landing Page Plan Family', description: 'High-conversion single and multi-variant landing page funnels.', tierIds: ['web-land-starter', 'web-land-growth', 'web-land-pro'] },
+  { id: 'fam-web-app', divisionSlug: 'starx-web', solutionId: 'sol-web-app', code: 'PF-WEB-APP', name: 'Web Application Plan Family', description: 'Full-stack application packages with RBAC, database and dashboard.', tierIds: ['web-app-mvp', 'web-app-growth', 'web-app-scale', 'web-app-enterprise'] },
+  { id: 'fam-web-book', divisionSlug: 'starx-web', solutionId: 'sol-web-book', code: 'PF-WEB-BOOK', name: 'Booking Portal Plan Family', description: 'Scheduling and appointment portals with payment gateway integration.', tierIds: ['web-book-starter', 'web-book-growth', 'web-book-enterprise'] },
+  { id: 'fam-web-dash', divisionSlug: 'starx-web', solutionId: 'sol-web-dash', code: 'PF-WEB-DASH', name: 'Enterprise Portal Plan Family', description: 'Executive command centers and operational dashboards.', tierIds: ['web-dash-pro', 'web-dash-enterprise', 'web-dash-custom'] },
+  // Apps Families
+  { id: 'fam-app-and', divisionSlug: 'starx-apps', solutionId: 'sol-app-and', code: 'PF-APP-AND', name: 'Native Android Plan Family', description: 'Native Kotlin/Compose development for Android.', tierIds: ['app-and-mvp', 'app-and-growth', 'app-and-enterprise'] },
+  { id: 'fam-app-ios', divisionSlug: 'starx-apps', solutionId: 'sol-app-ios', code: 'PF-APP-IOS', name: 'Native iOS Plan Family', description: 'Native Swift/SwiftUI development for iPhone and iPad.', tierIds: ['app-ios-mvp', 'app-ios-growth', 'app-ios-enterprise'] },
+  { id: 'fam-app-xplat', divisionSlug: 'starx-apps', solutionId: 'sol-app-xplat', code: 'PF-APP-XPLAT', name: 'Cross-Platform Mobile Plan Family', description: 'Universal mobile apps for both iOS and Android stores.', tierIds: ['app-xplat-mvp', 'app-xplat-growth', 'app-xplat-enterprise', 'app-xplat-custom'] },
+  { id: 'fam-app-ecom', divisionSlug: 'starx-apps', solutionId: 'sol-app-ecom', code: 'PF-APP-ECOM', name: 'Mobile Shopping Plan Family', description: 'Mobile commerce and consumer shopping applications.', tierIds: ['app-ecom-starter', 'app-ecom-growth', 'app-ecom-enterprise'] },
+  { id: 'fam-app-deliv', divisionSlug: 'starx-apps', solutionId: 'sol-app-deliv', code: 'PF-APP-DELIV', name: 'Delivery Logistics Plan Family', description: 'Rider tracking, on-demand dispatch, and delivery confirmation.', tierIds: ['app-deliv-starter', 'app-deliv-growth', 'app-deliv-enterprise'] },
+  // Business Families
+  { id: 'fam-biz-pos', divisionSlug: 'starx-business', solutionId: 'sol-biz-pos', code: 'PF-BIZ-POS', name: 'Cloud POS Plan Family', description: 'Counter billing, thermal printing, and barcode POS systems.', tierIds: ['biz-pos-single', 'biz-pos-multi', 'biz-pos-enterprise'] },
+  { id: 'fam-biz-inv', divisionSlug: 'starx-business', solutionId: 'sol-biz-inv', code: 'PF-BIZ-INV', name: 'Inventory Management Plan Family', description: 'Stock tracking, reorders, and multi-warehouse distribution.', tierIds: ['biz-inv-starter', 'biz-inv-pro', 'biz-inv-enterprise'] },
+  { id: 'fam-biz-rest', divisionSlug: 'starx-business', solutionId: 'sol-biz-rest', code: 'PF-BIZ-REST', name: 'Restaurant Operations Plan Family', description: 'Table orders, KDS screens, and kitchen management.', tierIds: ['biz-rest-starter', 'biz-rest-growth', 'biz-rest-enterprise'] },
+  { id: 'fam-biz-crm', divisionSlug: 'starx-business', solutionId: 'sol-biz-crm', code: 'PF-BIZ-CRM', name: 'Sales CRM Plan Family', description: 'Inbound lead pipelines, WhatsApp archiving, and deal stages.', tierIds: ['biz-crm-starter', 'biz-crm-growth', 'biz-crm-enterprise'] },
+  { id: 'fam-biz-erp', divisionSlug: 'starx-business', solutionId: 'sol-biz-erp', code: 'PF-BIZ-ERP', name: 'Integrated ERP Plan Family', description: 'General ledger, purchase workflows, and enterprise operations.', tierIds: ['biz-erp-growth', 'biz-erp-enterprise', 'biz-erp-custom'] },
+  { id: 'fam-biz-hr', divisionSlug: 'starx-business', solutionId: 'sol-biz-hr', code: 'PF-BIZ-HR', name: 'HR & Payroll Plan Family', description: 'Biometric clock-in, leave approvals, and automated pay slips.', tierIds: ['biz-hr-starter', 'biz-hr-growth', 'biz-hr-enterprise'] },
+  // SaaS Families
+  { id: 'fam-saas-mvp', divisionSlug: 'starx-saas', solutionId: 'sol-saas-mvp', code: 'PF-SAAS-MVP', name: 'SaaS MVP Plan Family', description: 'Rapid SaaS prototypes for market validation.', tierIds: ['saas-mvp-launch', 'saas-mvp-pro', 'saas-mvp-enterprise'] },
+  { id: 'fam-saas-scale', divisionSlug: 'starx-saas', solutionId: 'sol-saas-scale', code: 'PF-SAAS-SCALE', name: 'Scale SaaS Platform Plan Family', description: 'High-concurrency multi-tenant SaaS platforms.', tierIds: ['saas-scale-growth', 'saas-scale-enterprise', 'saas-scale-custom'] },
+  { id: 'fam-saas-ai', divisionSlug: 'starx-saas', solutionId: 'sol-saas-ai', code: 'PF-SAAS-AI', name: 'AI SaaS Product Plan Family', description: 'Generative AI-infused cloud products and subscription portals.', tierIds: ['saas-ai-starter', 'saas-ai-growth', 'saas-ai-enterprise'] },
+  { id: 'fam-saas-dev', divisionSlug: 'starx-saas', solutionId: 'sol-saas-dev', code: 'PF-SAAS-DEV', name: 'Developer Platform Plan Family', description: 'Self-serve API keys, rate limits, and webhook infrastructure.', tierIds: ['saas-dev-starter', 'saas-dev-pro', 'saas-dev-enterprise'] },
+  // AI Families
+  { id: 'fam-ai-agent', divisionSlug: 'starx-ai', solutionId: 'sol-ai-agent', code: 'PF-AI-AGENT', name: 'Autonomous Agent Plan Family', description: 'Tool-calling agents, scheduled triggers, and task execution.', tierIds: ['ai-agent-starter', 'ai-agent-growth', 'ai-agent-enterprise', 'ai-agent-custom'] },
+  { id: 'fam-ai-rag', divisionSlug: 'starx-ai', solutionId: 'sol-ai-rag', code: 'PF-AI-RAG', name: 'Document RAG Plan Family', description: 'Vector embeddings, semantic search, and document intelligence.', tierIds: ['ai-rag-starter', 'ai-rag-growth', 'ai-rag-enterprise'] },
+  { id: 'fam-ai-voice', divisionSlug: 'starx-ai', solutionId: 'sol-ai-voice', code: 'PF-AI-VOICE', name: 'Voice AI Agent Plan Family', description: 'Sub-300ms realistic telephony voice assistants.', tierIds: ['ai-voice-starter', 'ai-voice-growth', 'ai-voice-enterprise'] },
+  { id: 'fam-ai-copilot', divisionSlug: 'starx-ai', solutionId: 'sol-ai-copilot', code: 'PF-AI-COPILOT', name: 'Product Copilot Plan Family', description: 'Embedded context-aware assistant docked inside web/mobile apps.', tierIds: ['ai-copilot-starter', 'ai-copilot-growth', 'ai-copilot-enterprise'] },
+  { id: 'fam-ai-vision', divisionSlug: 'starx-ai', solutionId: 'sol-ai-vision', code: 'PF-AI-VISION', name: 'Computer Vision Plan Family', description: 'Quality inspection, OCR, and defect detection models.', tierIds: ['ai-vision-starter', 'ai-vision-growth', 'ai-vision-enterprise'] },
+  // Custom Families
+  { id: 'fam-cust-api', divisionSlug: 'starx-custom', solutionId: 'sol-cust-api', code: 'PF-CUST-API', name: 'Distributed API Plan Family', description: 'High-throughput microservices and API gateways.', tierIds: ['cust-api-module', 'cust-api-full', 'cust-api-enterprise'] },
+  { id: 'fam-cust-infra', divisionSlug: 'starx-custom', solutionId: 'sol-cust-infra', code: 'PF-CUST-INFRA', name: 'Cloud & DevOps Plan Family', description: 'Kubernetes orchestration, Terraform IaC, and disaster recovery.', tierIds: ['cust-infra-setup', 'cust-infra-ha', 'cust-infra-sovereign'] },
+  { id: 'fam-cust-legacy', divisionSlug: 'starx-custom', solutionId: 'sol-cust-legacy', code: 'PF-CUST-LEGACY', name: 'Legacy Modernization Plan Family', description: 'Deconstruct monoliths into modern Next.js/Postgres architectures.', tierIds: ['cust-legacy-phase1', 'cust-legacy-complete', 'cust-legacy-custom'] },
+  { id: 'fam-cust-squad', divisionSlug: 'starx-custom', solutionId: 'sol-cust-squad', code: 'PF-CUST-SQUAD', name: 'Dedicated Engineering Squad Plan Family', description: 'Dedicated full-time senior engineering teams on monthly retainer.', tierIds: ['cust-squad-half', 'cust-squad-full', 'cust-squad-enterprise'] },
+];
+
+// ==============================================================================
+// 5. MASTER CANONICAL FEATURES (Comprehensive Architectural Catalogue)
+// ==============================================================================
+export const CANONICAL_FEATURES: CanonicalFeatureRecord[] = [
+  // CORE_ARCHITECTURE
+  {
+    id: 'feat-nextjs-app-router',
+    group: 'CORE_ARCHITECTURE',
+    name: 'Next.js 15 App Router & Server Components',
+    slug: 'nextjs-app-router',
+    customerExplanation: 'Ultra-fast page loads with zero-layout-shift and optimized edge server rendering.',
+    technicalDescription: 'Next.js 15 App Router architecture with React Server Components, streaming SSR, and edge route caching.',
+    applicableDivisions: ['starx-web', 'starx-business', 'starx-saas', 'starx-ai', 'starx-custom'],
+    defaultPriority: 'must_have',
+  },
+  {
+    id: 'feat-responsive-mobile-fluid',
+    group: 'CORE_ARCHITECTURE',
+    name: 'Fluid Responsive Layout (Mobile, Tablet, 4K)',
+    slug: 'responsive-mobile-fluid',
+    customerExplanation: 'Flawless visual experience adapted perfectly across smartphones, tablets, laptops, and ultra-wide screens.',
+    technicalDescription: 'CSS container queries, Tailwind CSS breakpoints, touch target compliance (min 48px), and fluid typography.',
+    applicableDivisions: ['starx-web', 'starx-apps', 'starx-business', 'starx-saas', 'starx-ai'],
+    defaultPriority: 'must_have',
+  },
+  {
+    id: 'feat-pwa-offline-cache',
+    group: 'CORE_ARCHITECTURE',
+    name: 'PWA Offline Cache & Installable Manifest',
+    slug: 'pwa-offline-cache',
+    customerExplanation: 'Allows users to install the web platform like an app on their phone with offline support.',
+    technicalDescription: 'Service worker caching strategies, web app manifest, offline fallback screens, and background sync.',
+    applicableDivisions: ['starx-web', 'starx-business', 'starx-saas'],
+    defaultPriority: 'nice_to_have',
+  },
+
+  // AUTHENTICATION_IDENTITY
+  {
+    id: 'feat-auth-supabase-jwt',
+    group: 'AUTHENTICATION_IDENTITY',
+    name: 'Secure Passwordless & Password Authentication',
+    slug: 'auth-supabase-jwt',
+    customerExplanation: 'Bank-grade login via email, passwordless magic links, and Google/Apple social sign-in.',
+    technicalDescription: 'Supabase Auth with cryptographic JWT tokens, httpOnly secure session cookies, and PKCE flow.',
+    applicableDivisions: ['starx-web', 'starx-apps', 'starx-business', 'starx-saas', 'starx-ai', 'starx-custom'],
+    defaultPriority: 'must_have',
+  },
+  {
+    id: 'feat-auth-mfa-totp',
+    group: 'AUTHENTICATION_IDENTITY',
+    name: 'Multi-Factor Authentication (MFA / 2FA)',
+    slug: 'auth-mfa-totp',
+    customerExplanation: 'Extra layer of security with authenticator app codes (Google Authenticator / Authy).',
+    technicalDescription: 'TOTP algorithm (RFC 6238) verification, recovery backup codes, and enforced admin MFA policies.',
+    applicableDivisions: ['starx-business', 'starx-saas', 'starx-ai', 'starx-custom'],
+    defaultPriority: 'important',
+  },
+  {
+    id: 'feat-auth-enterprise-sso',
+    group: 'AUTHENTICATION_IDENTITY',
+    name: 'Enterprise SAML 2.0 / Okta / Azure AD SSO',
+    slug: 'auth-enterprise-sso',
+    customerExplanation: 'Corporate single sign-on enabling enterprise employees to log in with their company directory.',
+    technicalDescription: 'SAML 2.0 & OIDC identity federation, automated SCIM user provisioning, and domain tenancy matching.',
+    applicableDivisions: ['starx-saas', 'starx-custom', 'starx-business'],
+    isEnterpriseOnly: true,
+    defaultPriority: 'nice_to_have',
+  },
+
+  // USER_MANAGEMENT_RBAC
+  {
+    id: 'feat-rbac-hierarchical-roles',
+    group: 'USER_MANAGEMENT_RBAC',
+    name: 'Granular Role-Based Access Control (RBAC)',
+    slug: 'rbac-hierarchical-roles',
+    customerExplanation: 'Control exactly who can view, edit, or delete sensitive business data based on their job role.',
+    technicalDescription: 'PostgreSQL Row-Level Security (RLS) policies evaluated at database layer with custom claims in JWT.',
+    applicableDivisions: ['starx-web', 'starx-apps', 'starx-business', 'starx-saas', 'starx-custom'],
+    defaultPriority: 'must_have',
+  },
+  {
+    id: 'feat-multi-tenant-orgs',
+    group: 'USER_MANAGEMENT_RBAC',
+    name: 'Multi-Tenant Workspaces & Team Invites',
+    slug: 'multi-tenant-orgs',
+    customerExplanation: 'Allow businesses to create their own isolated team workspaces and invite team members.',
+    technicalDescription: 'Tenant-scoped data partitioning with organization_id foreign keys, member invitations, and seat limits.',
+    applicableDivisions: ['starx-saas', 'starx-business'],
+    defaultPriority: 'must_have',
+  },
+
+  // DASHBOARD_UX
+  {
+    id: 'feat-obsidian-glass-dashboard',
+    group: 'DASHBOARD_UX',
+    name: 'Obsidian Midnight Glassmorphism UI',
+    slug: 'obsidian-glass-dashboard',
+    customerExplanation: 'Signature StarX aesthetic featuring cosmic midnight tones, frosted glass layers, and micro-interactions.',
+    technicalDescription: 'Multi-layered backdrop-filter blurs, cosmic glow gradients, Framer Motion transitions, and accessible contrast.',
+    applicableDivisions: ['starx-web', 'starx-business', 'starx-saas', 'starx-ai'],
+    defaultPriority: 'must_have',
+  },
+  {
+    id: 'feat-interactive-charts-kpi',
+    group: 'DASHBOARD_UX',
+    name: 'Executive Metric Cards & Interactive Charts',
+    slug: 'interactive-charts-kpi',
+    customerExplanation: 'Visual revenue graphs, order trends, user conversion funnels, and real-time operational stats.',
+    technicalDescription: 'Hardware-accelerated SVG/Canvas charting with tooltip inspection, date range filtering, and CSV export.',
+    applicableDivisions: ['starx-web', 'starx-business', 'starx-saas', 'starx-ai'],
+    defaultPriority: 'important',
+  },
+
+  // COMMERCE_STOREFRONT
+  {
+    id: 'feat-product-catalog-matrix',
+    group: 'COMMERCE_STOREFRONT',
+    name: 'Multi-Variant Product Catalogue & Search',
+    slug: 'product-catalog-matrix',
+    customerExplanation: 'Organize unlimited products with size, color, SKU variants, stock indicators, and instant search.',
+    technicalDescription: 'Relational product schema with dynamic variant JSON, full-text fuzzy search, and faceted category filters.',
+    applicableDivisions: ['starx-web', 'starx-apps', 'starx-business'],
+    defaultPriority: 'must_have',
+  },
+  {
+    id: 'feat-cart-one-click-checkout',
+    group: 'COMMERCE_STOREFRONT',
+    name: 'High-Conversion Cart & Instant Checkout',
+    slug: 'cart-one-click-checkout',
+    customerExplanation: 'Friction-free checkout flow with address auto-fill, coupon discounts, and instant payment validation.',
+    technicalDescription: 'Client-side Zustand state synced with server cart API, idempotency token keys, and optimistic cart updates.',
+    applicableDivisions: ['starx-web', 'starx-apps'],
+    defaultPriority: 'must_have',
+  },
+
+  // PAYMENTS_BILLING
+  {
+    id: 'feat-upi-razorpay-gateway',
+    group: 'PAYMENTS_BILLING',
+    name: 'Native UPI & Razorpay Payment Switch',
+    slug: 'upi-razorpay-gateway',
+    customerExplanation: 'Instant payments via Google Pay, PhonePe, Paytm, QR codes, Net Banking, and Indian credit/debit cards.',
+    technicalDescription: 'Server-side Razorpay Order API integration with HMAC-SHA256 webhook signature verification and auto-reconciliation.',
+    applicableDivisions: ['starx-web', 'starx-apps', 'starx-business', 'starx-saas'],
+    defaultPriority: 'must_have',
+  },
+  {
+    id: 'feat-stripe-global-currency',
+    group: 'PAYMENTS_BILLING',
+    name: 'Stripe Multi-Currency International Checkout',
+    slug: 'stripe-global-currency',
+    customerExplanation: 'Accept payments globally in USD, EUR, GBP, and 135+ currencies with automated fraud detection.',
+    technicalDescription: 'Stripe Payment Intents & Billing API with 3D Secure 2 compliance and automated tax calculations.',
+    applicableDivisions: ['starx-web', 'starx-saas', 'starx-apps'],
+    defaultPriority: 'important',
+  },
+  {
+    id: 'feat-subscription-recurring-engine',
+    group: 'PAYMENTS_BILLING',
+    name: 'Recurring Subscription Billing & Invoicing Engine',
+    slug: 'subscription-recurring-engine',
+    customerExplanation: 'Automate monthly and annual recurring customer subscriptions with prorated upgrades and invoice emails.',
+    technicalDescription: 'Automated billing cycles, dunning email retries for failed cards, upgrade prorations, and PDF invoice generation.',
+    applicableDivisions: ['starx-saas', 'starx-business'],
+    defaultPriority: 'must_have',
+  },
+
+  // AUTOMATION_WORKFLOWS
+  {
+    id: 'feat-whatsapp-cloud-automation',
+    group: 'AUTOMATION_WORKFLOWS',
+    name: 'WhatsApp Cloud API Instant Notifications',
+    slug: 'whatsapp-cloud-automation',
+    customerExplanation: 'Send automated order confirmations, delivery tracking, and invoice PDFs directly to customer WhatsApp.',
+    technicalDescription: 'Meta WhatsApp Cloud API webhook handler with template approval schemas, media payloads, and two-way chat routing.',
+    applicableDivisions: ['starx-web', 'starx-apps', 'starx-business', 'starx-ai'],
+    defaultPriority: 'important',
+  },
+  {
+    id: 'feat-background-cron-workers',
+    group: 'AUTOMATION_WORKFLOWS',
+    name: 'Reliable Scheduled Tasks & Background Workers',
+    slug: 'background-cron-workers',
+    customerExplanation: 'Background engine that automatically runs nightly backups, sends weekly digests, and checks inventory.',
+    technicalDescription: 'Serverless cron scheduler with idempotency locks, dead-letter retries, and execution audit logging.',
+    applicableDivisions: ['starx-business', 'starx-saas', 'starx-ai', 'starx-custom'],
+    defaultPriority: 'must_have',
+  },
+
+  // AI_INTELLIGENCE
+  {
+    id: 'feat-gemini-orchestration-engine',
+    group: 'AI_INTELLIGENCE',
+    name: 'Gemini 2.0 / Flash AI Intelligence Engine',
+    slug: 'gemini-orchestration-engine',
+    customerExplanation: 'State-of-the-art AI reasoning powering automatic content generation, customer queries, and workflow decisions.',
+    technicalDescription: 'Google Gemini API integration with structured JSON schema responses, temperature controls, and token monitoring.',
+    applicableDivisions: ['starx-ai', 'starx-saas', 'starx-web'],
+    defaultPriority: 'must_have',
+  },
+  {
+    id: 'feat-rag-pgvector-embeddings',
+    group: 'AI_INTELLIGENCE',
+    name: 'Enterprise Document RAG with pgvector',
+    slug: 'rag-pgvector-embeddings',
+    customerExplanation: 'AI that accurately searches and answers questions exclusively from your company documents and PDFs.',
+    technicalDescription: 'Text chunking, text-embedding-004 vectors, pgvector cosine similarity index (HNSW), and cited source provenance.',
+    applicableDivisions: ['starx-ai', 'starx-saas'],
+    defaultPriority: 'must_have',
+  },
+  {
+    id: 'feat-voice-ai-telephony-agent',
+    group: 'AI_INTELLIGENCE',
+    name: 'Conversational Voice AI Receptionist',
+    slug: 'voice-ai-telephony-agent',
+    customerExplanation: 'Human-like voice agent that answers inbound phone calls, speaks naturally, and books customer appointments.',
+    technicalDescription: 'LiveKit / Twilio SIP bridge, deepgram STT streaming, Gemini Flash reasoning, and ElevenLabs TTS output (sub-300ms).',
+    applicableDivisions: ['starx-ai'],
+    defaultPriority: 'must_have',
+  },
+
+  // SECURITY_COMPLIANCE
+  {
+    id: 'feat-owasp-top-10-hardening',
+    group: 'SECURITY_COMPLIANCE',
+    name: 'OWASP Top 10 Hardening & Rate Limiting',
+    slug: 'owasp-top-10-hardening',
+    customerExplanation: 'Defense-grade protection against DDoS attacks, SQL injection, automated credential stuffing, and bot scraping.',
+    technicalDescription: 'Strict Content Security Policy (CSP), Upstash Redis sliding-window IP rate limiting, input sanitization via Zod, and CORS enforcement.',
+    applicableDivisions: ['starx-web', 'starx-apps', 'starx-business', 'starx-saas', 'starx-ai', 'starx-custom'],
+    defaultPriority: 'must_have',
+  },
+  {
+    id: 'feat-immutable-audit-ledger',
+    group: 'SECURITY_COMPLIANCE',
+    name: 'Cryptographically Verifiable Audit Ledger',
+    slug: 'immutable-audit-ledger',
+    customerExplanation: 'Tamper-proof record tracking every administrative action, price alteration, login attempt, and financial change.',
+    technicalDescription: 'PostgreSQL append-only audit_logs table with database trigger preventing UPDATE/DELETE operations.',
+    applicableDivisions: ['starx-business', 'starx-saas', 'starx-custom'],
+    defaultPriority: 'important',
+  },
+
+  // ENTERPRISE_GOVERNANCE
+  {
+    id: 'feat-sla-warranty-support',
+    group: 'ENTERPRISE_GOVERNANCE',
+    name: 'Production SLA & Post-Launch Bug Warranty',
+    slug: 'sla-warranty-support',
+    customerExplanation: 'Guaranteed technical response times and 100% bug-free warranty covering all delivered features.',
+    technicalDescription: 'Contractual SLA guarantee (Standard 48h to Enterprise 2h), monitored uptime tracking, and dedicated staging environments.',
+    applicableDivisions: ['starx-web', 'starx-apps', 'starx-business', 'starx-saas', 'starx-ai', 'starx-custom'],
+    defaultPriority: 'must_have',
+  },
+];
+
+// ==============================================================================
+// 6. CANONICAL ADD-ONS CATALOGUE
+// ==============================================================================
+export const CANONICAL_ADDONS: CanonicalAddonRecord[] = [
+  // Web Add-ons
+  {
+    id: 'addon-seo-mastery',
+    divisionSlug: 'starx-web',
+    applicableSolutions: ['sol-web-biz', 'sol-web-ecom', 'sol-web-land'],
+    compatiblePlanTiers: ['starter', 'growth', 'professional'],
+    slug: 'advanced-seo-schema',
+    name: 'Enterprise Technical SEO & Schema Graph',
+    tagline: 'Rank higher on Google with rich snippet structured JSON-LD schemas',
+    description: 'Complete OpenGraph metadata, dynamic XML sitemaps, IndexNow automated submission, and Google Search Console audit.',
+    priceINR: 11999,
+    priceUSD: 149,
+    billingModel: 'ONE_TIME',
+    category: 'marketing',
+    status: 'PUBLISHED',
+  },
+  {
+    id: 'addon-multi-lang-i18n',
+    divisionSlug: 'starx-web',
+    applicableSolutions: ['sol-web-biz', 'sol-web-ecom', 'sol-web-app', 'sol-web-book'],
+    compatiblePlanTiers: ['starter', 'growth', 'professional', 'enterprise'],
+    slug: 'multilingual-i18n',
+    name: 'Internationalization & Multi-Language Support',
+    tagline: 'Expand globally with localized language catalogs (English, Hindi, Arabic RTL)',
+    description: 'Dynamic localized routing, currency conversion, RTL layout support, and client language auto-detection.',
+    priceINR: 14999,
+    priceUSD: 199,
+    billingModel: 'ONE_TIME',
+    category: 'feature',
+    status: 'PUBLISHED',
+  },
+  {
+    id: 'addon-whatsapp-bot',
+    divisionSlug: 'starx-web',
+    applicableSolutions: ['sol-web-biz', 'sol-web-ecom', 'sol-web-book'],
+    compatiblePlanTiers: ['starter', 'growth', 'professional'],
+    slug: 'whatsapp-automation-switch',
+    name: 'WhatsApp Business API Notification Switch',
+    tagline: 'Automate instant order receipts, booking confirmations, and inquiries',
+    description: 'Direct Meta WhatsApp Cloud API integration with verified message templates and instant lead dispatch to sales.',
+    priceINR: 12999,
+    priceUSD: 169,
+    billingModel: 'ONE_TIME',
+    category: 'integration',
+    status: 'PUBLISHED',
+  },
+
+  // Apps Add-ons
+  {
+    id: 'addon-app-dual-store',
+    divisionSlug: 'starx-apps',
+    applicableSolutions: ['sol-app-and', 'sol-app-ios', 'sol-app-xplat'],
+    compatiblePlanTiers: ['starter', 'growth', 'professional'],
+    slug: 'app-store-submission-suite',
+    name: 'Dual App Store Submission & Compliance Guarantee',
+    tagline: 'Zero-rejection guarantee on Apple App Store & Google Play Store',
+    description: 'Preparation of privacy policies, app review credentials, screenshot assets, metadata localization, and approval handling.',
+    priceINR: 19999,
+    priceUSD: 249,
+    billingModel: 'ONE_TIME',
+    category: 'compliance',
+    status: 'PUBLISHED',
+  },
+  {
+    id: 'addon-app-offline-sync',
+    divisionSlug: 'starx-apps',
+    applicableSolutions: ['sol-app-and', 'sol-app-ios', 'sol-app-xplat', 'sol-app-deliv'],
+    compatiblePlanTiers: ['starter', 'growth'],
+    slug: 'offline-first-sqlite-sync',
+    name: 'Offline-First SQLite Database Sync Engine',
+    tagline: 'Keep your mobile app fully operational even without internet connectivity',
+    description: 'Local SQLite database caching, background synchronization queue, conflict resolution, and automatic cloud retry.',
+    priceINR: 24999,
+    priceUSD: 319,
+    billingModel: 'ONE_TIME',
+    category: 'speed',
+    status: 'PUBLISHED',
+  },
+
+  // Business Add-ons
+  {
+    id: 'addon-biz-extra-counter',
+    divisionSlug: 'starx-business',
+    applicableSolutions: ['sol-biz-pos', 'sol-biz-rest'],
+    compatiblePlanTiers: ['starter', 'growth', 'professional', 'enterprise'],
+    slug: 'additional-billing-terminal',
+    name: 'Additional POS Billing Terminal License',
+    tagline: 'Connect an extra billing counter or mobile tablet terminal',
+    description: 'Hardware pairing for thermal receipt printer, barcode reader, and simultaneous cashier session tracking.',
+    priceINR: 7999,
+    priceUSD: 99,
+    billingModel: 'ONE_TIME',
+    category: 'feature',
+    status: 'PUBLISHED',
+  },
+  {
+    id: 'addon-biz-data-migration',
+    divisionSlug: 'starx-business',
+    applicableSolutions: ['sol-biz-pos', 'sol-biz-inv', 'sol-biz-crm', 'sol-biz-erp'],
+    compatiblePlanTiers: ['starter', 'growth', 'professional', 'enterprise'],
+    slug: 'legacy-data-migration-cleansing',
+    name: 'Legacy Excel / Tally Data Migration & Cleansing',
+    tagline: 'Safe, zero-loss transfer of your existing customer, stock, and ledger records',
+    description: 'Data sanitization, deduplication, schema normalization, and automated verification import into PostgreSQL.',
+    priceINR: 19999,
+    priceUSD: 249,
+    billingModel: 'ONE_TIME',
+    category: 'support',
+    status: 'PUBLISHED',
+  },
+
+  // SaaS Add-ons
+  {
+    id: 'addon-saas-custom-domain',
+    divisionSlug: 'starx-saas',
+    applicableSolutions: ['sol-saas-mvp', 'sol-saas-scale', 'sol-saas-ai'],
+    compatiblePlanTiers: ['starter', 'growth', 'professional'],
+    slug: 'custom-tenant-domain-ssl',
+    name: 'Automated Custom Tenant Subdomains & SSL',
+    tagline: 'Allow enterprise customers to point their own custom domain to your SaaS',
+    description: 'Automated Cloudflare / Vercel DNS verification, wildcard SSL certificate issuance, and tenant host routing.',
+    priceINR: 24999,
+    priceUSD: 319,
+    billingModel: 'ONE_TIME',
+    category: 'feature',
+    status: 'PUBLISHED',
+  },
+
+  // AI Add-ons
+  {
+    id: 'addon-ai-rag-expansion',
+    divisionSlug: 'starx-ai',
+    applicableSolutions: ['sol-ai-rag', 'sol-ai-agent', 'sol-ai-copilot'],
+    compatiblePlanTiers: ['starter', 'growth', 'professional'],
+    slug: 'enterprise-knowledge-vault-expansion',
+    name: 'Expanded Document Vault & Vector Index (Up to 50k Pages)',
+    tagline: 'Scale document ingestion to thousands of internal manuals, policies, and contracts',
+    description: 'High-throughput PDF extraction, OCR for scanned documents, semantic vector chunking, and isolated index.',
+    priceINR: 29999,
+    priceUSD: 389,
+    billingModel: 'ONE_TIME',
+    category: 'ai',
+    status: 'PUBLISHED',
+  },
+  {
+    id: 'addon-ai-voice-telephony-line',
+    divisionSlug: 'starx-ai',
+    applicableSolutions: ['sol-ai-voice'],
+    compatiblePlanTiers: ['starter', 'growth', 'professional'],
+    slug: 'dedicated-did-phone-number',
+    name: 'Dedicated Business Virtual Phone Line (DID)',
+    tagline: 'Provision a direct Indian 1800 toll-free or localized virtual phone number',
+    description: 'Direct SIP trunk configuration, concurrent call routing, and automated outbound caller ID registration.',
+    priceINR: 9999,
+    priceUSD: 129,
+    billingModel: 'ONE_TIME',
+    category: 'integration',
+    status: 'PUBLISHED',
+  },
+
+  // Operations SLA Add-ons (Global)
+  {
+    id: 'addon-priority-sla-monthly',
+    divisionSlug: 'starx-web',
+    applicableSolutions: ['sol-web-biz', 'sol-web-ecom', 'sol-web-app', 'sol-app-xplat', 'sol-biz-pos', 'sol-saas-mvp', 'sol-ai-agent'],
+    compatiblePlanTiers: ['starter', 'growth', 'professional', 'enterprise'],
+    slug: 'priority-sla-managed-ops',
+    name: 'Priority SLA & Managed Cloud Operations (Monthly)',
+    tagline: '24/7 uptime monitoring, automated nightly backups & priority developer support',
+    description: 'Guaranteed 4-hour response window, monthly dependency security audits, cloud infrastructure health checks, and 4 hours of included updates.',
+    priceINR: 9999,
+    priceUSD: 129,
+    billingModel: 'MONTHLY',
+    category: 'support',
+    status: 'PUBLISHED',
+  },
+];
+
+// ==============================================================================
+// 7. CANONICAL PLANS ARCHITECTURE (Standardized Solution Plans)
+// ==============================================================================
+export const CANONICAL_PLANS: CanonicalPlanRecord[] = [
+  // --------------------------------------------------------------------------
+  // STARX WEB: Business Websites (Family: fam-web-biz)
+  // --------------------------------------------------------------------------
+  {
+    id: 'web-biz-starter',
+    divisionSlug: 'starx-web',
+    solutionId: 'sol-web-biz',
+    planFamilyId: 'fam-web-biz',
+    tier: 'starter',
+    code: 'WEB-BIZ-S1',
+    name: 'Launchpad Business Flagship',
+    tagline: 'Essential high-trust web presence for modern businesses & professionals',
+    description: 'Fast, responsive Next.js 15 marketing site, obsidian dark aesthetics, contact lead forms, Google Maps, and full SEO foundations.',
+    version: 1,
+    status: 'PUBLISHED',
+    priceINR: 49999,
+    priceUSD: 699,
+    isCustomQuote: false,
+    pricingComponents: [
+      { id: 'pc-1', name: 'Core Design & Full-Stack Development', type: 'ONE_TIME', amountINR: 44999, amountUSD: 629 },
+      { id: 'pc-2', name: 'DNS, Domain & Vercel Staging Setup', type: 'ONE_TIME', amountINR: 5000, amountUSD: 70 },
+      { id: 'pc-3', name: 'Optional Managed Hosting & Care', type: 'MONTHLY', amountINR: 4999, amountUSD: 65, isOptional: true, unitLabel: '/mo' },
+    ],
+    limits: {
+      pagesOrScreens: 'Up to 5 Pages',
+      userRolesAllowed: 1,
+      includedRevisions: 2,
+      includedPlatforms: ['Web Desktop', 'Web Mobile'],
+      timelineWeeks: '1–2 Weeks',
+      slaResponseTime: 'Standard 48h',
+      warrantyPeriodDays: 30,
+      monthlyMaintenanceHoursIncluded: 2,
+    },
+    codeOwnership: '100% Intellectual Property & Transfer',
+    featureMappings: [
+      { featureId: 'feat-nextjs-app-router', classification: 'INCLUDED' },
+      { featureId: 'feat-responsive-mobile-fluid', classification: 'INCLUDED' },
+      { featureId: 'feat-obsidian-glass-dashboard', classification: 'INCLUDED' },
+      { featureId: 'feat-owasp-top-10-hardening', classification: 'INCLUDED' },
+      { featureId: 'feat-sla-warranty-support', classification: 'INCLUDED' },
+      { featureId: 'feat-auth-supabase-jwt', classification: 'OPTIONAL_ADDON', requiredAddonId: 'addon-multi-lang-i18n' },
+      { featureId: 'feat-upi-razorpay-gateway', classification: 'HIGHER_TIER_ONLY' },
+      { featureId: 'feat-gemini-orchestration-engine', classification: 'HIGHER_TIER_ONLY' },
+    ],
+    compatibleAddonIds: ['addon-seo-mastery', 'addon-multi-lang-i18n', 'addon-whatsapp-bot', 'addon-priority-sla-monthly'],
+    minComplexityScore: 1,
+    maxComplexityScore: 3,
+    idealForAudience: ['Small Business Owners', 'Consultants', 'Independent Clinics', 'Professional Services'],
+    badge: 'Fast Launch',
+    isPopular: false,
+    updatedAt: '2026-11-18T12:00:00Z',
+  },
+  {
+    id: 'web-biz-growth',
+    divisionSlug: 'starx-web',
+    solutionId: 'sol-web-biz',
+    planFamilyId: 'fam-web-biz',
+    tier: 'growth',
+    code: 'WEB-BIZ-G1',
+    name: 'Growth Corporate Flagship & CMS',
+    tagline: 'Comprehensive corporate portal with dynamic content management and lead workflows',
+    description: 'Multi-section corporate platform with blog CMS, dynamic case studies, team profiles, interactive lead forms, and CRM webhook routing.',
+    version: 1,
+    status: 'PUBLISHED',
+    priceINR: 119999,
+    priceUSD: 1599,
+    isCustomQuote: false,
+    pricingComponents: [
+      { id: 'pc-1', name: 'Custom UI/UX & Next.js Full-Stack Engineering', type: 'ONE_TIME', amountINR: 104999, amountUSD: 1399 },
+      { id: 'pc-2', name: 'CMS & Database Schema Configuration', type: 'ONE_TIME', amountINR: 15000, amountUSD: 200 },
+      { id: 'pc-3', name: 'Optional Priority SLA Operations', type: 'MONTHLY', amountINR: 7999, amountUSD: 99, isOptional: true, unitLabel: '/mo' },
+    ],
+    limits: {
+      pagesOrScreens: 'Up to 12 Pages & CMS Views',
+      userRolesAllowed: 2,
+      includedRevisions: 3,
+      includedPlatforms: ['Web Desktop', 'Web Mobile', 'Tablet'],
+      timelineWeeks: '3–4 Weeks',
+      slaResponseTime: 'Priority 24h',
+      warrantyPeriodDays: 60,
+      monthlyMaintenanceHoursIncluded: 4,
+    },
+    codeOwnership: '100% Intellectual Property & Transfer',
+    featureMappings: [
+      { featureId: 'feat-nextjs-app-router', classification: 'INCLUDED' },
+      { featureId: 'feat-responsive-mobile-fluid', classification: 'INCLUDED' },
+      { featureId: 'feat-obsidian-glass-dashboard', classification: 'INCLUDED' },
+      { featureId: 'feat-interactive-charts-kpi', classification: 'INCLUDED' },
+      { featureId: 'feat-owasp-top-10-hardening', classification: 'INCLUDED' },
+      { featureId: 'feat-sla-warranty-support', classification: 'INCLUDED' },
+      { featureId: 'feat-auth-supabase-jwt', classification: 'INCLUDED' },
+      { featureId: 'feat-whatsapp-cloud-automation', classification: 'OPTIONAL_ADDON' },
+      { featureId: 'feat-gemini-orchestration-engine', classification: 'HIGHER_TIER_ONLY' },
+    ],
+    compatibleAddonIds: ['addon-seo-mastery', 'addon-multi-lang-i18n', 'addon-whatsapp-bot', 'addon-priority-sla-monthly'],
+    minComplexityScore: 4,
+    maxComplexityScore: 6,
+    idealForAudience: ['Growing Companies', 'Agencies', 'Mid-market Enterprises', 'Educational Institutes'],
+    badge: 'Most Popular',
+    isPopular: true,
+    isBestValue: true,
+    updatedAt: '2026-11-18T12:00:00Z',
+  },
+  {
+    id: 'web-biz-pro',
+    divisionSlug: 'starx-web',
+    solutionId: 'sol-web-biz',
+    planFamilyId: 'fam-web-biz',
+    tier: 'professional',
+    code: 'WEB-BIZ-P1',
+    name: 'Enterprise Brand Ecosystem',
+    tagline: 'High-concurrency digital flagship with multi-region CDN and custom workflows',
+    description: 'Enterprise architecture with custom interactive tools, authenticated client portal, role-based access, and enterprise SLA.',
+    version: 1,
+    status: 'PUBLISHED',
+    priceINR: 249999,
+    priceUSD: 3299,
+    isCustomQuote: false,
+    pricingComponents: [
+      { id: 'pc-1', name: 'Enterprise Architecture & Platform Engineering', type: 'ONE_TIME', amountINR: 219999, amountUSD: 2899 },
+      { id: 'pc-2', name: 'Security Hardening & Penetration Testing', type: 'ONE_TIME', amountINR: 30000, amountUSD: 400 },
+      { id: 'pc-3', name: 'Monthly Enterprise Support & Cloud Ops', type: 'MONTHLY', amountINR: 14999, amountUSD: 199, isOptional: true, unitLabel: '/mo' },
+    ],
+    limits: {
+      pagesOrScreens: 'Up to 25 Views & Portals',
+      userRolesAllowed: 5,
+      includedRevisions: 4,
+      includedPlatforms: ['Web Desktop', 'Web Mobile', 'Tablet'],
+      timelineWeeks: '5–6 Weeks',
+      slaResponseTime: 'High Priority (4h Response)',
+      warrantyPeriodDays: 90,
+      monthlyMaintenanceHoursIncluded: 8,
+    },
+    codeOwnership: '100% Intellectual Property & Transfer',
+    featureMappings: [
+      { featureId: 'feat-nextjs-app-router', classification: 'INCLUDED' },
+      { featureId: 'feat-responsive-mobile-fluid', classification: 'INCLUDED' },
+      { featureId: 'feat-obsidian-glass-dashboard', classification: 'INCLUDED' },
+      { featureId: 'feat-interactive-charts-kpi', classification: 'INCLUDED' },
+      { featureId: 'feat-auth-supabase-jwt', classification: 'INCLUDED' },
+      { featureId: 'feat-rbac-hierarchical-roles', classification: 'INCLUDED' },
+      { featureId: 'feat-owasp-top-10-hardening', classification: 'INCLUDED' },
+      { featureId: 'feat-immutable-audit-ledger', classification: 'INCLUDED' },
+      { featureId: 'feat-sla-warranty-support', classification: 'INCLUDED' },
+      { featureId: 'feat-whatsapp-cloud-automation', classification: 'INCLUDED' },
+    ],
+    compatibleAddonIds: ['addon-seo-mastery', 'addon-multi-lang-i18n', 'addon-priority-sla-monthly'],
+    minComplexityScore: 7,
+    maxComplexityScore: 8,
+    idealForAudience: ['Large Corporations', 'Healthcare Groups', 'Real Estate Developers', 'Financial Institutions'],
+    updatedAt: '2026-11-18T12:00:00Z',
+  },
+  {
+    id: 'web-biz-enterprise',
+    divisionSlug: 'starx-web',
+    solutionId: 'sol-web-biz',
+    planFamilyId: 'fam-web-biz',
+    tier: 'enterprise',
+    code: 'WEB-BIZ-E1',
+    name: 'Bespoke Digital Transformation',
+    tagline: 'Custom web architecture tailored for mission-critical enterprise operations',
+    description: 'Custom micro-frontend integration, ERP/CRM legacy bridging, high-availability multi-region cloud deployment, and dedicated squad.',
+    version: 1,
+    status: 'PUBLISHED',
+    priceINR: 599999,
+    priceUSD: 7999,
+    isCustomQuote: true,
+    pricingComponents: [
+      { id: 'pc-1', name: 'Strategic Architectural Design & Implementation', type: 'MILESTONE_BASED', amountINR: 549999, amountUSD: 7399 },
+      { id: 'pc-2', name: 'Compliance & SOC-2 Vault Integration', type: 'ONE_TIME', amountINR: 50000, amountUSD: 600 },
+      { id: 'pc-3', name: 'Dedicated Support Pod & 24/7 Channel', type: 'MONTHLY', amountINR: 29999, amountUSD: 399, isOptional: true, unitLabel: '/mo' },
+    ],
+    limits: {
+      pagesOrScreens: 'Custom Unlimited Scope',
+      userRolesAllowed: 20,
+      includedRevisions: 99,
+      includedPlatforms: ['All Web & Edge Platforms'],
+      timelineWeeks: '8–12 Weeks',
+      slaResponseTime: 'Mission-Critical 2h (24/7)',
+      warrantyPeriodDays: 180,
+      monthlyMaintenanceHoursIncluded: 20,
+    },
+    codeOwnership: '100% Intellectual Property & Transfer',
+    featureMappings: [
+      { featureId: 'feat-nextjs-app-router', classification: 'INCLUDED' },
+      { featureId: 'feat-responsive-mobile-fluid', classification: 'INCLUDED' },
+      { featureId: 'feat-obsidian-glass-dashboard', classification: 'INCLUDED' },
+      { featureId: 'feat-auth-enterprise-sso', classification: 'INCLUDED' },
+      { featureId: 'feat-rbac-hierarchical-roles', classification: 'INCLUDED' },
+      { featureId: 'feat-owasp-top-10-hardening', classification: 'INCLUDED' },
+      { featureId: 'feat-immutable-audit-ledger', classification: 'INCLUDED' },
+      { featureId: 'feat-sla-warranty-support', classification: 'INCLUDED' },
+    ],
+    compatibleAddonIds: ['addon-priority-sla-monthly'],
+    minComplexityScore: 9,
+    maxComplexityScore: 10,
+    idealForAudience: ['Conglomerates', 'Government / Public Sector', 'High-Security Financial Enterprises'],
+    badge: 'Enterprise Scope',
+    updatedAt: '2026-11-18T12:00:00Z',
+  },
+
+  // --------------------------------------------------------------------------
+  // STARX WEB: Ecommerce Websites (Family: fam-web-ecom)
+  // --------------------------------------------------------------------------
+  {
+    id: 'web-ecom-starter',
+    divisionSlug: 'starx-web',
+    solutionId: 'sol-web-ecom',
+    planFamilyId: 'fam-web-ecom',
+    tier: 'starter',
+    code: 'WEB-ECOM-S1',
+    name: 'D2C Ecommerce Launchpad',
+    tagline: 'High-speed online store built for immediate sales and UPI checkout',
+    description: 'Next.js storefront, up to 100 products, Razorpay UPI/Card checkout, order admin dashboard, and WhatsApp order alerts.',
+    version: 1,
+    status: 'PUBLISHED',
+    priceINR: 79999,
+    priceUSD: 1049,
+    isCustomQuote: false,
+    pricingComponents: [
+      { id: 'pc-1', name: 'Storefront Engineering & Checkout Setup', type: 'ONE_TIME', amountINR: 69999, amountUSD: 919 },
+      { id: 'pc-2', name: 'Razorpay UPI & SMS Webhook Configuration', type: 'ONE_TIME', amountINR: 10000, amountUSD: 130 },
+      { id: 'pc-3', name: 'Optional Ecommerce Maintenance & Cloud SLA', type: 'MONTHLY', amountINR: 5999, amountUSD: 79, isOptional: true, unitLabel: '/mo' },
+    ],
+    limits: {
+      pagesOrScreens: 'Catalog + Cart + Checkout + 5 Views',
+      userRolesAllowed: 2,
+      includedRevisions: 2,
+      includedPlatforms: ['Web Desktop', 'Web Mobile'],
+      timelineWeeks: '2–3 Weeks',
+      slaResponseTime: 'Standard 48h',
+      warrantyPeriodDays: 45,
+      monthlyMaintenanceHoursIncluded: 3,
+    },
+    codeOwnership: '100% Intellectual Property & Transfer',
+    featureMappings: [
+      { featureId: 'feat-nextjs-app-router', classification: 'INCLUDED' },
+      { featureId: 'feat-responsive-mobile-fluid', classification: 'INCLUDED' },
+      { featureId: 'feat-product-catalog-matrix', classification: 'INCLUDED' },
+      { featureId: 'feat-cart-one-click-checkout', classification: 'INCLUDED' },
+      { featureId: 'feat-upi-razorpay-gateway', classification: 'INCLUDED' },
+      { featureId: 'feat-owasp-top-10-hardening', classification: 'INCLUDED' },
+      { featureId: 'feat-sla-warranty-support', classification: 'INCLUDED' },
+      { featureId: 'feat-stripe-global-currency', classification: 'OPTIONAL_ADDON' },
+    ],
+    compatibleAddonIds: ['addon-seo-mastery', 'addon-whatsapp-bot', 'addon-priority-sla-monthly'],
+    minComplexityScore: 3,
+    maxComplexityScore: 5,
+    idealForAudience: ['D2C Brands', 'Boutique Retailers', 'Product Inventors', 'Direct-to-Consumer Startups'],
+    badge: 'D2C Favorite',
+    isPopular: true,
+    updatedAt: '2026-11-18T12:00:00Z',
+  },
+  {
+    id: 'web-ecom-growth',
+    divisionSlug: 'starx-web',
+    solutionId: 'sol-web-ecom',
+    planFamilyId: 'fam-web-ecom',
+    tier: 'growth',
+    code: 'WEB-ECOM-G1',
+    name: 'Growth Scale Commerce Engine',
+    tagline: 'High-volume storefront with multi-warehouse inventory & abandoned cart recovery',
+    description: 'Unlimited products, advanced faceted filtering, customer account portals, coupon engine, automated abandoned cart recovery, and shipping API sync.',
+    version: 1,
+    status: 'PUBLISHED',
+    priceINR: 179999,
+    priceUSD: 2399,
+    isCustomQuote: false,
+    pricingComponents: [
+      { id: 'pc-1', name: 'High-Scale Commerce Architecture & UI', type: 'ONE_TIME', amountINR: 154999, amountUSD: 2069 },
+      { id: 'pc-2', name: 'Logistics Shipping & Inventory Webhooks', type: 'ONE_TIME', amountINR: 25000, amountUSD: 330 },
+      { id: 'pc-3', name: 'High-Volume Commerce SLA & Monitoring', type: 'MONTHLY', amountINR: 9999, amountUSD: 129, isOptional: true, unitLabel: '/mo' },
+    ],
+    limits: {
+      pagesOrScreens: 'Unlimited Products & 15 Custom Views',
+      userRolesAllowed: 4,
+      includedRevisions: 3,
+      includedPlatforms: ['Web Desktop', 'Web Mobile', 'Tablet'],
+      timelineWeeks: '4–5 Weeks',
+      slaResponseTime: 'Priority 24h',
+      warrantyPeriodDays: 60,
+      monthlyMaintenanceHoursIncluded: 6,
+    },
+    codeOwnership: '100% Intellectual Property & Transfer',
+    featureMappings: [
+      { featureId: 'feat-nextjs-app-router', classification: 'INCLUDED' },
+      { featureId: 'feat-responsive-mobile-fluid', classification: 'INCLUDED' },
+      { featureId: 'feat-product-catalog-matrix', classification: 'INCLUDED' },
+      { featureId: 'feat-cart-one-click-checkout', classification: 'INCLUDED' },
+      { featureId: 'feat-upi-razorpay-gateway', classification: 'INCLUDED' },
+      { featureId: 'feat-auth-supabase-jwt', classification: 'INCLUDED' },
+      { featureId: 'feat-rbac-hierarchical-roles', classification: 'INCLUDED' },
+      { featureId: 'feat-whatsapp-cloud-automation', classification: 'INCLUDED' },
+      { featureId: 'feat-owasp-top-10-hardening', classification: 'INCLUDED' },
+      { featureId: 'feat-sla-warranty-support', classification: 'INCLUDED' },
+    ],
+    compatibleAddonIds: ['addon-seo-mastery', 'addon-multi-lang-i18n', 'addon-whatsapp-bot', 'addon-priority-sla-monthly'],
+    minComplexityScore: 6,
+    maxComplexityScore: 8,
+    idealForAudience: ['Rapidly Scaling D2C Brands', 'Multi-Store Retailers', 'Wholesale B2B Distributors'],
+    badge: 'Scale Choice',
+    isBestValue: true,
+    updatedAt: '2026-11-18T12:00:00Z',
+  },
+
+  // --------------------------------------------------------------------------
+  // STARX APPS: Cross-Platform Mobile Apps (Family: fam-app-xplat)
+  // --------------------------------------------------------------------------
+  {
+    id: 'app-xplat-mvp',
+    divisionSlug: 'starx-apps',
+    solutionId: 'sol-app-xplat',
+    planFamilyId: 'fam-app-xplat',
+    tier: 'starter',
+    code: 'APP-XPLAT-S1',
+    name: 'Universal Mobile MVP Launchpad',
+    tagline: 'High-speed mobile app built for both iOS and Android from day one',
+    description: 'React Native architecture, authentication, push notifications, native navigation, backend REST/Supabase sync, and App Store submission prep.',
+    version: 1,
+    status: 'PUBLISHED',
+    priceINR: 89999,
+    priceUSD: 1199,
+    isCustomQuote: false,
+    pricingComponents: [
+      { id: 'pc-1', name: 'Cross-Platform React Native App Engineering', type: 'ONE_TIME', amountINR: 74999, amountUSD: 999 },
+      { id: 'pc-2', name: 'Push Notification & Store Build Pipelines', type: 'ONE_TIME', amountINR: 15000, amountUSD: 200 },
+      { id: 'pc-3', name: 'Optional Mobile Maintenance & OS Patching', type: 'MONTHLY', amountINR: 6999, amountUSD: 89, isOptional: true, unitLabel: '/mo' },
+    ],
+    limits: {
+      pagesOrScreens: 'Up to 6 Core Views',
+      userRolesAllowed: 2,
+      includedRevisions: 2,
+      includedPlatforms: ['iOS Phone', 'Android Phone'],
+      timelineWeeks: '3–4 Weeks',
+      slaResponseTime: 'Standard 48h',
+      warrantyPeriodDays: 45,
+      monthlyMaintenanceHoursIncluded: 4,
+    },
+    codeOwnership: '100% Intellectual Property & Transfer',
+    featureMappings: [
+      { featureId: 'feat-responsive-mobile-fluid', classification: 'INCLUDED' },
+      { featureId: 'feat-auth-supabase-jwt', classification: 'INCLUDED' },
+      { featureId: 'feat-owasp-top-10-hardening', classification: 'INCLUDED' },
+      { featureId: 'feat-sla-warranty-support', classification: 'INCLUDED' },
+      { featureId: 'feat-upi-razorpay-gateway', classification: 'OPTIONAL_ADDON' },
+    ],
+    compatibleAddonIds: ['addon-app-dual-store', 'addon-app-offline-sync', 'addon-priority-sla-monthly'],
+    minComplexityScore: 3,
+    maxComplexityScore: 5,
+    idealForAudience: ['Startup Founders', 'Service Providers', 'Communities', 'Event Organizers'],
+    badge: 'Dual Platform',
+    isPopular: true,
+    updatedAt: '2026-11-18T12:00:00Z',
+  },
+  {
+    id: 'app-xplat-growth',
+    divisionSlug: 'starx-apps',
+    solutionId: 'sol-app-xplat',
+    planFamilyId: 'fam-app-xplat',
+    tier: 'growth',
+    code: 'APP-XPLAT-G1',
+    name: 'Production Scale Mobile Product',
+    tagline: 'Feature-rich mobile ecosystem with offline caching and native payment switches',
+    description: '12–16 screens, real-time WebSocket updates, offline SQLite persistence, biometric FaceID login, UPI & In-App Purchase integration.',
+    version: 1,
+    status: 'PUBLISHED',
+    priceINR: 249999,
+    priceUSD: 3299,
+    isCustomQuote: false,
+    pricingComponents: [
+      { id: 'pc-1', name: 'Full-Stack Universal Mobile App Development', type: 'ONE_TIME', amountINR: 219999, amountUSD: 2899 },
+      { id: 'pc-2', name: 'Offline SQLite & Biometric Native Bridges', type: 'ONE_TIME', amountINR: 30000, amountUSD: 400 },
+      { id: 'pc-3', name: 'Monthly App Store Ops & Priority SLA', type: 'MONTHLY', amountINR: 12999, amountUSD: 169, isOptional: true, unitLabel: '/mo' },
+    ],
+    limits: {
+      pagesOrScreens: '12–16 Custom Mobile Screens',
+      userRolesAllowed: 3,
+      includedRevisions: 3,
+      includedPlatforms: ['iOS Phone', 'Android Phone', 'Tablet'],
+      timelineWeeks: '5–7 Weeks',
+      slaResponseTime: 'Priority 24h',
+      warrantyPeriodDays: 60,
+      monthlyMaintenanceHoursIncluded: 8,
+    },
+    codeOwnership: '100% Intellectual Property & Transfer',
+    featureMappings: [
+      { featureId: 'feat-responsive-mobile-fluid', classification: 'INCLUDED' },
+      { featureId: 'feat-auth-supabase-jwt', classification: 'INCLUDED' },
+      { featureId: 'feat-upi-razorpay-gateway', classification: 'INCLUDED' },
+      { featureId: 'feat-whatsapp-cloud-automation', classification: 'INCLUDED' },
+      { featureId: 'feat-owasp-top-10-hardening', classification: 'INCLUDED' },
+      { featureId: 'feat-sla-warranty-support', classification: 'INCLUDED' },
+    ],
+    compatibleAddonIds: ['addon-app-dual-store', 'addon-app-offline-sync', 'addon-priority-sla-monthly'],
+    minComplexityScore: 6,
+    maxComplexityScore: 8,
+    idealForAudience: ['Established Businesses', 'Consumer Brands', 'Health & Fitness Apps', 'EdTech Companies'],
+    badge: 'Best Value',
+    isBestValue: true,
+    updatedAt: '2026-11-18T12:00:00Z',
+  },
+
+  // --------------------------------------------------------------------------
+  // STARX BUSINESS: Cloud POS & Billing (Family: fam-biz-pos)
+  // --------------------------------------------------------------------------
+  {
+    id: 'biz-pos-single',
+    divisionSlug: 'starx-business',
+    solutionId: 'sol-biz-pos',
+    planFamilyId: 'fam-biz-pos',
+    tier: 'starter',
+    code: 'BIZ-POS-S1',
+    name: 'Counter Express Cloud POS',
+    tagline: 'High-speed retail billing terminal for single-store retail & cafes',
+    description: 'Barcode scanning, thermal receipt printing, GST calculation, cash drawer sync, daily sales summary, and offline billing protection.',
+    version: 1,
+    status: 'PUBLISHED',
+    priceINR: 69999,
+    priceUSD: 899,
+    isCustomQuote: false,
+    pricingComponents: [
+      { id: 'pc-1', name: 'POS Terminal Software & Counter UI', type: 'ONE_TIME', amountINR: 59999, amountUSD: 769 },
+      { id: 'pc-2', name: 'Printer & Barcode Hardware Driver Integration', type: 'ONE_TIME', amountINR: 10000, amountUSD: 130 },
+      { id: 'pc-3', name: 'Optional Cloud Backup & Terminal Support', type: 'MONTHLY', amountINR: 4999, amountUSD: 65, isOptional: true, unitLabel: '/mo' },
+    ],
+    limits: {
+      pagesOrScreens: '1 Terminal + 1 Store Location',
+      userRolesAllowed: 2,
+      includedRevisions: 2,
+      includedPlatforms: ['Web Desktop', 'Tablet / POS Terminal'],
+      timelineWeeks: '2–3 Weeks',
+      slaResponseTime: 'Priority 24h',
+      warrantyPeriodDays: 45,
+      monthlyMaintenanceHoursIncluded: 4,
+    },
+    codeOwnership: '100% Intellectual Property & Transfer',
+    featureMappings: [
+      { featureId: 'feat-nextjs-app-router', classification: 'INCLUDED' },
+      { featureId: 'feat-product-catalog-matrix', classification: 'INCLUDED' },
+      { featureId: 'feat-cart-one-click-checkout', classification: 'INCLUDED' },
+      { featureId: 'feat-upi-razorpay-gateway', classification: 'INCLUDED' },
+      { featureId: 'feat-owasp-top-10-hardening', classification: 'INCLUDED' },
+      { featureId: 'feat-sla-warranty-support', classification: 'INCLUDED' },
+    ],
+    compatibleAddonIds: ['addon-biz-extra-counter', 'addon-biz-data-migration', 'addon-priority-sla-monthly'],
+    minComplexityScore: 2,
+    maxComplexityScore: 4,
+    idealForAudience: ['Retail Stores', 'Supermarkets', 'Pharmacies', 'Boutique Cafes'],
+    badge: 'Single Counter',
+    updatedAt: '2026-11-18T12:00:00Z',
+  },
+  {
+    id: 'biz-pos-multi',
+    divisionSlug: 'starx-business',
+    solutionId: 'sol-biz-pos',
+    planFamilyId: 'fam-biz-pos',
+    tier: 'growth',
+    code: 'BIZ-POS-G1',
+    name: 'Multi-Outlet Retail & Chain POS',
+    tagline: 'Synchronized billing, inventory & centralized sales across multiple branches',
+    description: 'Up to 5 outlets, central inventory sync, inter-branch stock requests, cashier shift audits, and executive consolidated dashboard.',
+    version: 1,
+    status: 'PUBLISHED',
+    priceINR: 199999,
+    priceUSD: 2599,
+    isCustomQuote: false,
+    pricingComponents: [
+      { id: 'pc-1', name: 'Multi-Branch POS Architecture & Cloud Sync', type: 'ONE_TIME', amountINR: 174999, amountUSD: 2269 },
+      { id: 'pc-2', name: 'Branch Provisioning & Network Hardening', type: 'ONE_TIME', amountINR: 25000, amountUSD: 330 },
+      { id: 'pc-3', name: 'Centralized Cloud Retainer & Multi-Store SLA', type: 'MONTHLY', amountINR: 11999, amountUSD: 159, isOptional: true, unitLabel: '/mo' },
+    ],
+    limits: {
+      pagesOrScreens: 'Up to 5 Outlets (Extendable)',
+      userRolesAllowed: 4,
+      includedRevisions: 3,
+      includedPlatforms: ['Web Desktop', 'Tablet / POS Terminal'],
+      timelineWeeks: '4–6 Weeks',
+      slaResponseTime: 'High Priority (4h Response)',
+      warrantyPeriodDays: 60,
+      monthlyMaintenanceHoursIncluded: 8,
+    },
+    codeOwnership: '100% Intellectual Property & Transfer',
+    featureMappings: [
+      { featureId: 'feat-nextjs-app-router', classification: 'INCLUDED' },
+      { featureId: 'feat-product-catalog-matrix', classification: 'INCLUDED' },
+      { featureId: 'feat-cart-one-click-checkout', classification: 'INCLUDED' },
+      { featureId: 'feat-upi-razorpay-gateway', classification: 'INCLUDED' },
+      { featureId: 'feat-interactive-charts-kpi', classification: 'INCLUDED' },
+      { featureId: 'feat-rbac-hierarchical-roles', classification: 'INCLUDED' },
+      { featureId: 'feat-immutable-audit-ledger', classification: 'INCLUDED' },
+      { featureId: 'feat-sla-warranty-support', classification: 'INCLUDED' },
+    ],
+    compatibleAddonIds: ['addon-biz-extra-counter', 'addon-biz-data-migration', 'addon-priority-sla-monthly'],
+    minComplexityScore: 5,
+    maxComplexityScore: 7,
+    idealForAudience: ['Retail Chains', 'Franchise Stores', 'Restaurant Groups', 'Hardware Wholesalers'],
+    badge: 'Multi-Branch Choice',
+    isPopular: true,
+    isBestValue: true,
+    updatedAt: '2026-11-18T12:00:00Z',
+  },
+
+  // --------------------------------------------------------------------------
+  // STARX SAAS: B2B SaaS Launchpad (Family: fam-saas-mvp)
+  // --------------------------------------------------------------------------
+  {
+    id: 'saas-mvp-launch',
+    divisionSlug: 'starx-saas',
+    solutionId: 'sol-saas-mvp',
+    planFamilyId: 'fam-saas-mvp',
+    tier: 'starter',
+    code: 'SAAS-MVP-S1',
+    name: 'SaaS Launchpad MVP',
+    tagline: 'End-to-end multi-tenant SaaS architecture built for immediate paying customers',
+    description: 'Tenant organizations, team member invites, Stripe/Razorpay recurring billing, user dashboard, admin panel, and PostgreSQL RLS isolation.',
+    version: 1,
+    status: 'PUBLISHED',
+    priceINR: 79999,
+    priceUSD: 999,
+    isCustomQuote: false,
+    pricingComponents: [
+      { id: 'pc-1', name: 'Multi-Tenant Foundation & Dashboard Development', type: 'ONE_TIME', amountINR: 69999, amountUSD: 869 },
+      { id: 'pc-2', name: 'Subscription Webhook & User Vault Setup', type: 'ONE_TIME', amountINR: 10000, amountUSD: 130 },
+      { id: 'pc-3', name: 'Optional SaaS Operations & Cloud Care', type: 'MONTHLY', amountINR: 7999, amountUSD: 99, isOptional: true, unitLabel: '/mo' },
+    ],
+    limits: {
+      pagesOrScreens: 'Tenant Portal + Admin + 6 Views',
+      userRolesAllowed: 3,
+      includedRevisions: 2,
+      includedPlatforms: ['Web Desktop', 'Web Mobile'],
+      timelineWeeks: '3–4 Weeks',
+      slaResponseTime: 'Standard 48h',
+      warrantyPeriodDays: 45,
+      monthlyMaintenanceHoursIncluded: 4,
+    },
+    codeOwnership: '100% Intellectual Property & Transfer',
+    featureMappings: [
+      { featureId: 'feat-nextjs-app-router', classification: 'INCLUDED' },
+      { featureId: 'feat-auth-supabase-jwt', classification: 'INCLUDED' },
+      { featureId: 'feat-multi-tenant-orgs', classification: 'INCLUDED' },
+      { featureId: 'feat-rbac-hierarchical-roles', classification: 'INCLUDED' },
+      { featureId: 'feat-subscription-recurring-engine', classification: 'INCLUDED' },
+      { featureId: 'feat-obsidian-glass-dashboard', classification: 'INCLUDED' },
+      { featureId: 'feat-owasp-top-10-hardening', classification: 'INCLUDED' },
+      { featureId: 'feat-sla-warranty-support', classification: 'INCLUDED' },
+    ],
+    compatibleAddonIds: ['addon-saas-custom-domain', 'addon-priority-sla-monthly'],
+    minComplexityScore: 3,
+    maxComplexityScore: 5,
+    idealForAudience: ['SaaS Founders', 'B2B Software Innovators', 'Product Managers', 'Bootstrappers'],
+    badge: 'Founder Choice',
+    isPopular: true,
+    updatedAt: '2026-11-18T12:00:00Z',
+  },
+  {
+    id: 'saas-mvp-pro',
+    divisionSlug: 'starx-saas',
+    solutionId: 'sol-saas-mvp',
+    planFamilyId: 'fam-saas-mvp',
+    tier: 'growth',
+    code: 'SAAS-MVP-G1',
+    name: 'Growth Scale SaaS Engine',
+    tagline: 'High-throughput B2B SaaS platform with metered usage, team seats and audit vaults',
+    description: 'Seat-based pricing calculations, usage meters, tenant custom branding, automated monthly invoicing, API key generator, and webhook dispatcher.',
+    version: 1,
+    status: 'PUBLISHED',
+    priceINR: 229999,
+    priceUSD: 2999,
+    isCustomQuote: false,
+    pricingComponents: [
+      { id: 'pc-1', name: 'High-Concurrency SaaS Platform Architecture', type: 'ONE_TIME', amountINR: 199999, amountUSD: 2599 },
+      { id: 'pc-2', name: 'Metered Billing Engine & Webhook Dispatcher', type: 'ONE_TIME', amountINR: 30000, amountUSD: 400 },
+      { id: 'pc-3', name: 'Monthly SaaS Infrastructure & SLA Retainer', type: 'MONTHLY', amountINR: 14999, amountUSD: 199, isOptional: true, unitLabel: '/mo' },
+    ],
+    limits: {
+      pagesOrScreens: 'Full SaaS Suite + 18 Custom Views',
+      userRolesAllowed: 5,
+      includedRevisions: 3,
+      includedPlatforms: ['Web Desktop', 'Web Mobile', 'Tablet'],
+      timelineWeeks: '5–7 Weeks',
+      slaResponseTime: 'Priority 24h',
+      warrantyPeriodDays: 60,
+      monthlyMaintenanceHoursIncluded: 8,
+    },
+    codeOwnership: '100% Intellectual Property & Transfer',
+    featureMappings: [
+      { featureId: 'feat-nextjs-app-router', classification: 'INCLUDED' },
+      { featureId: 'feat-auth-supabase-jwt', classification: 'INCLUDED' },
+      { featureId: 'feat-multi-tenant-orgs', classification: 'INCLUDED' },
+      { featureId: 'feat-rbac-hierarchical-roles', classification: 'INCLUDED' },
+      { featureId: 'feat-subscription-recurring-engine', classification: 'INCLUDED' },
+      { featureId: 'feat-obsidian-glass-dashboard', classification: 'INCLUDED' },
+      { featureId: 'feat-interactive-charts-kpi', classification: 'INCLUDED' },
+      { featureId: 'feat-immutable-audit-ledger', classification: 'INCLUDED' },
+      { featureId: 'feat-owasp-top-10-hardening', classification: 'INCLUDED' },
+      { featureId: 'feat-sla-warranty-support', classification: 'INCLUDED' },
+    ],
+    compatibleAddonIds: ['addon-saas-custom-domain', 'addon-priority-sla-monthly'],
+    minComplexityScore: 6,
+    maxComplexityScore: 8,
+    idealForAudience: ['Funded Startups', 'Growth-stage SaaS Companies', 'Enterprise B2B Vendors'],
+    badge: 'Scale Platform',
+    isBestValue: true,
+    updatedAt: '2026-11-18T12:00:00Z',
+  },
+
+  // --------------------------------------------------------------------------
+  // STARX AI: Autonomous Agents & Workflows (Family: fam-ai-agent)
+  // --------------------------------------------------------------------------
+  {
+    id: 'ai-agent-starter',
+    divisionSlug: 'starx-ai',
+    solutionId: 'sol-ai-agent',
+    planFamilyId: 'fam-ai-agent',
+    tier: 'starter',
+    code: 'AI-AGENT-S1',
+    name: 'Autonomous Assistant & Agent Pod',
+    tagline: 'Self-operating AI agent that automates customer inquiries and business tasks',
+    description: 'Gemini 2.0 orchestration, structured JSON tool execution, automated lead qualification, CRM updates, and WhatsApp handoff.',
+    version: 1,
+    status: 'PUBLISHED',
+    priceINR: 59999,
+    priceUSD: 799,
+    isCustomQuote: false,
+    pricingComponents: [
+      { id: 'pc-1', name: 'Agent Prompt Architecture & Tool Configuration', type: 'ONE_TIME', amountINR: 49999, amountUSD: 669 },
+      { id: 'pc-2', name: 'External Webhook & Trigger Integration', type: 'ONE_TIME', amountINR: 10000, amountUSD: 130 },
+      { id: 'pc-3', name: 'Optional Agent Monitoring & Evaluation Ops', type: 'MONTHLY', amountINR: 6999, amountUSD: 89, isOptional: true, unitLabel: '/mo' },
+    ],
+    limits: {
+      pagesOrScreens: 'Agent Console + Chat UI + 3 Tool Workflows',
+      userRolesAllowed: 2,
+      includedRevisions: 2,
+      includedPlatforms: ['Web Desktop', 'Web Mobile', 'Background Worker'],
+      timelineWeeks: '2–3 Weeks',
+      slaResponseTime: 'Standard 48h',
+      warrantyPeriodDays: 45,
+      monthlyMaintenanceHoursIncluded: 4,
+      aiTokensIncludedPerMonth: '500k Gemini Tokens (Usage Billed at Cost Thereafter)',
+    },
+    codeOwnership: '100% Intellectual Property & Transfer',
+    featureMappings: [
+      { featureId: 'feat-nextjs-app-router', classification: 'INCLUDED' },
+      { featureId: 'feat-gemini-orchestration-engine', classification: 'INCLUDED' },
+      { featureId: 'feat-obsidian-glass-dashboard', classification: 'INCLUDED' },
+      { featureId: 'feat-owasp-top-10-hardening', classification: 'INCLUDED' },
+      { featureId: 'feat-sla-warranty-support', classification: 'INCLUDED' },
+      { featureId: 'feat-rag-pgvector-embeddings', classification: 'OPTIONAL_ADDON' },
+    ],
+    compatibleAddonIds: ['addon-ai-rag-expansion', 'addon-whatsapp-bot', 'addon-priority-sla-monthly'],
+    minComplexityScore: 2,
+    maxComplexityScore: 5,
+    idealForAudience: ['Operations Leads', 'Customer Support Teams', 'Marketing Agencies', 'Real Estate Brokers'],
+    badge: 'AI Fast Track',
+    isPopular: true,
+    updatedAt: '2026-11-18T12:00:00Z',
+  },
+  {
+    id: 'ai-agent-growth',
+    divisionSlug: 'starx-ai',
+    solutionId: 'sol-ai-agent',
+    planFamilyId: 'fam-ai-agent',
+    tier: 'growth',
+    code: 'AI-AGENT-G1',
+    name: 'Multi-Agent Autonomous Orchestration',
+    tagline: 'Coordinated squad of specialized AI agents handling complex multi-step pipelines',
+    description: 'Lead researcher agent, proposal draft agent, CRM updater agent, human approval dashboard, fallback alerts, and token spend telemetry.',
+    version: 1,
+    status: 'PUBLISHED',
+    priceINR: 179999,
+    priceUSD: 2399,
+    isCustomQuote: false,
+    pricingComponents: [
+      { id: 'pc-1', name: 'Multi-Agent Graph Engineering & Tool Ecosystem', type: 'ONE_TIME', amountINR: 154999, amountUSD: 2069 },
+      { id: 'pc-2', name: 'Human-in-the-Loop Approval Dashboard', type: 'ONE_TIME', amountINR: 25000, amountUSD: 330 },
+      { id: 'pc-3', name: 'Monthly Agent Ops & Drift Evaluation', type: 'MONTHLY', amountINR: 12999, amountUSD: 169, isOptional: true, unitLabel: '/mo' },
+    ],
+    limits: {
+      pagesOrScreens: 'Multi-Agent Command Center + 8 Workflows',
+      userRolesAllowed: 4,
+      includedRevisions: 3,
+      includedPlatforms: ['Web Desktop', 'Web Mobile', 'Background Engine'],
+      timelineWeeks: '4–6 Weeks',
+      slaResponseTime: 'Priority 24h',
+      warrantyPeriodDays: 60,
+      monthlyMaintenanceHoursIncluded: 8,
+      aiTokensIncludedPerMonth: '2 Million Gemini Tokens (Usage Billed at Cost Thereafter)',
+    },
+    codeOwnership: '100% Intellectual Property & Transfer',
+    featureMappings: [
+      { featureId: 'feat-nextjs-app-router', classification: 'INCLUDED' },
+      { featureId: 'feat-gemini-orchestration-engine', classification: 'INCLUDED' },
+      { featureId: 'feat-rag-pgvector-embeddings', classification: 'INCLUDED' },
+      { featureId: 'feat-obsidian-glass-dashboard', classification: 'INCLUDED' },
+      { featureId: 'feat-interactive-charts-kpi', classification: 'INCLUDED' },
+      { featureId: 'feat-owasp-top-10-hardening', classification: 'INCLUDED' },
+      { featureId: 'feat-immutable-audit-ledger', classification: 'INCLUDED' },
+      { featureId: 'feat-sla-warranty-support', classification: 'INCLUDED' },
+    ],
+    compatibleAddonIds: ['addon-ai-rag-expansion', 'addon-whatsapp-bot', 'addon-priority-sla-monthly'],
+    minComplexityScore: 6,
+    maxComplexityScore: 8,
+    idealForAudience: ['Enterprises Automating Workflows', 'FinTech Underwriting', 'Healthcare Intake', 'Logistics Dispatch'],
+    badge: 'Autonomous Squad',
+    isBestValue: true,
+    updatedAt: '2026-11-18T12:00:00Z',
+  },
+
+  // --------------------------------------------------------------------------
+  // STARX CUSTOM: Dedicated Engineering Squad (Family: fam-cust-squad)
+  // --------------------------------------------------------------------------
+  {
+    id: 'cust-squad-half',
+    divisionSlug: 'starx-custom',
+    solutionId: 'sol-cust-squad',
+    planFamilyId: 'fam-cust-squad',
+    tier: 'starter',
+    code: 'CUST-SQUAD-S1',
+    name: 'Dedicated Fractional Engineering Pod',
+    tagline: 'Two senior full-stack & AI engineers embedded directly into your sprint cycle',
+    description: '1 Senior Full-Stack Lead + 1 Full-Stack Engineer, 160 engineering hours per month, daily syncs, GitHub PR reviews, and sprint velocity.',
+    version: 1,
+    status: 'PUBLISHED',
+    priceINR: 199999,
+    priceUSD: 2599,
+    isCustomQuote: false,
+    pricingComponents: [
+      { id: 'pc-1', name: 'Dedicated Monthly Engineering Squad Retainer', type: 'MONTHLY', amountINR: 199999, amountUSD: 2599, unitLabel: '/month' },
+      { id: 'pc-2', name: 'Initial Architecture Discovery & Onboarding', type: 'ONE_TIME', amountINR: 25000, amountUSD: 320 },
+    ],
+    limits: {
+      pagesOrScreens: 'Agile Sprint Scope (160 Hours / Month)',
+      userRolesAllowed: 5,
+      includedRevisions: 99,
+      includedPlatforms: ['Any Target Platform'],
+      timelineWeeks: 'Monthly Rolling Retainer',
+      slaResponseTime: 'Same-Day Slack (2h)',
+      warrantyPeriodDays: 90,
+      dedicatedSquadSize: '2 Senior Engineers',
+    },
+    codeOwnership: '100% Intellectual Property & Transfer',
+    featureMappings: [
+      { featureId: 'feat-nextjs-app-router', classification: 'INCLUDED' },
+      { featureId: 'feat-responsive-mobile-fluid', classification: 'INCLUDED' },
+      { featureId: 'feat-auth-supabase-jwt', classification: 'INCLUDED' },
+      { featureId: 'feat-rbac-hierarchical-roles', classification: 'INCLUDED' },
+      { featureId: 'feat-owasp-top-10-hardening', classification: 'INCLUDED' },
+      { featureId: 'feat-sla-warranty-support', classification: 'INCLUDED' },
+    ],
+    compatibleAddonIds: ['addon-priority-sla-monthly'],
+    minComplexityScore: 4,
+    maxComplexityScore: 7,
+    idealForAudience: ['Funded Tech Startups', 'Scale-Ups Lacking Senior Devs', 'CTOs Accelerating Milestones'],
+    badge: 'Fractional Pod',
+    isPopular: true,
+    updatedAt: '2026-11-18T12:00:00Z',
+  },
+  {
+    id: 'cust-squad-full',
+    divisionSlug: 'starx-custom',
+    solutionId: 'sol-cust-squad',
+    planFamilyId: 'fam-cust-squad',
+    tier: 'growth',
+    code: 'CUST-SQUAD-G1',
+    name: 'Full Dedicated Engineering Pod (4 Engineers)',
+    tagline: 'Complete self-contained software engineering pod delivering continuous production releases',
+    description: '1 Principal Architect, 2 Senior Full-Stack Engineers, 1 AI/DevOps Specialist, 320 hours per month, CI/CD management, and SLA guarantees.',
+    version: 1,
+    status: 'PUBLISHED',
+    priceINR: 399999,
+    priceUSD: 5199,
+    isCustomQuote: false,
+    pricingComponents: [
+      { id: 'pc-1', name: 'Dedicated Full Pod Monthly Retainer (4 Engineers)', type: 'MONTHLY', amountINR: 399999, amountUSD: 5199, unitLabel: '/month' },
+      { id: 'pc-2', name: 'Strategic Architectural Roadmap & Setup', type: 'ONE_TIME', amountINR: 40000, amountUSD: 500 },
+    ],
+    limits: {
+      pagesOrScreens: 'Full Product Engineering (320 Hours / Month)',
+      userRolesAllowed: 10,
+      includedRevisions: 99,
+      includedPlatforms: ['Web, Mobile, Cloud, AI'],
+      timelineWeeks: 'Monthly Rolling Retainer (Min 3 Months)',
+      slaResponseTime: 'Direct Slack / WhatsApp Pod (1h)',
+      warrantyPeriodDays: 180,
+      dedicatedSquadSize: '4 Dedicated Senior Specialists',
+    },
+    codeOwnership: '100% Intellectual Property & Transfer',
+    featureMappings: [
+      { featureId: 'feat-nextjs-app-router', classification: 'INCLUDED' },
+      { featureId: 'feat-responsive-mobile-fluid', classification: 'INCLUDED' },
+      { featureId: 'feat-auth-supabase-jwt', classification: 'INCLUDED' },
+      { featureId: 'feat-auth-enterprise-sso', classification: 'INCLUDED' },
+      { featureId: 'feat-rbac-hierarchical-roles', classification: 'INCLUDED' },
+      { featureId: 'feat-owasp-top-10-hardening', classification: 'INCLUDED' },
+      { featureId: 'feat-immutable-audit-ledger', classification: 'INCLUDED' },
+      { featureId: 'feat-sla-warranty-support', classification: 'INCLUDED' },
+    ],
+    compatibleAddonIds: ['addon-priority-sla-monthly'],
+    minComplexityScore: 7,
+    maxComplexityScore: 9,
+    idealForAudience: ['Growth Companies', 'Enterprises Launching New Products', 'Tech Modernization Squads'],
+    badge: 'Full Pod',
+    isBestValue: true,
+    updatedAt: '2026-11-18T12:00:00Z',
+  },
+  {
+    id: 'cust-squad-enterprise',
+    divisionSlug: 'starx-custom',
+    solutionId: 'sol-cust-squad',
+    planFamilyId: 'fam-cust-squad',
+    tier: 'enterprise',
+    code: 'CUST-SQUAD-E1',
+    name: 'Strategic Enterprise Technology Partnership',
+    tagline: 'Multi-squad engineering division with dedicated cloud infrastructure & executive advisory',
+    description: 'Custom scaled engineering division, 6+ senior engineers, custom SLA contracts, IP assignment, and on-demand specialized researchers.',
+    version: 1,
+    status: 'PUBLISHED',
+    priceINR: 899999,
+    priceUSD: 11999,
+    isCustomQuote: true,
+    pricingComponents: [
+      { id: 'pc-1', name: 'Enterprise Engineering Division Monthly Retainer', type: 'MONTHLY', amountINR: 899999, amountUSD: 11999, unitLabel: '/month' },
+    ],
+    limits: {
+      pagesOrScreens: 'Unlimited Enterprise Scope',
+      userRolesAllowed: 99,
+      includedRevisions: 99,
+      includedPlatforms: ['All Enterprise Environments'],
+      timelineWeeks: 'Custom Enterprise Agreement',
+      slaResponseTime: 'Dedicated 24/7 War Room',
+      warrantyPeriodDays: 365,
+      dedicatedSquadSize: '6+ Senior Engineers & Leads',
+    },
+    codeOwnership: '100% Intellectual Property & Transfer',
+    featureMappings: [
+      { featureId: 'feat-nextjs-app-router', classification: 'INCLUDED' },
+      { featureId: 'feat-auth-enterprise-sso', classification: 'INCLUDED' },
+      { featureId: 'feat-rbac-hierarchical-roles', classification: 'INCLUDED' },
+      { featureId: 'feat-owasp-top-10-hardening', classification: 'INCLUDED' },
+      { featureId: 'feat-immutable-audit-ledger', classification: 'INCLUDED' },
+      { featureId: 'feat-sla-warranty-support', classification: 'INCLUDED' },
+    ],
+    compatibleAddonIds: [],
+    minComplexityScore: 9,
+    maxComplexityScore: 10,
+    idealForAudience: ['Fortune 500 Enterprises', 'Government Authorities', 'Multinational Tech Giants'],
+    badge: 'Custom Quote',
+    updatedAt: '2026-11-18T12:00:00Z',
+  },
+];
+
+// ==============================================================================
+// 8. RECOMMENDATION RULES
+// ==============================================================================
+export const RECOMMENDATION_RULES: RecommendationRuleRecord[] = [
+  // Web Rules
+  {
+    id: 'rule-web-low',
+    divisionSlug: 'starx-web',
+    solutionId: 'sol-web-biz',
+    minComplexity: 1,
+    maxComplexity: 3,
+    recommendedPlanId: 'web-biz-starter',
+    justificationTemplate: 'Based on your essential page scope and requirement for a clean, rapid web presence, the Launchpad Business Flagship provides the optimal investment with zero bloat.',
+    alternativePlanIds: ['web-biz-growth'],
+    priority: 10,
+    isActive: true,
+  },
+  {
+    id: 'rule-web-mid',
+    divisionSlug: 'starx-web',
+    solutionId: 'sol-web-biz',
+    minComplexity: 4,
+    maxComplexity: 6,
+    recommendedPlanId: 'web-biz-growth',
+    justificationTemplate: 'Your project requires dynamic content management, multiple user sections, and structured SEO, making the Growth Corporate Flagship the ideal balanced platform.',
+    alternativePlanIds: ['web-biz-starter', 'web-biz-pro'],
+    priority: 10,
+    isActive: true,
+  },
+  {
+    id: 'rule-web-ecom-std',
+    divisionSlug: 'starx-web',
+    solutionId: 'sol-web-ecom',
+    minComplexity: 1,
+    maxComplexity: 5,
+    recommendedPlanId: 'web-ecom-starter',
+    justificationTemplate: 'For your direct-to-consumer online store with instant UPI checkout and catalog management, the D2C Ecommerce Launchpad delivers high conversion from day one.',
+    alternativePlanIds: ['web-ecom-growth'],
+    priority: 15,
+    isActive: true,
+  },
+  {
+    id: 'rule-web-ecom-high',
+    divisionSlug: 'starx-web',
+    solutionId: 'sol-web-ecom',
+    minComplexity: 6,
+    maxComplexity: 10,
+    recommendedPlanId: 'web-ecom-growth',
+    justificationTemplate: 'Given your requirement for multi-warehouse stock sync, high transaction volume, and abandoned cart automation, the Growth Scale Commerce Engine is recommended.',
+    alternativePlanIds: ['web-ecom-starter'],
+    priority: 15,
+    isActive: true,
+  },
+
+  // Apps Rules
+  {
+    id: 'rule-apps-xplat-mvp',
+    divisionSlug: 'starx-apps',
+    solutionId: 'sol-app-xplat',
+    minComplexity: 1,
+    maxComplexity: 5,
+    recommendedPlanId: 'app-xplat-mvp',
+    justificationTemplate: 'Your cross-platform mobile requirements are best served by our Universal Mobile MVP, providing native 60fps performance on both iOS and Android stores simultaneously.',
+    alternativePlanIds: ['app-xplat-growth'],
+    priority: 10,
+    isActive: true,
+  },
+  {
+    id: 'rule-apps-xplat-growth',
+    divisionSlug: 'starx-apps',
+    solutionId: 'sol-app-xplat',
+    minComplexity: 6,
+    maxComplexity: 10,
+    recommendedPlanId: 'app-xplat-growth',
+    justificationTemplate: 'Because your mobile app requires real-time sync, offline SQLite persistence, and advanced payments, the Production Scale Mobile Product is the recommended architecture.',
+    alternativePlanIds: ['app-xplat-mvp'],
+    priority: 10,
+    isActive: true,
+  },
+
+  // Business Rules
+  {
+    id: 'rule-biz-pos-single',
+    divisionSlug: 'starx-business',
+    solutionId: 'sol-biz-pos',
+    minComplexity: 1,
+    maxComplexity: 4,
+    recommendedPlanId: 'biz-pos-single',
+    justificationTemplate: 'For single-location counter billing and barcode thermal printing, the Counter Express Cloud POS provides immediate speed and offline resilience.',
+    alternativePlanIds: ['biz-pos-multi'],
+    priority: 10,
+    isActive: true,
+  },
+  {
+    id: 'rule-biz-pos-multi',
+    divisionSlug: 'starx-business',
+    solutionId: 'sol-biz-pos',
+    minComplexity: 5,
+    maxComplexity: 10,
+    recommendedPlanId: 'biz-pos-multi',
+    justificationTemplate: 'Your multi-location requirements necessitate centralized stock reconciliation, shift audits, and multi-outlet sync provided by the Multi-Outlet Retail POS.',
+    alternativePlanIds: ['biz-pos-single'],
+    priority: 10,
+    isActive: true,
+  },
+
+  // SaaS Rules
+  {
+    id: 'rule-saas-mvp',
+    divisionSlug: 'starx-saas',
+    solutionId: 'sol-saas-mvp',
+    minComplexity: 1,
+    maxComplexity: 5,
+    recommendedPlanId: 'saas-mvp-launch',
+    justificationTemplate: 'To validate your SaaS hypothesis with paying organizations, the SaaS Launchpad MVP equips you with multi-tenancy, Stripe billing, and team workspaces.',
+    alternativePlanIds: ['saas-mvp-pro'],
+    priority: 10,
+    isActive: true,
+  },
+  {
+    id: 'rule-saas-pro',
+    divisionSlug: 'starx-saas',
+    solutionId: 'sol-saas-mvp',
+    minComplexity: 6,
+    maxComplexity: 10,
+    recommendedPlanId: 'saas-mvp-pro',
+    justificationTemplate: 'Your scale requires metered usage calculation, webhook dispatchers, seat licenses, and enterprise audit vaults, matching the Growth Scale SaaS Engine.',
+    alternativePlanIds: ['saas-mvp-launch'],
+    priority: 10,
+    isActive: true,
+  },
+
+  // AI Rules
+  {
+    id: 'rule-ai-agent-starter',
+    divisionSlug: 'starx-ai',
+    solutionId: 'sol-ai-agent',
+    minComplexity: 1,
+    maxComplexity: 5,
+    recommendedPlanId: 'ai-agent-starter',
+    justificationTemplate: 'Your automated workflow is best solved with our Autonomous Assistant Pod, executing structured tool calls with clear cost controls.',
+    alternativePlanIds: ['ai-agent-growth'],
+    priority: 10,
+    isActive: true,
+  },
+  {
+    id: 'rule-ai-agent-growth',
+    divisionSlug: 'starx-ai',
+    solutionId: 'sol-ai-agent',
+    minComplexity: 6,
+    maxComplexity: 10,
+    recommendedPlanId: 'ai-agent-growth',
+    justificationTemplate: 'Your pipeline demands multi-agent coordination, document vector RAG, and human review gates provided by the Multi-Agent Autonomous Orchestration suite.',
+    alternativePlanIds: ['ai-agent-starter'],
+    priority: 10,
+    isActive: true,
+  },
+
+  // Custom Rules
+  {
+    id: 'rule-cust-squad-half',
+    divisionSlug: 'starx-custom',
+    solutionId: 'sol-cust-squad',
+    minComplexity: 1,
+    maxComplexity: 6,
+    recommendedPlanId: 'cust-squad-half',
+    justificationTemplate: 'For targeted engineering delivery, our Fractional Engineering Pod (2 Senior Devs) embeds seamlessly into your development backlog.',
+    alternativePlanIds: ['cust-squad-full'],
+    priority: 10,
+    isActive: true,
+  },
+  {
+    id: 'rule-cust-squad-full',
+    divisionSlug: 'starx-custom',
+    solutionId: 'sol-cust-squad',
+    minComplexity: 7,
+    maxComplexity: 10,
+    recommendedPlanId: 'cust-squad-full',
+    justificationTemplate: 'Your enterprise requirements require full squad velocity. The Full Dedicated Engineering Pod (4 Engineers) provides architect-led continuous releases.',
+    alternativePlanIds: ['cust-squad-half', 'cust-squad-enterprise'],
+    priority: 10,
+    isActive: true,
+  },
+];
+
+// ==============================================================================
+// 9. AUTHORITATIVE CATALOGUE ACCESSOR & CALCULATION HELPERS
+// ==============================================================================
+
+/**
+ * Returns all solutions available for a given division.
+ */
+export function getSolutionsByDivision(divisionSlug: string): SolutionArchetype[] {
+  return CANONICAL_SOLUTIONS.filter(s => s.divisionSlug === divisionSlug);
+}
+
+/**
+ * Returns a solution by its slug or ID.
+ */
+export function getSolutionBySlugOrId(identifier: string): SolutionArchetype | undefined {
+  return CANONICAL_SOLUTIONS.find(s => s.slug === identifier || s.id === identifier);
+}
+
+/**
+ * Returns all plans associated with a given division.
+ */
+export function getPlansByDivision(divisionSlug: string): CanonicalPlanRecord[] {
+  return CANONICAL_PLANS.filter(p => p.divisionSlug === divisionSlug && p.status === 'PUBLISHED');
+}
+
+/**
+ * Returns all plans for a specific solution, or falls back to division plans.
+ */
+export function getPlansForSolution(solutionIdOrSlug: string, divisionSlug: string): CanonicalPlanRecord[] {
+  const sol = getSolutionBySlugOrId(solutionIdOrSlug);
+  if (sol) {
+    const plans = CANONICAL_PLANS.filter(p => p.solutionId === sol.id && p.status === 'PUBLISHED');
+    if (plans.length > 0) return plans;
+  }
+  return getPlansByDivision(divisionSlug);
+}
+
+/**
+ * Finds a plan by its exact ID or code.
+ */
+export function getPlanById(planIdOrCode: string): CanonicalPlanRecord | undefined {
+  return CANONICAL_PLANS.find(p => p.id === planIdOrCode || p.code === planIdOrCode);
+}
+
+/**
+ * Retrieves all features for a plan with their exact classifications.
+ */
+export function getFeaturesForPlan(planId: string): Array<{
+  feature: CanonicalFeatureRecord;
+  classification: FeatureClassification;
+  customLimitation?: string;
+}> {
+  const plan = getPlanById(planId);
+  if (!plan) return [];
+
+  return plan.featureMappings.map(mapping => {
+    const feature = CANONICAL_FEATURES.find(f => f.id === mapping.featureId) || {
+      id: mapping.featureId,
+      group: 'CORE_ARCHITECTURE',
+      name: mapping.featureId.replace('feat-', '').replace(/-/g, ' ').toUpperCase(),
+      slug: mapping.featureId,
+      customerExplanation: 'Core architectural requirement.',
+      technicalDescription: 'Standard implementation module.',
+      applicableDivisions: [plan.divisionSlug],
+      defaultPriority: 'must_have',
+    } as CanonicalFeatureRecord;
+
+    return {
+      feature,
+      classification: mapping.classification,
+      customLimitation: mapping.customLimitation,
+    };
+  });
+}
+
+/**
+ * Retrieves compatible add-ons for a plan.
+ */
+export function getAddonsForPlan(planId: string): CanonicalAddonRecord[] {
+  const plan = getPlanById(planId);
+  if (!plan) return [];
+
+  return CANONICAL_ADDONS.filter(addon => 
+    plan.compatibleAddonIds.includes(addon.id) ||
+    addon.compatiblePlanTiers.includes(plan.tier)
+  );
+}
+
+/**
+ * Evaluates the deterministic recommendation rule for a customer requirement.
+ */
+export function matchRecommendationRule(params: {
+  divisionSlug: CanonicalDivisionSlug;
+  solutionSlugOrId?: string;
+  complexityScore: number;
+}): {
+  recommendedPlan: CanonicalPlanRecord;
+  alternativePlans: CanonicalPlanRecord[];
+  justification: string;
+} {
+  const { divisionSlug, solutionSlugOrId, complexityScore } = params;
+  const sol = solutionSlugOrId ? getSolutionBySlugOrId(solutionSlugOrId) : undefined;
+  const score = Math.max(1, Math.min(10, Math.round(complexityScore)));
+
+  // 1. Try finding a rule matching division + solution + complexity score
+  let matchedRule: RecommendationRuleRecord | undefined;
+  if (sol) {
+    matchedRule = RECOMMENDATION_RULES.find(
+      r => r.divisionSlug === divisionSlug && r.solutionId === sol.id && score >= r.minComplexity && score <= r.maxComplexity && r.isActive
+    );
+  }
+
+  // 2. Fallback to division + complexity score
+  if (!matchedRule) {
+    matchedRule = RECOMMENDATION_RULES.find(
+      r => r.divisionSlug === divisionSlug && score >= r.minComplexity && score <= r.maxComplexity && r.isActive
+    );
+  }
+
+  // 3. Fallback to first rule for division or default plan
+  const divisionPlans = getPlansByDivision(divisionSlug);
+  let recommendedPlan: CanonicalPlanRecord;
+  let justification: string;
+  let altIds: string[] = [];
+
+  if (matchedRule) {
+    recommendedPlan = getPlanById(matchedRule.recommendedPlanId) || divisionPlans[0] || CANONICAL_PLANS[0];
+    justification = matchedRule.justificationTemplate;
+    altIds = matchedRule.alternativePlanIds;
+  } else {
+    recommendedPlan = divisionPlans[0] || CANONICAL_PLANS[0];
+    justification = `Based on your ${divisionSlug} project requirements and complexity rating of ${score}/10, this plan delivers the optimal scope foundation.`;
+    altIds = divisionPlans.filter(p => p.id !== recommendedPlan.id).map(p => p.id).slice(0, 2);
+  }
+
+  const alternativePlans = altIds
+    .map(id => getPlanById(id))
+    .filter((p): p is CanonicalPlanRecord => p !== undefined && p.id !== recommendedPlan.id);
+
+  return {
+    recommendedPlan,
+    alternativePlans,
+    justification,
+  };
+}
+
+/**
+ * Calculates authoritative investment summary including base plan, selected add-ons, and taxes.
+ */
+export function calculateInvestmentSummary(params: {
+  planId: string;
+  selectedAddonIds: string[];
+  currency?: 'INR' | 'USD';
+  isTaxExempt?: boolean;
+}): InvestmentSummaryCalculation {
+  const { planId, selectedAddonIds, currency = 'INR', isTaxExempt = false } = params;
+  const plan = getPlanById(planId) || CANONICAL_PLANS[0];
+
+  const isINR = currency === 'INR';
+  const basePrice = isINR ? plan.priceINR : plan.priceUSD;
+
+  // Calculate selected add-ons
+  const breakdownItems: InvestmentSummaryCalculation['breakdownItems'] = [
+    {
+      label: `${plan.name} (${plan.limits.pagesOrScreens})`,
+      type: 'base_plan',
+      amount: basePrice,
+      billingPeriod: 'One-Time Project Delivery',
+    },
+  ];
+
+  let addonsTotal = 0;
+  let monthlyRetainer = 0;
+
+  for (const addonId of selectedAddonIds) {
+    const addon = CANONICAL_ADDONS.find(a => a.id === addonId);
+    if (!addon) continue;
+
+    const addonPrice = isINR ? addon.priceINR : addon.priceUSD;
+    if (addon.billingModel === 'MONTHLY') {
+      monthlyRetainer += addonPrice;
+      breakdownItems.push({
+        label: `${addon.name} (Recurring)`,
+        type: 'maintenance',
+        amount: addonPrice,
+        billingPeriod: '/ Month',
+      });
+    } else {
+      addonsTotal += addonPrice;
+      breakdownItems.push({
+        label: addon.name,
+        type: 'addon',
+        amount: addonPrice,
+        billingPeriod: 'One-Time',
+      });
+    }
+  }
+
+  const totalOneTimeDevelopment = basePrice + addonsTotal;
+  const taxPercentage = isTaxExempt || !isINR ? 0 : 18; // 18% GST in India
+  const taxAmount = Math.round(totalOneTimeDevelopment * (taxPercentage / 100));
+  const totalGrossOneTime = totalOneTimeDevelopment + taxAmount;
+
+  if (taxAmount > 0) {
+    breakdownItems.push({
+      label: `Statutory Goods & Services Tax (GST ${taxPercentage}%)`,
+      type: 'tax',
+      amount: taxAmount,
+      billingPeriod: 'Tax Assessment',
+    });
+  }
+
+  return {
+    planId: plan.id,
+    planName: plan.name,
+    planTier: plan.tier,
+    currency,
+    isCustomQuote: plan.isCustomQuote,
+    baseDevelopmentPrice: basePrice,
+    selectedAddonsTotal: addonsTotal,
+    totalOneTimeDevelopment,
+    monthlyOperationsRetainer: monthlyRetainer,
+    annualOperationsRetainer: monthlyRetainer * 12,
+    taxPercentage,
+    taxAmount,
+    totalGrossOneTime,
+    breakdownItems,
+  };
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { CommercialCatalogueModule } from "./CommercialCatalogueModule";
 import {
   WEBSITE_PACKAGES,
   APP_PACKAGES,
@@ -444,7 +445,7 @@ export function PricingPackagesModule({
             { id: "estimates", label: `Estimate Requests (${estimatesList.length})`, icon: Calculator },
             { id: "quotations", label: `Official Proposals (${proposalsList.length})`, icon: FileText },
             { id: "projects", label: `Active Projects (${projectsList.length})`, icon: FolderKanban },
-            { id: "packages", label: "Package Catalogs (W/A/C)", icon: Tag },
+            { id: "packages", label: "Commercial Catalogue (6 Divisions)", icon: Tag },
           ].map((t) => {
             const Icon = t.icon;
             const isSelected = subTab === t.id;
@@ -765,56 +766,9 @@ export function PricingPackagesModule({
         </div>
       )}
 
-      {/* 5. SUBTAB: PACKAGES REFERENCE (W1-W6, A1-A5, C1-C5) */}
+      {/* 5. SUBTAB: COMMERCIAL CATALOGUE & PRICING ENGINE */}
       {subTab === "packages" && (
-        <div className="space-y-6">
-          <div className="flex items-center gap-2">
-            {[
-              { id: "website", label: "Web Development (W1–W6)" },
-              { id: "app", label: "Mobile Apps (A1–A5)" },
-              { id: "combo", label: "Web + App Combos (C1–C5)" },
-            ].map((d) => (
-              <button
-                key={d.id}
-                onClick={() => setDivision(d.id as any)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer transition-all ${
-                  division === d.id
-                    ? "bg-[#00D9FF] text-[#030B24]"
-                    : "bg-[#071638] text-slate-400 hover:text-white border border-white/10"
-                }`}
-              >
-                {d.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {(division === "website" ? WEBSITE_PACKAGES : division === "app" ? APP_PACKAGES : COMBO_PACKAGES).map((pkg) => (
-              <div
-                key={pkg.code}
-                className="p-6 rounded-3xl bg-[#071638] border border-white/10 flex flex-col justify-between space-y-4"
-              >
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="font-mono text-sm font-extrabold text-[#00D9FF]">{pkg.code}</span>
-                    <span className="text-[10px] font-mono text-slate-400">{pkg.timeline}</span>
-                  </div>
-                  <h3 className="text-base font-bold text-white">{pkg.name}</h3>
-                  <div className="text-xl font-extrabold text-white font-mono">{formatINR(pkg.startingPrice)}</div>
-                  <p className="text-xs text-slate-300 font-light leading-relaxed">{pkg.idealFor}</p>
-                </div>
-                <div className="space-y-1.5 pt-3 border-t border-white/10 text-xs text-slate-300">
-                  {pkg.features.slice(0, 4).map((f) => (
-                    <div key={f} className="flex items-center gap-1.5 text-[11px]">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#00C98B] shrink-0" />
-                      <span className="truncate">{f}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <CommercialCatalogueModule onShowToast={onShowToast} />
       )}
 
       {/* MODAL 1: REQUIREMENT VERIFICATION (17 FIELDS from Section 9) */}
