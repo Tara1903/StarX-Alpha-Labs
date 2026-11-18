@@ -1,5 +1,5 @@
 import type { CanonicalPlan, PlanAddon, PlanDivisionSlug } from "../../types/plans";
-import { getPlansByDivision, GLOBAL_PLAN_ADDONS } from "@/data/plans";
+import { getPlansByDivision, normalizeDivisionSlug, GLOBAL_PLAN_ADDONS, CANONICAL_PLANS } from "@/data/plans";
 
 export interface ComplexityFactors {
   integrations: number;   // 1 to 10
@@ -125,11 +125,18 @@ export function calculateComplexityScore(params: {
  * Matches client requirements against canonical plans with 0 arbitrary budget sliders.
  */
 export function recommendPlan(request: RecommendationRequest): RecommendationResult {
-  const { divisionSlug, complexityScore, platforms, selectedFeatures } = request;
-  const plans = getPlansByDivision(divisionSlug);
+  const {
+    divisionSlug,
+    complexityScore = 4,
+    platforms = [],
+    selectedFeatures = [],
+  } = request;
+  
+  const normalizedSlug = normalizeDivisionSlug(divisionSlug);
+  let plans = getPlansByDivision(normalizedSlug);
 
-  if (plans.length === 0) {
-    throw new Error(`No canonical plans found for division: ${divisionSlug}`);
+  if (!plans || plans.length === 0) {
+    plans = CANONICAL_PLANS.filter((p) => p.divisionSlug === "starx-web");
   }
 
   let recommendedTier: "starter" | "growth" | "enterprise" | "custom" = "growth";

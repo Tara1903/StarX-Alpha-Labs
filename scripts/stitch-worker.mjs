@@ -109,21 +109,72 @@ function runStitchMcpSession(operation, timeoutMs = 180000) {
 
     child.stdout.on("data", (chunk) => {
       buffer += chunk.toString();
-      const lines = buffer.split("\n");
-      buffer = lines.pop() || "";
 
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed) continue;
-        try {
-          const msg = JSON.parse(trimmed);
-          if (msg.id && pendingCalls.has(msg.id)) {
-            const { resolve: callRes, reject: callRej } = pendingCalls.get(msg.id);
-            pendingCalls.delete(msg.id);
-            if (msg.error) callRej(new Error(msg.error.message || JSON.stringify(msg.error)));
-            else callRes(msg.result);
+      // Robust streaming JSON-RPC message extractor (handles 64KB+ chunks and embedded newlines)
+      let i = 0;
+      while (i < buffer.length) {
+        const start = buffer.indexOf("{", i);
+        if (start === -1) {
+          buffer = "";
+          break;
+        }
+
+        let depth = 0;
+        let inString = false;
+        let isEscaped = false;
+        let end = -1;
+
+        for (let j = start; j < buffer.length; j++) {
+          const char = buffer[j];
+          if (inString) {
+            if (isEscaped) {
+              isEscaped = false;
+            } else if (char === "\\") {
+              isEscaped = true;
+            } else if (char === '"') {
+              inString = false;
+            }
+          } else {
+            if (char === '"') {
+              inString = true;
+            } else if (char === "{") {
+              depth++;
+            } else if (char === "}") {
+              depth--;
+              if (depth === 0) {
+                end = j;
+                break;
+              }
+            }
           }
-        } catch {}
+        }
+
+        if (end !== -1) {
+          const candidate = buffer.slice(start, end + 1);
+          try {
+            const msg = JSON.parse(candidate);
+            if (msg && typeof msg === "object" && msg.id && pendingCalls.has(msg.id)) {
+              const { resolve: callRes, reject: callRej } = pendingCalls.get(msg.id);
+              pendingCalls.delete(msg.id);
+              if (msg.error) {
+                callRej(new Error(msg.error.message || JSON.stringify(msg.error)));
+              } else {
+                callRes(msg.result);
+              }
+            }
+            i = end + 1;
+            continue;
+          } catch {
+            // Not valid JSON, skip past opening brace
+          }
+          i = start + 1;
+        } else {
+          buffer = buffer.slice(start);
+          break;
+        }
+      }
+      if (i >= buffer.length) {
+        buffer = "";
       }
     });
 

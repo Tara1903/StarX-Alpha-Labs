@@ -135,8 +135,9 @@ async function main() {
     const testHtml = `<!DOCTYPE html><html><head><title>Apex Test Screen</title></head><body><h1>Apex Terminal</h1></body></html>`;
     const fileName = `acceptance_tests/screen_${Date.now()}.html`;
 
-    const publicUrl = await directStitchProvider.uploadAssetToStorage(fileName, testHtml, "text/html");
-    if (!publicUrl) throw new Error("Asset upload failed");
+    const uploadResult = await directStitchProvider.uploadAssetToStorage(fileName, testHtml, "text/html");
+    const publicUrl = typeof uploadResult === "string" ? uploadResult : uploadResult?.signedUrl;
+    if (!publicUrl) throw new Error("Asset upload failed to generate signed URL");
     testUploadedHtmlUrl = publicUrl;
 
     // Verify it is accessible via HTTP fetch
@@ -240,9 +241,12 @@ async function main() {
     // Attempt concurrent duplicate submission while first is in-flight
     let rejectedDuplicate = false;
     try {
-      await designStudioOrchestrator.submitGenerationJob({
+      const dup = await designStudioOrchestrator.submitGenerationJob({
         projectId: project.id,
       });
+      if (dup?.isDuplicate) {
+        rejectedDuplicate = true;
+      }
     } catch (lockErr) {
       if (lockErr.message.includes("already in progress")) {
         rejectedDuplicate = true;

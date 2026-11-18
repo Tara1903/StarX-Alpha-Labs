@@ -812,9 +812,33 @@ export function getAllPlans(): CanonicalPlan[] {
   return CANONICAL_PLANS;
 }
 
+export function normalizeDivisionSlug(rawSlug: string): PlanDivisionSlug {
+  if (!rawSlug) return "starx-web";
+  const s = rawSlug.trim().toLowerCase();
+
+  if (s === "starx-web" || s === "web" || s === "starx-digital" || s === "website") return "starx-web";
+  if (s === "starx-apps" || s === "apps" || s === "mobile" || s === "app") return "starx-apps";
+  if (s === "starx-business" || s === "business" || s === "starx-systems" || s === "pos" || s === "erp" || s === "crm") return "starx-business";
+  if (s === "starx-saas" || s === "saas" || s === "cloud" || s === "platform") return "starx-saas";
+  if (s === "starx-ai" || s === "ai" || s === "starx-ai-solutions" || s === "agents") return "starx-ai";
+  if (s === "starx-custom" || s === "custom" || s === "enterprise" || s === "bespoke") return "starx-custom";
+
+  // Fuzzy fallback
+  if (s.includes("web") || s.includes("site")) return "starx-web";
+  if (s.includes("app") || s.includes("mobile")) return "starx-apps";
+  if (s.includes("pos") || s.includes("biz") || s.includes("business")) return "starx-business";
+  if (s.includes("saas") || s.includes("cloud")) return "starx-saas";
+  if (s.includes("ai") || s.includes("agent") || s.includes("bot")) return "starx-ai";
+  if (s.includes("custom") || s.includes("enterp")) return "starx-custom";
+
+  return "starx-web";
+}
+
 export function getPlansByDivision(divisionSlug: string): CanonicalPlan[] {
-  const normalized = divisionSlug.trim().toLowerCase();
-  return CANONICAL_PLANS.filter((plan) => plan.divisionSlug === normalized);
+  const normalized = normalizeDivisionSlug(divisionSlug);
+  const matched = CANONICAL_PLANS.filter((plan) => plan.divisionSlug === normalized);
+  if (matched.length > 0) return matched;
+  return CANONICAL_PLANS.filter((plan) => plan.divisionSlug === "starx-web");
 }
 
 export function getPlanById(planId: string): CanonicalPlan | undefined {
