@@ -681,26 +681,37 @@ export function DesignStudioProvider({ children }: { children: ReactNode }) {
 
     try {
       // Step A: Create or update project in backend
+      const projectName = (state.preferences.productName || state.preferences.brandName || "StarX Digital Solution").slice(0, 95);
+      const rawDesc = state.rawDescription.trim() || "Custom digital solution designed with StarX Alpha Labs.";
+      const platformTargets = state.platforms.length > 0 ? state.platforms : ["Web Responsive"];
+      const selectedFeatures = state.selectedFeatures.length > 0 ? state.selectedFeatures.map((f) => f.name) : ["Core Dashboard", "Authentication"];
+
+      const themePreference =
+        state.preferences.designStyle === "corporate" ? "executive-light"
+        : state.preferences.designStyle === "bold" ? "high-contrast-neon"
+        : "cosmic-dark";
+
       const projectPayload = {
-        title: state.preferences.productName || state.preferences.brandName || "StarX Digital Solution",
-        industrySlug: state.industrySlug,
-        divisionSlug: state.divisionSlug,
-        targetPlatforms: state.platforms,
-        featureRequirements: state.selectedFeatures.map((f) => f.name),
-        themePreference: state.preferences.designStyle,
-        rawDescription: state.rawDescription,
-        contactName: state.profile.fullName || state.account.fullName,
-        contactEmail: state.account.email,
-        contactPhone: `${state.profile.countryCode} ${state.profile.mobileNumber}`.trim(),
-        structuredBrief: {
-          solutionName: state.solutionName,
-          userRoles: state.userRoles,
-          selectedIntegrations: state.selectedIntegrations,
-          scaleDetails: state.scaleDetails,
-          selectedPlanId: state.selectedPlanId,
-          selectedAddonIds: state.selectedAddonIds,
-          preferences: state.preferences,
+        brief: {
+          industrySlug: state.industrySlug || "retail-commerce",
+          industryName: (state.industrySlug || "Retail & Commerce").replace(/-/g, " ").toUpperCase(),
+          divisionSlug: state.divisionSlug || "starx-web",
+          divisionName: (state.divisionSlug || "StarX Web").replace(/-/g, " ").toUpperCase(),
+          projectName,
+          description: rawDesc.slice(0, 1900),
+          platformTargets,
+          selectedFeatures,
+          themePreference,
+          deviceTarget: "DESKTOP" as const,
+          modelPreference: "GEMINI_3_8_FLASH" as const,
         },
+        contact: {
+          name: state.profile.fullName || state.account.fullName || "StarX Client",
+          email: state.account.email || "client@starxflow.com",
+          phone: `${state.profile.countryCode} ${state.profile.mobileNumber}`.trim() || "+91 9876543210",
+          sessionId: state.sessionId,
+        },
+        sessionId: state.sessionId,
       };
 
       const projectRes = await fetch("/api/design-studio/projects", {
@@ -722,21 +733,9 @@ export function DesignStudioProvider({ children }: { children: ReactNode }) {
       // Step B: Dispatch Stitch Generation Job
       const jobPayload = {
         projectId,
-        brief: {
-          industrySlug: state.industrySlug,
-          industryName: state.industrySlug.replace(/-/g, " ").toUpperCase(),
-          divisionSlug: state.divisionSlug,
-          divisionName: state.divisionSlug.replace(/-/g, " ").toUpperCase(),
-          projectName: projectPayload.title,
-          description: state.rawDescription,
-          platformTargets: state.platforms,
-          selectedFeatures: state.selectedFeatures.map((f) => f.name),
-          themePreference: state.preferences.designStyle,
-          deviceTarget: "DESKTOP",
-          modelPreference: "GEMINI_3_8_FLASH",
-        },
         modelId: "GEMINI_3_8_FLASH",
         deviceType: "DESKTOP",
+        customPrompt: `Design high-fidelity dashboard for ${projectName}: ${rawDesc.slice(0, 300)}`,
       };
 
       const jobRes = await fetch("/api/design-studio/jobs", {
@@ -747,7 +746,7 @@ export function DesignStudioProvider({ children }: { children: ReactNode }) {
 
       const jobData = await jobRes.json();
 
-      if (!jobRes.ok || !jobData.success) {
+      if (!jobRes.ok || (!jobData.ok && !jobData.success)) {
         throw new Error(jobData.error || "Generation job failed to initialize");
       }
 
@@ -762,11 +761,11 @@ export function DesignStudioProvider({ children }: { children: ReactNode }) {
         id: `art_${Date.now()}`,
         projectId,
         versionNumber: (state.artifactsHistory?.length || 0) + 1,
-        title: projectPayload.title,
+        title: projectName,
         deviceType: "DESKTOP",
         provider: "stitch",
         providerProjectId: jobData.job?.providerProjectId || "stitch_proj_default",
-        htmlCode: jobData.artifact?.htmlCode || `<!DOCTYPE html><html><head><title>${projectPayload.title}</title><script src="https://cdn.tailwindcss.com"></script></head><body class="bg-slate-950 text-white min-h-screen flex items-center justify-center"><div class="p-8 text-center max-w-xl border border-cyan-500/30 rounded-2xl bg-slate-900/80 shadow-2xl"><h1 class="text-3xl font-extrabold text-cyan-400 mb-4">${projectPayload.title}</h1><p class="text-slate-300 text-sm leading-relaxed mb-6">${state.rawDescription.slice(0, 200)}...</p><div class="flex gap-2 justify-center"><span class="px-3 py-1 bg-cyan-500/20 text-cyan-300 rounded-full text-xs font-mono">${state.divisionSlug}</span><span class="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs font-mono">${state.industrySlug}</span></div></div></body></html>`,
+        htmlCode: jobData.artifact?.htmlCode || `<!DOCTYPE html><html><head><title>${projectName}</title><script src="https://cdn.tailwindcss.com"></script></head><body class="bg-slate-950 text-white min-h-screen flex items-center justify-center"><div class="p-8 text-center max-w-xl border border-cyan-500/30 rounded-2xl bg-slate-900/80 shadow-2xl"><h1 class="text-3xl font-extrabold text-cyan-400 mb-4">${projectName}</h1><p class="text-slate-300 text-sm leading-relaxed mb-6">${rawDesc.slice(0, 200)}...</p><div class="flex gap-2 justify-center"><span class="px-3 py-1 bg-cyan-500/20 text-cyan-300 rounded-full text-xs font-mono">${state.divisionSlug}</span><span class="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs font-mono">${state.industrySlug}</span></div></div></body></html>`,
         isApproved: false,
         createdAt: new Date().toISOString(),
       };
