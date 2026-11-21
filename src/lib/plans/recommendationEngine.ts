@@ -26,6 +26,12 @@ export interface RecommendationRequest {
   complexityScore: number;
   complexityFactors: ComplexityFactors;
   rawDescription?: string;
+  planTypePreference?: 'subscription' | 'bespoke_project';
+  pageCount?: number;
+  hasEcommerce?: boolean;
+  hasAuth?: boolean;
+  hasAI?: boolean;
+  hasCMS?: boolean;
 }
 
 export interface RecommendationResult {
@@ -131,8 +137,144 @@ export function calculateComplexityScore(params: {
 export function recommendPlan(request: RecommendationRequest): RecommendationResult {
   const normDivision = normalizeDivisionSlug(request.divisionSlug);
   const score = request.complexityScore || 4;
+  const desc = (request.rawDescription || "").toLowerCase();
+  const feats = request.selectedFeatures.map(f => f.toLowerCase());
 
-  // 1. Evaluate deterministic recommendation rule from Master Commercial Catalogue
+  const hasAI = request.hasAI || feats.some(f => f.includes("ai") || f.includes("bot") || f.includes("copilot") || f.includes("agent")) || desc.includes("ai") || desc.includes("copilot") || desc.includes("assistant");
+  const hasAuth = request.hasAuth || feats.some(f => f.includes("auth") || f.includes("login") || f.includes("user") || f.includes("signup")) || desc.includes("auth") || desc.includes("login") || desc.includes("signup");
+  const hasEcom = request.hasEcommerce || feats.some(f => f.includes("ecom") || f.includes("pay") || f.includes("cart") || f.includes("checkout") || f.includes("upi")) || desc.includes("ecom") || desc.includes("payment") || desc.includes("pay ") || desc.includes("store");
+  const hasCMS = request.hasCMS || feats.some(f => f.includes("cms") || f.includes("blog") || f.includes("brand") || f.includes("content")) || desc.includes("cms") || desc.includes("blog");
+  const hasLiquidGlass = feats.some(f => f.includes("liquid") || f.includes("glass")) || desc.includes("liquid") || desc.includes("glass");
+  const hasCustomization = feats.some(f => f.includes("custom") || f.includes("layout")) || desc.includes("customization") || desc.includes("layout");
+  const hasAnalytics = feats.some(f => f.includes("analytic") || f.includes("report")) || desc.includes("analytic") || desc.includes("report");
+  const pages = request.pageCount;
+
+  // Check if we should recommend monthly subscription plans (Default for Web & Apps)
+  const isSubscriptionPreferred = request.planTypePreference !== 'bespoke_project';
+
+  if (isSubscriptionPreferred && normDivision === 'starx-web') {
+    let recId = 'sub-web-basic';
+    let justification = 'For an essential 1–3 page high-speed web presence with lead forms and standard care, StarX Web Basic delivers the perfect foundation at ₹499/mo.';
+
+    if ((pages && pages > 100) || score >= 10 || desc.includes("unlimited")) {
+      recId = 'sub-web-ultra-max';
+      justification = 'Your scope demands unlimited pages, bespoke fully custom design, enterprise CMS, and dedicated engineer support, matching StarX Web Ultra Max at ₹8,999+/mo.';
+    } else if (hasAI) {
+      if ((pages && pages > 50) || score >= 9) {
+        recId = 'sub-web-ultra';
+        justification = 'Your project requires AI-enhanced design, advanced + AI CMS, intelligent copilot, and up to 100 pages, perfectly matching StarX Web Ultra at ₹5,999/mo.';
+      } else {
+        recId = 'sub-web-elite';
+        justification = 'Because your requirements include AI features (chatbot/content) alongside signature Liquid Glass UI and up to 50 pages, StarX Web Elite at ₹3,999/mo is the optimal tier.';
+      }
+    } else if (hasAuth || (pages && pages > 10)) {
+      recId = 'sub-web-pro';
+      justification = 'Your project specifies user authentication (login/signup), full ecommerce checkout, and complete admin dashboard (up to 20 pages), making StarX Web Pro at ₹2,499/mo the recommended tier.';
+    } else if (hasEcom || (pages && pages > 5)) {
+      recId = 'sub-web-plus';
+      justification = 'Your scope requires dynamic database integration, basic ecommerce/payments, or custom domain connection (up to 10 pages), perfectly aligned with our most popular StarX Web Plus tier at ₹1,499/mo.';
+    } else if (hasCMS || (pages && pages > 3)) {
+      recId = 'sub-web-starter';
+      justification = 'Because your requirements include custom branding, blog sections, and a content management editor (up to 5 pages), StarX Web Starter at ₹999/mo delivers the right balance.';
+    }
+
+    const recPlan = getPlanById(recId) || CANONICAL_PLANS[0];
+    const webSubPlans = CANONICAL_PLANS.filter(p => p.divisionSlug === 'starx-web' && p.planType === 'subscription');
+    const alternatives = webSubPlans.filter(p => p.id !== recPlan.id).slice(0, 3);
+
+    const upgradeReasons: string[] = [];
+    const higherTier = webSubPlans.find(p => p.priceINR > recPlan.priceINR);
+    if (higherTier) {
+      upgradeReasons.push(`Upgrade to ${higherTier.name} for extended scope (${higherTier.screenOrPageScope}), higher feature limits, and ${higherTier.slaLevel}`);
+    } else {
+      upgradeReasons.push("Consider modular add-ons for custom integrations and third-party APIs");
+    }
+
+    return {
+      recommendedPlan: recPlan,
+      alternativePlans: alternatives,
+      matchConfidence: 96,
+      justification,
+      keyMatches: [
+        `Aligned with ${recPlan.screenOrPageScope} allowance`,
+        `Includes ${recPlan.slaLevel} and regular updates`,
+        `Deployment on generic Vercel domain or custom domain`,
+      ],
+      upgradeReasons,
+      suggestedAddons: getAddonsForPlan(recPlan.id).map(a => ({
+        id: a.id,
+        name: a.name,
+        description: a.description,
+        priceINR: a.priceINR,
+        priceUSD: a.priceUSD,
+        billingPeriod: a.billingModel === 'MONTHLY' ? 'monthly' as const : 'one_time' as const,
+        category: a.category,
+      })),
+    };
+  }
+
+  if (isSubscriptionPreferred && normDivision === 'starx-apps') {
+    let recId = 'sub-app-basic';
+    let justification = 'For an essential branded Android app with order/booking capture and standard support, StarX App Basic gets your business on mobile at just ₹499/mo.';
+
+    if (hasAI) {
+      if (score >= 9) {
+        recId = 'sub-app-ultra-max';
+        justification = 'Your mobile application requires advanced multi-agent AI, automated re-engagement workflows, and dedicated engineer support, matching StarX App Ultra Max at ₹6,499/mo.';
+      } else {
+        recId = 'sub-app-ultra';
+        justification = 'Your scope demands customer-facing AI Assistant (Shopping AI / Concierge) and automated business intelligence, matching StarX App Ultra at ₹4,999/mo.';
+      }
+    } else if (hasLiquidGlass) {
+      recId = 'sub-app-elite';
+      justification = 'Because you requested our signature Liquid Glass UI styling with fluid mobile animations and 60fps fluidity, StarX App Elite at ₹2,999/mo is the recommended flagship tier.';
+    } else if (hasCustomization) {
+      recId = 'sub-app-pro';
+      justification = 'Advanced home screen layout customization, promotional banners, and priority technical support make StarX App Pro at ₹1,999/mo the recommended choice.';
+    } else if (hasAnalytics) {
+      recId = 'sub-app-plus';
+      justification = 'Detailed revenue reports, sales analytics, and operational customer tracking make StarX App Plus at ₹1,499/mo our most popular mobile tier.';
+    } else if (hasEcom || desc.includes("dashboard") || desc.includes("payment")) {
+      recId = 'sub-app-starter';
+      justification = 'Your mobile app requires in-app payment processing (UPI, Cards, Wallets) and a merchant management dashboard, perfectly matching StarX App Starter at ₹999/mo.';
+    }
+
+    const recPlan = getPlanById(recId) || CANONICAL_PLANS[0];
+    const appSubPlans = CANONICAL_PLANS.filter(p => p.divisionSlug === 'starx-apps' && p.planType === 'subscription');
+    const alternatives = appSubPlans.filter(p => p.id !== recPlan.id).slice(0, 3);
+
+    const upgradeReasons: string[] = [];
+    const higherTier = appSubPlans.find(p => p.priceINR > recPlan.priceINR);
+    if (higherTier) {
+      upgradeReasons.push(`Upgrade to ${higherTier.name} for higher feature access, advanced customization, and ${higherTier.slaLevel}`);
+    } else {
+      upgradeReasons.push("Add Google Play Store Publishing service (₹2,999 per app) for seamless deployment");
+    }
+
+    return {
+      recommendedPlan: recPlan,
+      alternativePlans: alternatives,
+      matchConfidence: 96,
+      justification,
+      keyMatches: [
+        `Native branded Android App with your logo, colors & theme`,
+        `Features adapted to your specific business type`,
+        `Includes ${recPlan.slaLevel} and ongoing cloud maintenance`,
+      ],
+      upgradeReasons,
+      suggestedAddons: getAddonsForPlan(recPlan.id).map(a => ({
+        id: a.id,
+        name: a.name,
+        description: a.description,
+        priceINR: a.priceINR,
+        priceUSD: a.priceUSD,
+        billingPeriod: a.billingModel === 'MONTHLY' ? 'monthly' as const : 'one_time' as const,
+        category: a.category,
+      })),
+    };
+  }
+
+  // 1. Evaluate deterministic recommendation rule from Master Commercial Catalogue for bespoke packages
   const ruleResult = matchRecommendationRule({
     divisionSlug: normDivision,
     solutionSlugOrId: request.solutionSlugOrId,

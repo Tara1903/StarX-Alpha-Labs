@@ -69,7 +69,18 @@ export type FeatureGroupCategory =
   | 'COMMUNICATIONS_MESSAGING'
   | 'ENTERPRISE_GOVERNANCE';
 
-export type PlanTierLevel = 'starter' | 'growth' | 'professional' | 'enterprise' | 'custom';
+export type PlanTierLevel =
+  | 'basic'
+  | 'starter'
+  | 'plus'
+  | 'pro'
+  | 'elite'
+  | 'ultra'
+  | 'ultra_max'
+  | 'growth'
+  | 'professional'
+  | 'enterprise'
+  | 'custom';
 
 export interface ServiceCategory {
   id: string;
@@ -156,11 +167,13 @@ export interface CanonicalPlanRecord {
   priceINR: number;
   priceUSD: number;
   isCustomQuote: boolean;
+  planType?: 'subscription' | 'bespoke_project';
+  monthlySubscriptionPriceINR?: number;
   pricingComponents: PricingComponent[];
   
   // Scoping & Boundaries
   limits: PlanRestrictionLimits;
-  codeOwnership: '100% Intellectual Property & Transfer' | 'Enterprise License';
+  codeOwnership: '100% Intellectual Property & Transfer' | 'Enterprise License' | string;
   
   // Feature Mappings
   featureMappings: PlanFeatureMapping[];

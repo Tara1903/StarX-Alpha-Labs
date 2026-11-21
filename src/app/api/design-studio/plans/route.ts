@@ -24,6 +24,12 @@ export async function GET(request: NextRequest) {
     const industry = searchParams.get('industry') || 'general';
     const complexityParam = searchParams.get('complexity');
     const complexityScore = complexityParam ? parseInt(complexityParam, 10) : 4;
+    const planTypePreference = (searchParams.get('planType') as 'subscription' | 'bespoke_project' | null) || undefined;
+    const rawFeatures = searchParams.get('features');
+    const selectedFeatures = rawFeatures ? rawFeatures.split(',') : [];
+    const rawDescription = searchParams.get('description') || '';
+    const pageCountParam = searchParams.get('pages');
+    const pageCount = pageCountParam ? parseInt(pageCountParam, 10) : undefined;
 
     if (!rawDivision) {
       return NextResponse.json({
@@ -42,7 +48,10 @@ export async function GET(request: NextRequest) {
       solutionSlugOrId: solution,
       industrySlug: industry,
       platforms: ['Web Desktop', 'Mobile Responsive'],
-      selectedFeatures: [],
+      selectedFeatures,
+      rawDescription,
+      pageCount,
+      planTypePreference,
       complexityScore: isNaN(complexityScore) ? 4 : Math.min(10, Math.max(1, complexityScore)),
       complexityFactors: {
         integrations: 3,

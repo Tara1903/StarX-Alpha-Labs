@@ -248,44 +248,82 @@ export function Step14Config() {
               ))}
             </div>
 
-            {/* Total One-Time Investment */}
-            <div className="pt-3 border-t border-white/10 space-y-1">
-              <div className="flex items-center justify-between text-xs text-zinc-400">
-                <span>Subtotal (Net Investment):</span>
-                <span className="font-mono text-white">
-                  ₹{investment.totalOneTimeDevelopment.toLocaleString("en-IN")}
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-xs text-zinc-400">
-                <span>Statutory GST (18%):</span>
-                <span className="font-mono text-white">
-                  ₹{investment.taxAmount.toLocaleString("en-IN")}
-                </span>
-              </div>
-              <div className="flex items-center justify-between pt-2 border-t border-white/10 text-base font-bold text-white">
-                <span>Total Investment (Gross):</span>
-                <span className="text-xl font-mono text-cyan-400">
-                  {selectedPlan.isCustomQuote
-                    ? "Custom Quote"
-                    : `₹${investment.totalGrossOneTime.toLocaleString("en-IN")}`}
-                </span>
-              </div>
-            </div>
+            {/* Investment Totals */}
+            <div className="pt-3 border-t border-white/10 space-y-2">
+              {selectedPlan.planType === "subscription" ? (
+                <>
+                  <div className="p-3 rounded-xl bg-gradient-to-r from-cyan-950/40 to-blue-950/40 border border-cyan-500/30 space-y-1">
+                    <div className="flex items-center justify-between text-xs font-bold text-cyan-300">
+                      <span>Monthly Cloud Subscription:</span>
+                      <span className="text-base font-mono font-black text-cyan-400">
+                        ₹{investment.monthlyOperationsRetainer.toLocaleString("en-IN")}/mo
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-zinc-400">
+                      Includes cloud hosting, regular updates, active bug fixes, and security monitoring.
+                    </p>
+                  </div>
 
-            {/* Recurring Operations Note */}
-            {investment.monthlyOperationsRetainer > 0 && (
-              <div className="p-3 rounded-xl bg-cyan-950/20 border border-cyan-500/20 text-xs space-y-1">
-                <div className="flex items-center justify-between font-semibold text-cyan-300">
-                  <span>Recurring SLA Operations:</span>
-                  <span className="font-mono">
-                    ₹{investment.monthlyOperationsRetainer.toLocaleString("en-IN")} / mo
-                  </span>
-                </div>
-                <p className="text-[10px] text-zinc-400">
-                  Billed monthly following 30-day post-launch warranty period.
-                </p>
-              </div>
-            )}
+                  <div className="space-y-1 pt-1 text-xs text-zinc-400">
+                    <div className="flex items-center justify-between">
+                      <span>One-Time Initial Setup & Add-ons:</span>
+                      <span className="font-mono text-white">
+                        ₹{investment.totalOneTimeDevelopment.toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Statutory GST (18%):</span>
+                      <span className="font-mono text-white">
+                        ₹{investment.taxAmount.toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between pt-1 border-t border-white/10 font-semibold text-white">
+                      <span>Total Initial Setup (One-Time):</span>
+                      <span className="font-mono text-cyan-300">
+                        ₹{investment.totalGrossOneTime.toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between text-xs text-zinc-400">
+                    <span>Subtotal (Net Investment):</span>
+                    <span className="font-mono text-white">
+                      ₹{investment.totalOneTimeDevelopment.toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-zinc-400">
+                    <span>Statutory GST (18%):</span>
+                    <span className="font-mono text-white">
+                      ₹{investment.taxAmount.toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between pt-2 border-t border-white/10 text-base font-bold text-white">
+                    <span>Total Investment (Gross):</span>
+                    <span className="text-xl font-mono text-cyan-400">
+                      {selectedPlan.isCustomQuote
+                        ? "Custom Quote"
+                        : `₹${investment.totalGrossOneTime.toLocaleString("en-IN")}`}
+                    </span>
+                  </div>
+
+                  {investment.monthlyOperationsRetainer > 0 && (
+                    <div className="p-3 rounded-xl bg-cyan-950/20 border border-cyan-500/20 text-xs space-y-1">
+                      <div className="flex items-center justify-between font-semibold text-cyan-300">
+                        <span>Recurring SLA Operations:</span>
+                        <span className="font-mono">
+                          ₹{investment.monthlyOperationsRetainer.toLocaleString("en-IN")} / mo
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-zinc-400">
+                        Billed monthly following 30-day post-launch warranty period.
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
 
             {/* Commercial Guarantees */}
             <div className="space-y-2 pt-2 border-t border-white/10 text-[11px] text-zinc-400">

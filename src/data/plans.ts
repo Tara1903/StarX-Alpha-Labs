@@ -57,7 +57,9 @@ function recordToCanonicalPlan(record: typeof CATALOGUE_RECORDS[0]): CanonicalPl
     priceUSD: record.priceUSD,
     isCustomPrice: record.isCustomQuote,
     isCustomQuote: record.isCustomQuote,
-    billingType: record.pricingComponents.some(pc => pc.type === 'MONTHLY') ? 'hybrid' : 'fixed_project',
+    planType: record.planType || (record.pricingComponents.some(pc => pc.type === 'MONTHLY') ? 'subscription' : 'bespoke_project'),
+    monthlySubscriptionPriceINR: record.monthlySubscriptionPriceINR || record.priceINR,
+    billingType: record.pricingComponents.some(pc => pc.type === 'MONTHLY') ? 'managed_monthly' : 'fixed_project',
     timelineWeeks: record.limits.timelineWeeks,
     screenOrPageScope: record.limits.pagesOrScreens,
     revisionsIncluded: record.limits.includedRevisions,
@@ -122,7 +124,7 @@ export function getPlansByDivision(divisionSlug: PlanDivisionSlug, solutionSlugO
   if (solutionSlugOrId) {
     const sol = getSolutionBySlugOrId(solutionSlugOrId);
     if (sol) {
-      const solutionPlans = plans.filter(p => p.solutionId === sol.id);
+      const solutionPlans = plans.filter(p => p.solutionId === sol.id || p.planType === 'subscription');
       if (solutionPlans.length > 0) {
         return solutionPlans;
       }

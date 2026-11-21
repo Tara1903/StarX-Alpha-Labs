@@ -8,7 +8,18 @@ import type {
   PlanFeatureMapping,
 } from './commercial';
 
-export type PlanTier = "starter" | "growth" | "professional" | "enterprise" | "custom";
+export type PlanTier =
+  | "basic"
+  | "starter"
+  | "plus"
+  | "pro"
+  | "elite"
+  | "ultra"
+  | "ultra_max"
+  | "growth"
+  | "professional"
+  | "enterprise"
+  | "custom";
 export type PlanDivisionSlug = CanonicalDivisionSlug;
 
 export interface PlanFeature {
@@ -48,6 +59,8 @@ export interface CanonicalPlan {
   priceUSD: number;
   isCustomPrice?: boolean;
   isCustomQuote?: boolean;
+  planType?: "subscription" | "bespoke_project";
+  monthlySubscriptionPriceINR?: number;
   billingType: "fixed_project" | "managed_monthly" | "hybrid" | "custom";
   managedMonthlyINR?: number;
   managedMonthlyUSD?: number;
@@ -59,7 +72,7 @@ export interface CanonicalPlan {
   timelineWeeks: string;
   screenOrPageScope: string;
   revisionsIncluded: number;
-  codeOwnership: "100% Full Intellectual Property & Code Transfer" | "100% Intellectual Property & Transfer" | "Enterprise License";
+  codeOwnership: string;
   limits?: PlanRestrictionLimits;
   
   // Platforms & Capabilities
