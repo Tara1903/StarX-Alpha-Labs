@@ -140,13 +140,13 @@ export function recommendPlan(request: RecommendationRequest): RecommendationRes
   const desc = (request.rawDescription || "").toLowerCase();
   const feats = request.selectedFeatures.map(f => f.toLowerCase());
 
-  const hasAI = request.hasAI || feats.some(f => f.includes("ai") || f.includes("bot") || f.includes("copilot") || f.includes("agent")) || desc.includes("ai") || desc.includes("copilot") || desc.includes("assistant");
-  const hasAuth = request.hasAuth || feats.some(f => f.includes("auth") || f.includes("login") || f.includes("user") || f.includes("signup")) || desc.includes("auth") || desc.includes("login") || desc.includes("signup");
-  const hasEcom = request.hasEcommerce || feats.some(f => f.includes("ecom") || f.includes("pay") || f.includes("cart") || f.includes("checkout") || f.includes("upi")) || desc.includes("ecom") || desc.includes("payment") || desc.includes("pay ") || desc.includes("store");
-  const hasCMS = request.hasCMS || feats.some(f => f.includes("cms") || f.includes("blog") || f.includes("brand") || f.includes("content")) || desc.includes("cms") || desc.includes("blog");
-  const hasLiquidGlass = feats.some(f => f.includes("liquid") || f.includes("glass")) || desc.includes("liquid") || desc.includes("glass");
-  const hasCustomization = feats.some(f => f.includes("custom") || f.includes("layout")) || desc.includes("customization") || desc.includes("layout");
-  const hasAnalytics = feats.some(f => f.includes("analytic") || f.includes("report")) || desc.includes("analytic") || desc.includes("report");
+  const hasAI = request.hasAI || feats.some(f => f.includes("ai") || f.includes("bot") || f.includes("copilot") || f.includes("agent") || f.includes("rag") || f.includes("ocr") || f.includes("predictive") || f.includes("recommendation")) || desc.includes("ai") || desc.includes("copilot") || desc.includes("assistant") || desc.includes("chatbot");
+  const hasAuth = request.hasAuth || feats.some(f => f.includes("auth") || f.includes("login") || f.includes("user") || f.includes("signup") || f.includes("rbac") || f.includes("oauth") || f.includes("2fa")) || desc.includes("auth") || desc.includes("login") || desc.includes("signup");
+  const hasEcom = request.hasEcommerce || feats.some(f => f.includes("ecom") || f.includes("pay") || f.includes("cart") || f.includes("checkout") || f.includes("upi") || f.includes("catalog") || f.includes("billing") || f.includes("subscription") || f.includes("invoicing")) || desc.includes("ecom") || desc.includes("payment") || desc.includes("pay ") || desc.includes("store") || desc.includes("checkout");
+  const hasCMS = request.hasCMS || feats.some(f => f.includes("cms") || f.includes("blog") || f.includes("brand") || f.includes("content") || f.includes("storage") || f.includes("file")) || desc.includes("cms") || desc.includes("blog");
+  const hasLiquidGlass = feats.some(f => f.includes("liquid") || f.includes("glass") || f.includes("premium") || f.includes("futuristic") || f.includes("elegant")) || desc.includes("liquid") || desc.includes("glass");
+  const hasCustomization = feats.some(f => f.includes("custom") || f.includes("layout") || f.includes("tailored")) || desc.includes("customization") || desc.includes("layout");
+  const hasAnalytics = feats.some(f => f.includes("analytic") || f.includes("report") || f.includes("bi") || f.includes("metric")) || desc.includes("analytic") || desc.includes("report");
   const pages = request.pageCount;
 
   // Check if we should recommend monthly subscription plans (Default for Web & Apps)

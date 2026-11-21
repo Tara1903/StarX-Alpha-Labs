@@ -110,8 +110,32 @@ export default function WebsiteDevelopmentPage() {
         {/* 6 Structured Packages Grid (W1–W6) */}
         <section className="py-20 bg-[#030B24] relative">
           <Container className="space-y-12">
+            {/* Primary Subscription Highlight Banner */}
+            <div className="rounded-2xl border border-[#00D9FF]/40 bg-gradient-to-r from-[#00D9FF]/15 via-[#087BFF]/20 to-[#E52BFF]/15 p-6 backdrop-blur-xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_0_30px_rgba(0,217,255,0.2)]">
+              <div className="space-y-2 text-left">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00D9FF]/20 border border-[#00D9FF]/40 text-[#00D9FF] text-xs font-mono font-bold uppercase tracking-wider">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Primary Offering: 7-Tier Monthly Subscription
+                </div>
+                <h3 className="text-xl sm:text-2xl font-extrabold text-white">
+                  StarX Web Subscriptions Starting at <span className="text-[#00D9FF]">₹499/month</span>
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+                  Basic (₹499) • Starter (₹999) • Plus (₹1,499) • Pro (₹2,499) • Elite (₹3,999) • Ultra (₹5,999) • Ultra Max (₹8,999+). 
+                  Includes cloud deployment, regular maintenance, SSL security, and support without large upfront development capital.
+                </p>
+              </div>
+              <Link
+                href="/pricing"
+                className="shrink-0 px-6 py-3 rounded-xl bg-gradient-to-r from-[#00D9FF] to-[#087BFF] hover:brightness-110 text-white font-extrabold text-xs shadow-lg shadow-[#00D9FF]/20 flex items-center gap-2 cursor-pointer whitespace-nowrap"
+              >
+                <span>View Subscription Plans</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
             <div className="text-center max-w-3xl mx-auto space-y-3">
-              <span className="text-xs font-mono uppercase tracking-widest text-[#00D9FF]">Transparent Pricing in INR (₹)</span>
+              <span className="text-xs font-mono uppercase tracking-widest text-[#00D9FF]">Bespoke Engineering Packages</span>
               <h2 className="text-2xl sm:text-4xl font-extrabold text-white">
                 Six Specialized Website Tiers
               </h2>

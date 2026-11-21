@@ -49,10 +49,10 @@ export default function PricingPage() {
 
           <Container>
             <div className="max-w-4xl space-y-4">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#00D9FF]/30 bg-[#071638]/70 backdrop-blur-md">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#00D9FF]/40 bg-gradient-to-r from-[#00D9FF]/15 via-[#087BFF]/15 to-[#E52BFF]/15 backdrop-blur-md">
                 <Sparkles className="w-3.5 h-3.5 text-[#00D9FF] animate-pulse" />
-                <span className="text-xs font-mono font-semibold tracking-wider text-[#00D9FF] uppercase">
-                  Transparent Engineering Pricing in INR (₹)
+                <span className="text-xs font-mono font-bold tracking-wider text-[#00D9FF] uppercase">
+                  Primary Offerings: Websites &amp; Branded Apps Starting at ₹499/month
                 </span>
               </div>
 
@@ -64,7 +64,8 @@ export default function PricingPage() {
               </h1>
 
               <p className="text-base sm:text-lg text-[#C8D5EF] max-w-2xl leading-relaxed">
-                Choose from our dedicated technology practices across Web, Mobile, Business Management, SaaS, AI, and Custom Enterprise Architecture with transparent milestone pricing.
+                Explore our primary monthly subscription offerings starting at <strong className="text-white">₹499/mo</strong> for StarX Web and StarX Apps, 
+                alongside tailored development packages across all 6 engineering practices.
               </p>
 
               <div className="pt-2 flex flex-wrap gap-4 items-center">

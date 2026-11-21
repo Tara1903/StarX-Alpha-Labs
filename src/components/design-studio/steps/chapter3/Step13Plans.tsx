@@ -52,10 +52,19 @@ export function Step13Plans() {
     try {
       const solution = state.solutionSlug || "";
       const complexity = (state as any).complexityScore || (state.recommendationResult as any)?.complexityScore || 4;
-      const featureList = (state.featureRequirements || []).join(",");
+      const featureItems = (state.selectedFeatures && state.selectedFeatures.length > 0)
+        ? state.selectedFeatures
+        : (state.featureRequirements || []);
+      const featureList = featureItems
+        .map((f: any) => typeof f === "string" ? f : (f.id || f.featureId || f.name))
+        .join(",");
+      const featureNames = featureItems
+        .map((f: any) => typeof f === "string" ? f : f.name)
+        .join(",");
       const desc = encodeURIComponent(state.rawDescription || "");
+      const designStyle = encodeURIComponent(state.preferences?.designStyle || (state as any).designPreferences?.designStyle || "");
 
-      const url = `/api/design-studio/plans?division=${encodeURIComponent(division)}&solution=${encodeURIComponent(solution)}&complexity=${complexity}&planType=${planTypeFilter}&features=${encodeURIComponent(featureList)}&description=${desc}`;
+      const url = `/api/design-studio/plans?division=${encodeURIComponent(division)}&solution=${encodeURIComponent(solution)}&complexity=${complexity}&planType=${planTypeFilter}&features=${encodeURIComponent(featureList)}&featureNames=${encodeURIComponent(featureNames)}&designStyle=${designStyle}&description=${desc}`;
       const res = await fetch(url);
       if (!res.ok) {
         throw new Error(`Failed to load plans: HTTP ${res.status}`);
@@ -85,7 +94,15 @@ export function Step13Plans() {
 
   useEffect(() => {
     loadPlans();
-  }, [division, state.solutionSlug, planTypeFilter]);
+  }, [
+    division, 
+    state.solutionSlug, 
+    planTypeFilter, 
+    state.selectedFeatures, 
+    state.featureRequirements, 
+    state.rawDescription,
+    state.preferences?.designStyle,
+  ]);
 
   const handleSelectPlan = (plan: CanonicalPlan) => {
     const price = currency === "INR" ? plan.priceINR : plan.priceUSD;

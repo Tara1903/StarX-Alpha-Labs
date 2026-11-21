@@ -44,11 +44,14 @@ export function HeroSection() {
           
           {/* Left Column: Headline, Copy, Dual Buttons, Highlights */}
           <div className="lg:col-span-5 space-y-6 text-left relative z-20">
-            {/* Crown Capability Badge (Fully visible with 36px+ navbar clearance) */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#00D9FF]/45 bg-[#071638]/90 backdrop-blur-md shadow-[0_0_25px_rgba(0,217,255,0.25)]">
-              <span className="text-amber-400 text-sm">👑</span>
-              <span className="text-[11px] font-mono font-bold tracking-wider text-slate-200 uppercase">
-                Web • Apps • Business • SaaS • AI • Custom
+            {/* Primary Offering Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-[#00D9FF]/40 bg-gradient-to-r from-[#00D9FF]/15 via-[#087BFF]/15 to-[#E52BFF]/15 backdrop-blur-md shadow-[0_0_25px_rgba(0,217,255,0.25)]">
+              <span className="w-2 h-2 rounded-full bg-[#00D9FF] animate-pulse" />
+              <span className="text-xs sm:text-sm font-bold text-white">
+                Websites &amp; Branded Android Apps from <span className="text-[#00D9FF] font-extrabold">₹499/mo</span>
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-[#00D9FF]/20 text-[#00D9FF] text-[10px] font-mono font-bold">
+                7 Tiers
               </span>
             </div>
 
@@ -63,24 +66,32 @@ export function HeroSection() {
             {/* Supporting Copy */}
             <p className="text-base sm:text-lg text-[#C8D5EF] leading-relaxed max-w-xl font-normal">
               StarX Alpha Labs is a custom-first technology company. We engineer production-grade websites,
-              branded mobile applications, POS/ERP systems, SaaS platforms, and intelligent AI agents for growing enterprises.
+              branded mobile applications, POS/ERP systems, SaaS platforms, and intelligent AI agents. 
+              Get full-stack websites and mobile apps with transparent monthly subscriptions starting at <strong className="text-white">₹499/month</strong>.
             </p>
 
-            {/* Dual Action Buttons */}
-            <div className="flex flex-wrap items-center gap-4 pt-2">
+            {/* Action Buttons */}
+            <div className="flex flex-wrap items-center gap-3 pt-2">
               <Link
                 href="/design-studio"
-                className="px-8 py-3.5 rounded-full font-extrabold text-sm text-white bg-gradient-to-r from-[#00D9FF] via-[#087BFF] to-[#E52BFF] shadow-[0_0_30px_rgba(0,217,255,0.4)] hover:brightness-110 transition-all flex items-center gap-2 cursor-pointer"
+                className="px-7 py-3.5 rounded-full font-extrabold text-sm text-white bg-gradient-to-r from-[#00D9FF] via-[#087BFF] to-[#E52BFF] shadow-[0_0_30px_rgba(0,217,255,0.4)] hover:brightness-110 transition-all flex items-center gap-2 cursor-pointer"
               >
                 <Sparkles className="w-4 h-4 text-white" />
                 <span>Launch Design Studio</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                href="/divisions"
-                className="px-7 py-3.5 rounded-full font-bold text-sm text-white bg-[#071638]/90 border border-[#00D9FF]/50 hover:border-[#00D9FF] shadow-[0_0_20px_rgba(0,217,255,0.2)] hover:bg-[#0A1940] transition-all flex items-center gap-2"
+                href="/pricing"
+                className="px-6 py-3.5 rounded-full font-bold text-sm text-[#00D9FF] bg-[#071638]/90 border border-[#00D9FF]/60 hover:bg-[#00D9FF]/10 shadow-[0_0_20px_rgba(0,217,255,0.2)] transition-all flex items-center gap-2"
               >
-                <span>Explore 6 Divisions</span>
+                <Zap className="w-4 h-4 text-[#00D9FF]" />
+                <span>Plans from ₹499/mo</span>
+              </Link>
+              <Link
+                href="/divisions"
+                className="px-5 py-3.5 rounded-full font-semibold text-xs sm:text-sm text-slate-300 hover:text-white bg-[#071638]/50 border border-white/10 hover:border-white/30 transition-all flex items-center gap-1.5"
+              >
+                <span>6 Divisions</span>
               </Link>
             </div>
 

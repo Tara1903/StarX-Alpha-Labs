@@ -26,7 +26,18 @@ export async function GET(request: NextRequest) {
     const complexityScore = complexityParam ? parseInt(complexityParam, 10) : 4;
     const planTypePreference = (searchParams.get('planType') as 'subscription' | 'bespoke_project' | null) || undefined;
     const rawFeatures = searchParams.get('features');
-    const selectedFeatures = rawFeatures ? rawFeatures.split(',') : [];
+    const rawFeatureNames = searchParams.get('featureNames');
+    const designStyle = searchParams.get('designStyle') || '';
+    const selectedFeatures: string[] = [];
+    if (rawFeatures) {
+      selectedFeatures.push(...rawFeatures.split(',').filter(Boolean));
+    }
+    if (rawFeatureNames) {
+      selectedFeatures.push(...rawFeatureNames.split(',').filter(Boolean));
+    }
+    if (designStyle) {
+      selectedFeatures.push(designStyle);
+    }
     const rawDescription = searchParams.get('description') || '';
     const pageCountParam = searchParams.get('pages');
     const pageCount = pageCountParam ? parseInt(pageCountParam, 10) : undefined;

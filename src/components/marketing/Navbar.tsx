@@ -40,7 +40,7 @@ export function Navbar() {
     { label: "Industries", href: "/industries", badge: "12" },
     { label: "STARX FLOW", href: "/#flow", badge: "AI OS" },
     { label: "Estimator", href: "/project-calculator" },
-    { label: "Pricing", href: "/pricing" },
+    { label: "Pricing", href: "/pricing", badge: "From ₹499/mo" },
     { label: "Company", href: "/about" },
   ];
 
@@ -53,6 +53,25 @@ export function Navbar() {
           : "bg-[#030B24]/80 backdrop-blur-md border-white/5 shadow-none"
       )}
     >
+      {/* Top Primary Offerings Announcement Strip */}
+      <div className="bg-gradient-to-r from-[#00D9FF]/20 via-[#087BFF]/30 to-[#E52BFF]/20 border-b border-[#00D9FF]/20 py-1.5 px-4 text-center text-[11px] sm:text-xs font-medium text-slate-200">
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 flex-wrap">
+          <span className="px-2 py-0.5 rounded-full bg-[#00D9FF]/20 border border-[#00D9FF]/40 text-[#00D9FF] font-mono text-[10px] font-bold uppercase tracking-wider">
+            PRIMARY OFFERINGS
+          </span>
+          <span>
+            Websites &amp; Branded Android Apps starting at just <strong className="text-white font-extrabold text-[#00D9FF]">₹499/month</strong>!
+          </span>
+          <Link
+            href="/pricing"
+            className="inline-flex items-center gap-1 text-[#00D9FF] hover:text-white underline font-semibold transition-colors"
+          >
+            <span>Explore 7-Tier Plans</span>
+            <ArrowUpRight className="w-3 h-3" />
+          </Link>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
         {/* Brand Logo with StarX Alpha Labs Mark */}
         <Link href="/" className="flex items-center gap-3 group shrink-0 select-none">

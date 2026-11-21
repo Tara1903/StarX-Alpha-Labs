@@ -141,6 +141,92 @@ export function convertStitchProjectToArtifact(
     designMd: project.designMd || "",
     thumbnailUrl: project.thumbnailScreenshot?.downloadUrl || "",
     palette,
+    htmlCode: (project as any).htmlContent || `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${project.title}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #030B24; color: #FFFFFF; }
+    .glass-card { background: rgba(7, 22, 56, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(0, 217, 255, 0.25); }
+    .glow-cyan { box-shadow: 0 0 35px rgba(0, 217, 255, 0.3); }
+  </style>
+</head>
+<body class="min-h-screen bg-[#030B24] text-slate-100 flex flex-col justify-between">
+  <!-- Top Navigation Header -->
+  <header class="border-b border-cyan-500/20 bg-[#071638]/90 backdrop-blur-xl px-8 py-4 sticky top-0 z-50 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-400 to-blue-600 flex items-center justify-center font-extrabold text-black text-xl shadow-lg shadow-cyan-500/30">✦</div>
+      <div>
+        <h1 class="font-extrabold text-lg text-white tracking-tight flex items-center gap-2">
+          ${project.title}
+        </h1>
+        <p class="text-[11px] text-slate-400">Google Stitch Architecture Concept • StarX Alpha Labs</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 font-mono text-xs border border-cyan-500/30">Live Prototype</span>
+      <span class="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 font-mono text-xs border border-purple-500/30">Liquid Glass</span>
+    </div>
+  </header>
+
+  <!-- Interactive Blueprint Main Canvas -->
+  <main class="flex-1 max-w-7xl mx-auto w-full px-8 py-10 space-y-8">
+    <section class="glass-card rounded-3xl p-8 sm:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 glow-cyan">
+      <div class="space-y-4 max-w-xl text-left z-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-bold uppercase tracking-wider">
+          <span>Production Design Architecture</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white leading-tight">
+          Next-Generation Digital System
+        </h2>
+        <p class="text-sm text-slate-300 leading-relaxed">
+          Engineered with responsive layouts, cloud microservices, and high-performance interactive interfaces.
+        </p>
+        <div class="flex items-center gap-4 pt-2">
+          <button class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-600 text-black font-extrabold text-xs shadow-lg hover:brightness-110 transition-all">
+            Interactive Action
+          </button>
+          <button class="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white font-medium text-xs transition-all">
+            Explore Telemetry
+          </button>
+        </div>
+      </div>
+      <div class="glass-card p-6 rounded-2xl border border-cyan-500/30 w-full max-w-sm space-y-4 z-10">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-mono text-cyan-400">STATUS</span>
+          <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono">OPERATIONAL</span>
+        </div>
+        <div class="h-32 rounded-xl bg-gradient-to-br from-cyan-900/40 to-blue-900/30 border border-white/10 flex items-center justify-center text-4xl">
+          📊
+        </div>
+        <div class="text-xs text-slate-400 space-y-1">
+          <div class="flex justify-between"><span>Compute Node</span><span class="text-white font-mono">Edge Cluster 01</span></div>
+          <div class="flex justify-between"><span>Latency</span><span class="text-emerald-400 font-mono">12ms</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Key Architectural Features -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      ${(options?.keyFeatures || ["Real-time Cloud Sync", "Unified Auth & RBAC", "Automated Workflows"]).map((feat: string) => `
+        <div class="glass-card p-6 rounded-2xl border border-white/10 space-y-2">
+          <span class="text-cyan-400 text-lg">✦</span>
+          <h4 class="font-bold text-white text-sm">${feat}</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">Configured and validated according to your StarX project specification.</p>
+        </div>
+      `).join('')}
+    </div>
+  </main>
+
+  <footer class="border-t border-white/10 bg-[#071638]/60 px-8 py-3 text-center text-xs text-slate-400">
+    StarX Alpha Labs Interactive Design Prototype • Google Stitch Engine
+  </footer>
+</body>
+</html>`,
     keyFeatures: options?.keyFeatures || [
       "Material You Dynamic Color Architecture",
       "High-Density 12-Column Responsive Layout",

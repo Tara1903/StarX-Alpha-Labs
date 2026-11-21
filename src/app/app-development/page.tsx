@@ -112,8 +112,32 @@ export default function AppDevelopmentPage() {
         {/* 5 Structured Packages Grid (A1–A5) */}
         <section className="py-20 bg-[#030B24] relative">
           <Container className="space-y-12">
+            {/* Primary Subscription Highlight Banner */}
+            <div className="rounded-2xl border border-[#E52BFF]/40 bg-gradient-to-r from-[#E52BFF]/15 via-[#873BFF]/20 to-[#00D9FF]/15 p-6 backdrop-blur-xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_0_30px_rgba(229,43,255,0.2)]">
+              <div className="space-y-2 text-left">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E52BFF]/20 border border-[#E52BFF]/40 text-[#E52BFF] text-xs font-mono font-bold uppercase tracking-wider">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Primary Offering: 7-Tier Monthly Subscription
+                </div>
+                <h3 className="text-xl sm:text-2xl font-extrabold text-white">
+                  StarX Apps Subscriptions Starting at <span className="text-[#E52BFF]">₹499/month</span>
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+                  Basic (₹499) • Starter (₹999) • Plus (₹1,499) • Pro (₹1,999) • Elite (₹2,999) • Ultra (₹4,999) • Ultra Max (₹6,499). 
+                  Branded Android apps for every business with universal pricing across all industries. Includes core maintenance and updates.
+                </p>
+              </div>
+              <Link
+                href="/pricing"
+                className="shrink-0 px-6 py-3 rounded-xl bg-gradient-to-r from-[#E52BFF] to-[#873BFF] hover:brightness-110 text-white font-extrabold text-xs shadow-lg shadow-[#E52BFF]/20 flex items-center gap-2 cursor-pointer whitespace-nowrap"
+              >
+                <span>View Subscription Plans</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
             <div className="text-center max-w-3xl mx-auto space-y-3">
-              <span className="text-xs font-mono uppercase tracking-widest text-[#E52BFF]">Transparent Pricing in INR (₹)</span>
+              <span className="text-xs font-mono uppercase tracking-widest text-[#E52BFF]">Bespoke Engineering Packages</span>
               <h2 className="text-2xl sm:text-4xl font-extrabold text-white">
                 Five Mobile Application Tiers
               </h2>
