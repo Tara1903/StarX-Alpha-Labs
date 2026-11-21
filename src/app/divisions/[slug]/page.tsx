@@ -163,16 +163,46 @@ export default async function DivisionDetailPage({ params }: Props) {
         {/* Mission Statement */}
         <section className="py-12 bg-[#071638] border-b border-white/5">
           <Container>
-            <div className="p-6 md:p-8 rounded-2xl bg-[#030B24]/70 border border-[#0A1940] flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-              <div className="space-y-1 max-w-2xl">
-                <span className="text-[11px] font-mono uppercase tracking-widest text-[#00D9FF]">Division Mandate</span>
-                <p className="text-sm md:text-base font-medium text-white italic">
-                  &ldquo;{division.mission}&rdquo;
-                </p>
-              </div>
-              <div className="shrink-0 flex items-center gap-2 text-xs font-mono text-slate-400 bg-[#071638] px-4 py-2 rounded-xl border border-white/10">
-                <ShieldCheck className="w-4 h-4 text-[#00D9FF]" />
-                <span>100% Code Ownership</span>
+            <div className="space-y-6">
+              {/* Primary Subscription Plan Callout for Web & Apps */}
+              {(division.slug === "starx-web" || division.slug === "starx-apps") && (
+                <div className="p-6 md:p-8 rounded-3xl bg-gradient-to-r from-[#00D9FF]/15 via-[#087BFF]/20 to-[#E52BFF]/15 border border-[#00D9FF]/40 backdrop-blur-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-[0_0_35px_rgba(0,217,255,0.2)]">
+                  <div className="space-y-2 text-left">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00D9FF]/20 border border-[#00D9FF]/40 text-[#00D9FF] text-xs font-mono font-bold uppercase tracking-wider">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Primary Commercial Offering
+                    </div>
+                    <h3 className="text-xl sm:text-2xl font-extrabold text-white">
+                      {division.name} Monthly Subscriptions Starting at <span className="text-[#00D9FF]">₹499/month</span>
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+                      {division.slug === "starx-web" 
+                        ? "Basic (₹499) • Starter (₹999) • Plus (₹1,499) • Pro (₹2,499) • Elite (₹3,999) • Ultra (₹5,999) • Ultra Max (₹8,999+). Includes full deployment, updates, security, and maintenance."
+                        : "Basic (₹499) • Starter (₹999) • Plus (₹1,499) • Pro (₹1,999) • Elite (₹2,999) • Ultra (₹4,999) • Ultra Max (₹6,499). Branded Android apps for every business with universal pricing across all industries."
+                      }
+                    </p>
+                  </div>
+                  <Link
+                    href={`/pricing?division=${division.slug}`}
+                    className="shrink-0 px-6 py-3 rounded-xl bg-gradient-to-r from-[#00D9FF] to-[#087BFF] hover:brightness-110 text-white font-extrabold text-xs shadow-lg shadow-[#00D9FF]/20 flex items-center gap-2 cursor-pointer whitespace-nowrap"
+                  >
+                    <span>View 7-Tier Plans</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              )}
+
+              <div className="p-6 md:p-8 rounded-2xl bg-[#030B24]/70 border border-[#0A1940] flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div className="space-y-1 max-w-2xl">
+                  <span className="text-[11px] font-mono uppercase tracking-widest text-[#00D9FF]">Division Mandate</span>
+                  <p className="text-sm md:text-base font-medium text-white italic">
+                    &ldquo;{division.mission}&rdquo;
+                  </p>
+                </div>
+                <div className="shrink-0 flex items-center gap-2 text-xs font-mono text-slate-400 bg-[#071638] px-4 py-2 rounded-xl border border-white/10">
+                  <ShieldCheck className="w-4 h-4 text-[#00D9FF]" />
+                  <span>100% Code Ownership</span>
+                </div>
               </div>
             </div>
           </Container>
